@@ -12,13 +12,13 @@ export class NavMenu extends Component {
       <Navbar inverse fixedTop fluid collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-            <Link to={'/'}>WebApplication1</Link>
+            <Link to={'/home'}>WebApp</Link>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
           <Nav>
-            <LinkContainer to={'/'} exact>
+            <LinkContainer to={'/home'} exact>
               <NavItem>
                 <Glyphicon glyph='home' /> Home
               </NavItem>
@@ -37,7 +37,12 @@ export class NavMenu extends Component {
                 <NavItem>
                   <Glyphicon glyph='th-list' /> Upload File
               </NavItem>
-              </LinkContainer>
+             </LinkContainer>
+             <LinkContainer to={'/logOut'} exact>
+                 <NavItem>
+                    <Glyphicon glyph='off' /> LogOut
+             </NavItem>
+             </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

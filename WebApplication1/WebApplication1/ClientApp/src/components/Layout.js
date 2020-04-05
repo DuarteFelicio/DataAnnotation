@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom'
 import { Col, Grid, Row } from 'react-bootstrap';
 import { NavMenu } from './NavMenu';
 
 export class Layout extends Component {
   displayName = Layout.name
 
-  render() {
+    render() {
+        if (localStorage.getItem("token") == null) {
+            return <Redirect to="/LogIn" />
+        }
     return (
       <Grid fluid>
         <Row>
