@@ -110,6 +110,7 @@ class LoginBox extends Component {
                     </div>
 
                     <div className="input-group">
+                        
                         <label htmlFor="password">Password</label>
                         <input type="password" name="password" className="login-input" placeholder="Password" onChange={this.onChange.bind(this)} />
                     </div>
