@@ -1,50 +1,37 @@
-﻿import React from 'react';
+﻿import React, { Component } from 'react';
+import 'react-dropzone-uploader/dist/styles.css'
+import Dropzone from 'react-dropzone-uploader'
 
-
-export class UploadFile extends React.Component {
+export class UploadFile extends Component {
+    static displayName = UploadFile.name;
 
     constructor(props) {
-        super(props);
-        this.state = { file: '', msg: '' };
-        this.onFileChange = this.onFileChange.bind(this);
-        this.uploadFileData = this.uploadFileData.bind(this);
+        super(props)
     }
-
-    onFileChange = (event) => {
-        this.setState({
-            file: event.target.files[0]
-        });
-    }
-
-    uploadFileData = (event) => {
-        event.preventDefault();
-        this.setState({ msg: '' });
-
-        let data = new FormData();
-        data.append('files', this.state.file);
-
-        fetch('api/filepreview', {
-            method: 'POST',
-            body: data
-        }).then(response => {
-            return response.text();
-            }).then(data => {
-            console.log(data)
-            this.setState({ msg: data });
-        });
-    }
-    
 
     render() {
+        const getUploadParams = ({ meta }) => { return { url: 'api/filepreview' } }
+
+        // called every time a file's `status` changes
+        const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
+
+        // receives array of files that are done uploading when submit button is clicked
+        const handleSubmit = (files, allFiles) => {
+            console.log(files.map(f => f.meta))
+            allFiles.forEach(f => f.remove())
+        }
         return (
-            <div id="container">
-                <h1>File Upload Example using React</h1>
-                <h3>Upload a File</h3>
-                <h4>{this.state.msg}</h4>
-                <input onChange={this.onFileChange} type="file"></input>
-                <button disabled={!this.state.file} onClick={this.uploadFileData}>Upload</button>
-            </div>
+            <Dropzone
+                getUploadParams={getUploadParams}
+                onChangeStatus={handleChangeStatus}
+                onSubmit={handleSubmit}
+                accept=".csv"
+            />
         )
+        
     }
+
+
+    
 
 }
