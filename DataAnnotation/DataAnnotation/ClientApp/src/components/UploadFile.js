@@ -59,12 +59,14 @@ export class UploadFile extends Component {
             console.log(files.map(f => f.meta))
             allFiles.forEach(f => f.remove())
         }
-        return (
+        return (                                    
             <div className="drag-container">
+                <h4>{this.state.msg}</h4>
             <Dropzone
                 getUploadParams={getUploadParams}
                 onChangeStatus={handleChangeStatus}
                 onSubmit={handleSubmit}
+               
                 accept=".csv"
                 />
                 <div className="url-container">

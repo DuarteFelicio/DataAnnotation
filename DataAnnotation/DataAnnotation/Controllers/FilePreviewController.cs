@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace WebApplicationDemo.Controllers
 {
     [Route("api/[controller]")]
-    public class FilePreviewController : ControllerBase
+    public class FilePreviewController : Controller
     {
         private readonly ILogger<FilePreviewController> _logger;
 
