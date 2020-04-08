@@ -1,52 +1,48 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DataAnnotation.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace WebApplicationDemo.Controllers
 {
-    [Route("api/[controller]")]
-    public class FilePreviewController : Controller
-    {
-        private readonly ILogger<FilePreviewController> _logger;
+	[Authorize]
+	[ApiController]
+	[Route("[controller]")]
+	public class FilePreviewController : Controller
+	{
+		private readonly ILogger<FilePreviewController> _logger;
 
-        public FilePreviewController(ILogger<FilePreviewController> logger)
-        {
-            _logger = logger;
-        }
+		public FilePreviewController(ILogger<FilePreviewController> logger)
+		{
+			_logger = logger;
+		}
 
-        [HttpPost]
-        [DisableRequestSizeLimit]
-        public async Task<FilePreview> Post(IEnumerable<IFormFile> files)
-        {
-            FilePreview prev = new FilePreview();
-            prev.FirstLines = new List<string>();
-			if(!files.Any())
-			{
-				prev.NumCol = 69;
-				return prev;
-			}
-            using (var reader = new StreamReader(files.First().OpenReadStream()))
-            {
-                prev.FirstLines.Add(reader.ReadLine());
-                prev.FirstLines.Add(reader.ReadLine());
-                prev.FirstLines.Add(reader.ReadLine());
-            }
-            return prev;
-        }
+		[HttpPost]
+		[DisableRequestSizeLimit]
+		public async Task<FilePreview> Post(IEnumerable<IFormFile> files)
+		{
 
-        [HttpGet]
-        public FilePreview Get()
-        {
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+
 			FilePreview prev = new FilePreview();
 			prev.FirstLines = new List<string>();
-			prev.NumCol = 10;
+
+			using (var reader = new StreamReader(files.First().OpenReadStream()))
+			{
+				prev.FirstLines.Add(reader.ReadLine());
+				prev.FirstLines.Add(reader.ReadLine());
+				prev.FirstLines.Add(reader.ReadLine());
+			}
 			return prev;
-        }
-    }
+		}
+	}
 }
