@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Features;
+using DataAnnotation.Attributes;
 
 namespace DataAnnotation
 {
@@ -41,7 +42,21 @@ namespace DataAnnotation
 				.AddIdentityServerJwt();
 
 			services.AddControllersWithViews();
-			services.AddRazorPages();
+
+			//applying as filters to the page application models of /StreamedSingleFileUploadPhysical
+			services.AddRazorPages()
+				.AddRazorPagesOptions(options =>
+				{
+					options.Conventions
+						.AddPageApplicationModelConvention("/UploadPhysical",
+							model =>
+							{
+								model.Filters.Add(
+									new GenerateAntiforgeryTokenCookieAttribute());
+								model.Filters.Add(
+									new DisableFormValueModelBindingAttribute());
+							});
+				});
 
 			// In production, the React files will be served from this directory
 			services.AddSpaStaticFiles(configuration =>
