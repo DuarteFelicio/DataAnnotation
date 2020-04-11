@@ -14,7 +14,8 @@
     "react-scripts": "^3.4.0",
     "react-dropzone-uploader": "^2.11.0",
     "reactstrap": "^8.4.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "bootstrap-icons": "1.0.0-alpha3"
   },
   "devDependencies": {
     "ajv": "^6.9.1",
