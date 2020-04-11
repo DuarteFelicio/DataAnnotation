@@ -2,6 +2,7 @@
 import 'react-dropzone-uploader/dist/styles.css'
 import authService from './api-authorization/AuthorizeService'
 import Dropzone from 'react-dropzone-uploader'
+import 'bootstrap/dist/css/bootstrap.css'
 
 export class UploadFile extends Component {
     static displayName = UploadFile.name;
@@ -70,15 +71,16 @@ export class UploadFile extends Component {
                     //onSubmit={handleSubmit}
                     accept=".csv"
                     maxSizeBytes={1024 * 1024 * 500}  // max 500 MB
-                    inputContent={(files, extra) => (extra.reject ? '.csv files only' : 'Drag CSV Files' )}
+                    inputContent={(files, extra) => (extra.reject ? '.csv files only' : 'Drag or Browse CSV Files' )}
                     styles={{
+                            dropzone: { width: 1000, height: 500 },
                             dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },
                             inputLabel: (files, extra) => (extra.reject ? { color: 'red' } : {}),
                     }}
                 />
                 <div className="url-container">
-                    <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
-                    <button type="button" className="submit-btn" onClick={handleClick}>Upload</button>
+                    <input type="text" name="url" class="form-control" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
+                    <button type="button" class="btn btn-primary" onClick={handleClick}>Upload from URL</button>
                 </div>
             </div >
         )
