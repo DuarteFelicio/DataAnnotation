@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DataAnnotation.Attributes
 {
+    //Used for large file uploads to prevent the form data from being read into memory
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class DisableFormValueModelBindingAttribute : Attribute, IResourceFilter
+    public class DisableFormValueModelBindingAttribute : Attribute, IResourceFilter 
     {
         public void OnResourceExecuting(ResourceExecutingContext context)
         {

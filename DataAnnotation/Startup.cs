@@ -43,20 +43,7 @@ namespace DataAnnotation
 
 			services.AddControllersWithViews();
 
-			//applying as filters to the page application models of /StreamedSingleFileUploadPhysical
-			services.AddRazorPages()
-				.AddRazorPagesOptions(options =>
-				{
-					options.Conventions
-						.AddPageApplicationModelConvention("/UploadPhysical",
-							model =>
-							{
-								model.Filters.Add(
-									new GenerateAntiforgeryTokenCookieAttribute());
-								model.Filters.Add(
-									new DisableFormValueModelBindingAttribute());
-							});
-				});
+			services.AddRazorPages();
 
 			// In production, the React files will be served from this directory
 			services.AddSpaStaticFiles(configuration =>

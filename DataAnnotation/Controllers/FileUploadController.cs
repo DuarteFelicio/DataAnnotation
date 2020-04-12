@@ -11,25 +11,29 @@ using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using DataAnnotation.Attributes;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace DataAnnotation.Controllers
 {
-	//[Authorize]
+    [Authorize]
 	[ApiController]
 	[Route("[controller]")]
-	public class FileUploadController : Controller
+    //[GenerateAntiforgeryTokenCookie]
+    public class FileUploadController : Controller
 	{
 		private readonly ILogger<FileUploadController> _logger;
-        private readonly int defaultBoundaryLengthLimit = 70;
-        private readonly string[] permittedExtensions = { ".csv" };
-        private readonly string targetFilePath = "Uploads";
-        private readonly long fileSizeLimit = 1073741824;     // 1GB
+        private readonly string[] _permittedExtensions = { ".csv" };
+        private readonly string _targetFilePath = @"C:\Users\A42172\Uploads";
+        private readonly long _fileSizeLimit = 1073741824;     // 1GB
+
+        private static readonly FormOptions _defaultFormOptions = new FormOptions();
 
         public FileUploadController(ILogger<FileUploadController> logger)
 		{
 			_logger = logger;
 		}
 
+        /*
 		[HttpPost]
 		[DisableRequestSizeLimit]
 		public IActionResult Post(IEnumerable<IFormFile> files)
@@ -40,11 +44,12 @@ namespace DataAnnotation.Controllers
 			
 			return Ok();    //aka to do
 		}
+        **/
 
-        [HttpPost("UploadPhysical")]
+        [HttpPost]
         [DisableRequestSizeLimit]
         [DisableFormValueModelBinding]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadPhysical()
         {
             if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
@@ -55,7 +60,7 @@ namespace DataAnnotation.Controllers
 
             var boundary = MultipartRequestHelper.GetBoundary(
                 MediaTypeHeaderValue.Parse(Request.ContentType),
-                defaultBoundaryLengthLimit);
+                _defaultFormOptions.MultipartBoundaryLengthLimit);
             var reader = new MultipartReader(boundary, HttpContext.Request.Body);
             var section = await reader.ReadNextSectionAsync();
 
@@ -99,7 +104,7 @@ namespace DataAnnotation.Controllers
 
                         var streamedFileContent = await FileHelpers.ProcessStreamedFile(
                             section, contentDisposition, ModelState,
-                            permittedExtensions, fileSizeLimit);
+                            _permittedExtensions, _fileSizeLimit);
 
                         if (!ModelState.IsValid)
                         {
@@ -107,14 +112,14 @@ namespace DataAnnotation.Controllers
                         }
 
                         using (var targetStream = System.IO.File.Create(
-                            Path.Combine(targetFilePath, trustedFileNameForFileStorage)))
+                            Path.Combine(_targetFilePath, trustedFileNameForFileStorage)))
                         {
                             await targetStream.WriteAsync(streamedFileContent);
 
                             _logger.LogInformation(
                                 "Uploaded file '{TrustedFileNameForDisplay}' saved to " +
                                 "'{TargetFilePath}' as {TrustedFileNameForFileStorage}",
-                                trustedFileNameForDisplay, targetFilePath,
+                                trustedFileNameForDisplay, _targetFilePath,
                                 trustedFileNameForFileStorage);
                         }
                     }
@@ -125,7 +130,7 @@ namespace DataAnnotation.Controllers
                 section = await reader.ReadNextSectionAsync();
             }
 
-            return Created(nameof(StreamingController), null);
+            return Created(nameof(FileUploadController), null);
         }
     }
 }

@@ -27,7 +27,7 @@ export class UploadFile extends Component {
         const token = await authService.getAccessToken()
         data.append('files', file);
         return {
-            url: 'FilePreview', method: 'POST', body: data, headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            url: 'FileUpload', method: 'POST', body: data, headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }
     }
 
