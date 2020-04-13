@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using Microsoft.Net.Http.Headers;
@@ -12,6 +11,10 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using DataAnnotation.Attributes;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Configuration;
+using DataAnnotation.Data;
+using System.Linq;
+using DataAnnotation.Models;
 
 namespace DataAnnotation.Controllers
 {
@@ -22,29 +25,21 @@ namespace DataAnnotation.Controllers
 	public class FileUploadController : Controller
 	{
 		private readonly ILogger<FileUploadController> _logger;
-		private readonly string[] _permittedExtensions = { ".csv" };
-		private readonly string _targetFilePath = @"C:\Users\A42172\Uploads";
-		private readonly long _fileSizeLimit = 1073741824;     // 1GB
+		private readonly string _targetFilePath;
+		private readonly long _fileSizeLimit;     // 1GB
+		private readonly string[] _permittedExtensions;
+		private readonly DataAnnotationDBContext _context;
 
 		private static readonly FormOptions _defaultFormOptions = new FormOptions();
 
-		public FileUploadController(ILogger<FileUploadController> logger)
+		public FileUploadController(ILogger<FileUploadController> logger, DataAnnotationDBContext context, IConfiguration config)
 		{
 			_logger = logger;
+			_targetFilePath = config.GetValue<string>("TargetFilePath");
+			_fileSizeLimit = config.GetValue<long>("FileSizeLimit");
+			_permittedExtensions = config.GetSection("PermittedExtensions").GetChildren().ToArray().Select(v => v.Value).ToArray();
+			_context = context;
 		}
-
-		/*
-		[HttpPost]
-		[DisableRequestSizeLimit]
-		public IActionResult Post(IEnumerable<IFormFile> files)
-		{
-
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
-
-			
-			return Ok();    //aka to do
-		}
-		**/
 
 		[HttpPost]
 		[DisableRequestSizeLimit]
@@ -111,8 +106,24 @@ namespace DataAnnotation.Controllers
 							return BadRequest(ModelState);
 						}
 
+						var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+						var newPath = Path.Combine(_targetFilePath, userId);
+						System.IO.Directory.CreateDirectory(newPath);
+						
+						using (_context)
+						{
+							var std = new FileNames()
+							{
+								UserId = userId,
+								FileNameStorage = trustedFileNameForFileStorage,
+								FileNameDisplay = trustedFileNameForDisplay
+							};
+							_context.FileNames.Add(std);
+							_context.SaveChanges();
+						}
+
 						using (var targetStream = System.IO.File.Create(
-							Path.Combine(_targetFilePath, trustedFileNameForFileStorage)))
+							Path.Combine(newPath, trustedFileNameForFileStorage)))
 						{
 							await targetStream.WriteAsync(streamedFileContent);
 

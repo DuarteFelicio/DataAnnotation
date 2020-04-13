@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using System.IO;
+using DataAnnotation.Data;
+using Microsoft.Extensions.Configuration;
+using DataAnnotation.Models;
 
 namespace DataAnnotation.Controllers
 {
@@ -14,20 +18,23 @@ namespace DataAnnotation.Controllers
 	[Route("[controller]")]
 	public class WorkspaceController : Controller
 	{
+		private readonly DataAnnotationDBContext _context;
 		private readonly ILogger<WorkspaceController> _logger;
+		private readonly string _targetFilePath;
 
-		public WorkspaceController(ILogger<WorkspaceController> logger)
+		public WorkspaceController(ILogger<WorkspaceController> logger, DataAnnotationDBContext context, IConfiguration config)
 		{
+			_context = context;
 			_logger = logger;
+			_targetFilePath = config.GetValue<string>("TargetFilePath");
 		}
 
 		[HttpGet]
-		public string[] GetUserFiles()
+		public async Task<string[]> GetUserFiles()
 		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 
-			string[] userFiles = { "file1.csv", "file2.csv" , "file3.csv"};
-			return userFiles;
+			return _context.FileNames.Where(f => f.UserId == userId).ToList().Select(f => f.FileNameDisplay).ToArray();
 		}
 	}
 }
