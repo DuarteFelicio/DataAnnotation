@@ -15,25 +15,25 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace DataAnnotation.Controllers
 {
-    [Authorize]
+	[Authorize]
 	[ApiController]
 	[Route("[controller]")]
-    //[GenerateAntiforgeryTokenCookie]
-    public class FileUploadController : Controller
+	//[GenerateAntiforgeryTokenCookie]
+	public class FileUploadController : Controller
 	{
 		private readonly ILogger<FileUploadController> _logger;
-        private readonly string[] _permittedExtensions = { ".csv" };
-        private readonly string _targetFilePath = @"C:\Users\A42172\Uploads";
-        private readonly long _fileSizeLimit = 1073741824;     // 1GB
+		private readonly string[] _permittedExtensions = { ".csv" };
+		private readonly string _targetFilePath = @"C:\Users\A42172\Uploads";
+		private readonly long _fileSizeLimit = 1073741824;     // 1GB
 
-        private static readonly FormOptions _defaultFormOptions = new FormOptions();
+		private static readonly FormOptions _defaultFormOptions = new FormOptions();
 
-        public FileUploadController(ILogger<FileUploadController> logger)
+		public FileUploadController(ILogger<FileUploadController> logger)
 		{
 			_logger = logger;
 		}
 
-        /*
+		/*
 		[HttpPost]
 		[DisableRequestSizeLimit]
 		public IActionResult Post(IEnumerable<IFormFile> files)
@@ -44,93 +44,93 @@ namespace DataAnnotation.Controllers
 			
 			return Ok();    //aka to do
 		}
-        **/
+		**/
 
-        [HttpPost]
-        [DisableRequestSizeLimit]
-        [DisableFormValueModelBinding]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadPhysical()
-        {
-            if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
-            {
-                ModelState.AddModelError("File", $"The request couldn't be processed (Error 1).");  // Log error
-                return BadRequest(ModelState);
-            }
+		[HttpPost]
+		[DisableRequestSizeLimit]
+		[DisableFormValueModelBinding]
+		//[ValidateAntiForgeryToken]
+		public async Task<IActionResult> UploadPhysical()
+		{
+			if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
+			{
+				ModelState.AddModelError("File", $"The request couldn't be processed (Error 1).");  // Log error
+				return BadRequest(ModelState);
+			}
 
-            var boundary = MultipartRequestHelper.GetBoundary(
-                MediaTypeHeaderValue.Parse(Request.ContentType),
-                _defaultFormOptions.MultipartBoundaryLengthLimit);
-            var reader = new MultipartReader(boundary, HttpContext.Request.Body);
-            var section = await reader.ReadNextSectionAsync();
+			var boundary = MultipartRequestHelper.GetBoundary(
+				MediaTypeHeaderValue.Parse(Request.ContentType),
+				_defaultFormOptions.MultipartBoundaryLengthLimit);
+			var reader = new MultipartReader(boundary, HttpContext.Request.Body);
+			var section = await reader.ReadNextSectionAsync();
 
-            while (section != null)
-            {
-                var hasContentDispositionHeader =
-                    ContentDispositionHeaderValue.TryParse(
-                        section.ContentDisposition, out var contentDisposition);
+			while (section != null)
+			{
+				var hasContentDispositionHeader =
+					ContentDispositionHeaderValue.TryParse(
+						section.ContentDisposition, out var contentDisposition);
 
-                if (hasContentDispositionHeader)
-                {
-                    // This check assumes that there's a file
-                    // present without form data. If form data
-                    // is present, this method immediately fails
-                    // and returns the model error.
-                    if (!MultipartRequestHelper
-                        .HasFileContentDisposition(contentDisposition))
-                    {
-                        ModelState.AddModelError("File",
-                            $"The request couldn't be processed (Error 2).");
-                        // Log error
+				if (hasContentDispositionHeader)
+				{
+					// This check assumes that there's a file
+					// present without form data. If form data
+					// is present, this method immediately fails
+					// and returns the model error.
+					if (!MultipartRequestHelper
+						.HasFileContentDisposition(contentDisposition))
+					{
+						ModelState.AddModelError("File",
+							$"The request couldn't be processed (Error 2).");
+						// Log error
 
-                        return BadRequest(ModelState);
-                    }
-                    else
-                    {
-                        // Don't trust the file name sent by the client. To display
-                        // the file name, HTML-encode the value.
-                        var trustedFileNameForDisplay = WebUtility.HtmlEncode(
-                                contentDisposition.FileName.Value);
-                        var trustedFileNameForFileStorage = Path.GetRandomFileName();
+						return BadRequest(ModelState);
+					}
+					else
+					{
+						// Don't trust the file name sent by the client. To display
+						// the file name, HTML-encode the value.
+						var trustedFileNameForDisplay = WebUtility.HtmlEncode(
+								contentDisposition.FileName.Value);
+						var trustedFileNameForFileStorage = Path.GetRandomFileName();
 
-                        // **WARNING!**
-                        // In the following example, the file is saved without
-                        // scanning the file's contents. In most production
-                        // scenarios, an anti-virus/anti-malware scanner API
-                        // is used on the file before making the file available
-                        // for download or for use by other systems. 
-                        // For more information, see the topic that accompanies 
-                        // this sample.
+						// **WARNING!**
+						// In the following example, the file is saved without
+						// scanning the file's contents. In most production
+						// scenarios, an anti-virus/anti-malware scanner API
+						// is used on the file before making the file available
+						// for download or for use by other systems. 
+						// For more information, see the topic that accompanies 
+						// this sample.
 
-                        var streamedFileContent = await FileHelpers.ProcessStreamedFile(
-                            section, contentDisposition, ModelState,
-                            _permittedExtensions, _fileSizeLimit);
+						var streamedFileContent = await FileHelpers.ProcessStreamedFile(
+							section, contentDisposition, ModelState,
+							_permittedExtensions, _fileSizeLimit);
 
-                        if (!ModelState.IsValid)
-                        {
-                            return BadRequest(ModelState);
-                        }
+						if (!ModelState.IsValid)
+						{
+							return BadRequest(ModelState);
+						}
 
-                        using (var targetStream = System.IO.File.Create(
-                            Path.Combine(_targetFilePath, trustedFileNameForFileStorage)))
-                        {
-                            await targetStream.WriteAsync(streamedFileContent);
+						using (var targetStream = System.IO.File.Create(
+							Path.Combine(_targetFilePath, trustedFileNameForFileStorage)))
+						{
+							await targetStream.WriteAsync(streamedFileContent);
 
-                            _logger.LogInformation(
-                                "Uploaded file '{TrustedFileNameForDisplay}' saved to " +
-                                "'{TargetFilePath}' as {TrustedFileNameForFileStorage}",
-                                trustedFileNameForDisplay, _targetFilePath,
-                                trustedFileNameForFileStorage);
-                        }
-                    }
-                }
+							_logger.LogInformation(
+								"Uploaded file '{TrustedFileNameForDisplay}' saved to " +
+								"'{TargetFilePath}' as {TrustedFileNameForFileStorage}",
+								trustedFileNameForDisplay, _targetFilePath,
+								trustedFileNameForFileStorage);
+						}
+					}
+				}
 
-                // Drain any remaining section body that hasn't been consumed and
-                // read the headers for the next section.
-                section = await reader.ReadNextSectionAsync();
-            }
+				// Drain any remaining section body that hasn't been consumed and
+				// read the headers for the next section.
+				section = await reader.ReadNextSectionAsync();
+			}
 
-            return Created(nameof(FileUploadController), null);
-        }
-    }
+			return Created(nameof(FileUploadController), null);
+		}
+	}
 }

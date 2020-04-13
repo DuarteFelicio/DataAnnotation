@@ -14,12 +14,13 @@ export class Workspace extends Component {
         }
     }
 
-    componentWillMount() {
-        this.setState({
-            files: [
-                "file1","file2"
-            ]
-        });
+    async componentDidMount() {
+        const token = await authService.getAccessToken();
+        const response = await fetch('Workspace', {
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        })
+        const data = await response.json();
+        this.setState({ files: data });
     }
 
 
