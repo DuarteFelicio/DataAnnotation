@@ -93,26 +93,12 @@ namespace DataAnnotation.Utilities
             {
                 if (ext.Equals(".txt") || ext.Equals(".csv") || ext.Equals(".prn"))
                 {
-                    if (_allowedChars.Length == 0)
+                    if (_allowedChars.Length != 0)
                     {
-                        // Limits characters to ASCII encoding.
-                        for (var i = 0; i < data.Length; i++)
-                        {
-                            if (reader.ReadByte() > sbyte.MaxValue)
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Limits characters to ASCII encoding and
                         // values of the _allowedChars array.
                         for (var i = 0; i < data.Length; i++)
                         {
-                            var b = reader.ReadByte();
-                            if (b > sbyte.MaxValue ||
-                                !_allowedChars.Contains(b))
+                            if (!_allowedChars.Contains(reader.ReadByte()))
                             {
                                 return false;
                             }
