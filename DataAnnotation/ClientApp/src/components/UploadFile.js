@@ -17,8 +17,24 @@ export class UploadFile extends Component {
     }
 
 
-   
-
+    async upload(files) {
+        files.foreach(file => {
+            let data = new FormData();
+            const token = await authService.getAccessToken()
+            data.append('files', file);
+            const response = await fetch('FileUpload/Physical', {
+                method: 'POST',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+                body: data
+            })
+            if (response.status != 200) {
+                this.setState({ rejected: this.state.rejected.push(file) })
+            }
+            else {
+                this.setState({ accepted: this.state.accepted.push(file) })
+            }
+        })
+    }
 
     /**
      * 
@@ -46,8 +62,8 @@ export class UploadFile extends Component {
                     <Dropzone                
                         accept=".csv"
                         onDrop={(accept, reject) => {
-                            this.setState({ accepted: this.state.accepted.concat(accept)})
-                            this.setState({ rejected: this.state.rejected.concat(reject)})
+                            this.setState({ rejected: this.state.rejected.concat(reject) })
+                            this.upload(accept)
                             
                         }}
                     >
