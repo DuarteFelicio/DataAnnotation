@@ -15,6 +15,7 @@ export class UploadFile extends Component {
             rejected: [],
             url: ""
         }
+        this.handleClick = this.handleClick.bind(this)
     }
 
     onChange(e) {
@@ -25,7 +26,7 @@ export class UploadFile extends Component {
 
     handleClick(e){
         e.preventDefault()
-        uploadFromUrl(this.state.url)
+        this.uploadFromUrl(this.state.url)
     }
 
     async upload(file) {
@@ -38,6 +39,7 @@ export class UploadFile extends Component {
             body: data
         })
         if (response.status != 200) {
+            //isto pode dar erro quando o servidor devolve tipo 500
             this.setState({ rejected: this.state.rejected.push(file) })
         }
         else {
@@ -84,7 +86,7 @@ export class UploadFile extends Component {
                 <aside>
                     <div className="url-container">
                         <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
-                        <button type="button" className="submit-btn" onClick={handleClick}>Upload</button>
+                        <button type="button" className="submit-btn" onClick={this.handleClick}>Upload</button>
                     </div>
                     <h4>Accepted files:</h4>
                     <ul>

@@ -1,0 +1,5 @@
+Ordem dos creates:
+
+csvFiles -> csvColumns -> csvValues -> RowTrees -> RowTreeNodes
+
+geoNames -> countries -> classifiers -> domainTypes -> domains 
