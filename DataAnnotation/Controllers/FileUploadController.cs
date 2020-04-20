@@ -15,23 +15,31 @@ using Microsoft.Extensions.Configuration;
 using DataAnnotation.Data;
 using System.Linq;
 using DataAnnotation.Models;
+using System;
+using System.Net.Http;
 
 namespace DataAnnotation.Controllers
 {
 	[Authorize]
 	[ApiController]
-	[Route("[controller]")]
+	[Route("[controller]/[action]")]
 	//[GenerateAntiforgeryTokenCookie]
 	public class FileUploadController : Controller
 	{
 		private readonly ILogger<FileUploadController> _logger;
 		private readonly string _targetFilePath;
-		private readonly long _fileSizeLimit;     // 1GB
+		private readonly long _fileSizeLimit;
 		private readonly string[] _permittedExtensions;
 		private readonly DataAnnotationDBContext _context;
 
-		private static readonly FormOptions _defaultFormOptions = new FormOptions();
+		private static readonly HttpClient _httpClient;
+		private static readonly FormOptions _defaultFormOptions;
 
+		static FileUploadController()
+		{
+			_httpClient = new HttpClient();
+			_defaultFormOptions = new FormOptions();
+		}
 		public FileUploadController(ILogger<FileUploadController> logger, DataAnnotationDBContext context, IConfiguration config)
 		{
 			_logger = logger;
@@ -45,7 +53,7 @@ namespace DataAnnotation.Controllers
 		[DisableRequestSizeLimit]
 		[DisableFormValueModelBinding]
 		//[ValidateAntiForgeryToken]
-		public async Task<IActionResult> UploadPhysical()
+		public async Task<IActionResult> Physical()
 		{
 			if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
 			{
@@ -139,6 +147,49 @@ namespace DataAnnotation.Controllers
 				// Drain any remaining section body that hasn't been consumed and
 				// read the headers for the next section.
 				section = await reader.ReadNextSectionAsync();
+			}
+
+			return Created(nameof(FileUploadController), null);
+		}
+
+		[HttpPost]
+		//[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Remote([FromForm]string uri)
+		{
+			Uri uriObj = new Uri(uri);
+			Stream fileStream = await _httpClient.GetStreamAsync(uriObj);
+
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+			var newPath = Path.Combine(_targetFilePath, userId);
+			System.IO.Directory.CreateDirectory(newPath);
+
+			// TO DO: name for display
+			var trustedFileNameForDisplay = "uploadx";
+			var trustedFileNameForFileStorage = Path.GetRandomFileName();
+
+			using (_context)
+			{
+				var std = new FileNames()
+				{
+					UserId = userId,
+					FileNameStorage = trustedFileNameForFileStorage,
+					FileNameDisplay = trustedFileNameForDisplay
+				};
+				_context.FileNames.Add(std);
+				_context.SaveChanges();
+			}
+
+			using (var targetStream = System.IO.File.Create(
+				Path.Combine(newPath, trustedFileNameForFileStorage)))
+			{
+				fileStream.Seek(0, SeekOrigin.Begin);
+				await fileStream.CopyToAsync(targetStream);
+
+				_logger.LogInformation(
+					"Uploaded file '{TrustedFileNameForDisplay}' saved to " +
+					"'{TargetFilePath}' as {TrustedFileNameForFileStorage}",
+					trustedFileNameForDisplay, _targetFilePath,
+					trustedFileNameForFileStorage);
 			}
 
 			return Created(nameof(FileUploadController), null);
