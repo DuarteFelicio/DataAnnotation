@@ -1,18 +1,19 @@
 ﻿import React, { Component } from 'react';
-import 'react-dropzone-uploader/dist/styles.css'
 import authService from './api-authorization/AuthorizeService'
-import Dropzone from 'react-dropzone-uploader'
+import Dropzone  from 'react-dropzone'
 import 'bootstrap/dist/css/bootstrap.css'
+import './UploadFile.css';
+
 
 export class UploadFile extends Component {
     static displayName = UploadFile.name;
 
-    constructor(props) {
-        super(props)
+    constructor() {
+        super()
         this.state = {
-            msg: "",
-            Url: "",
-            files:[]
+            accepted: [],
+            rejected: [],
+            url: ""
         }
     }
 
@@ -22,67 +23,83 @@ export class UploadFile extends Component {
         })
     }
 
-    async getUploadParams ({ file, meta }) {
+    handleClick(e){
+        e.preventDefault()
+        uploadFromUrl(this.state.url)
+    }
+
+    async upload(file) {
         let data = new FormData();
         const token = await authService.getAccessToken()
         data.append('files', file);
-        return {
-            url: 'FileUpload', method: 'POST', body: data, headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        const response = await fetch('FileUpload/Physical', {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            body: data
+        })
+        if (response.status != 200) {
+            this.setState({ rejected: this.state.rejected.push(file) })
         }
+        else {
+            this.setState({ accepted: this.state.accepted.push(file) })
+        }       
+    }
+
+    async uploadFromUrl(url) {
+        const token = await authService.getAccessToken()
+        const response = await fetch('FileUpload/Remote', {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            body: url
+        })
+
     }
 
     render() {
-
-        const handleClick = (e) => {
-            e.preventDefault()
-            const { msg, url } = this.state
-            fetch(url).then(res => {
-                res.arrayBuffer().then(buf => {
-                    const file = new File([buf], url, { type: '.csv' })
-                    this.state.files.add(file)
-
-                })
-            })
+        const formatSize = (size, b = 2) => {
+            if (0 === size) return "0 Bytes";
+            const c = 0 > b ? 0 : b, d = Math.floor(Math.log(size) / Math.log(1024));
+            return parseFloat((size / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
         }
 
-        // called every time a file's `status` changes
-        const handleChangeStatus = ({ meta, file }, status) => {
-            if (status === 'rejected_file_type') {
-                alert("Incorrect extension file, please upload .csv files");
-            }
-            else if (status === 'done') {
-                this.setState({ msg: "" });                 
-            }
-        }
-
-        // receives array of files that are done uploading when submit button is clicked
-        //pus em comentário pois este era o código do butão submit, mas sabendo que o botão submit
-        //era aquela trolada que não fazia nada achei melhor simplesmente tirar
-        /*const handleSubmit = (files, allFiles) => {
-            console.log(files.map(f => f.meta))
-            allFiles.forEach(f => f.remove())
-        }*/
-
-        return (                                    
-            <div className="drag-container">
-                <Dropzone
-                    getUploadParams={this.getUploadParams}
-                    onChangeStatus={handleChangeStatus}
-                    //onSubmit={handleSubmit}
-                    accept=".csv"
-                    maxSizeBytes={1024 * 1024 * 500}  // max 500 MB
-                    inputContent={(files, extra) => (extra.reject ? '.csv files only' : 'Drag or Browse CSV Files' )}
-                    styles={{
-                            dropzone: { width: 1000, height: 500 },
-                            dropzoneReject: { borderColor: 'red', backgroundColor: '#DAA' },
-                            inputLabel: (files, extra) => (extra.reject ? { color: 'red' } : {}),
-                    }}
-                />
-                <div className="url-container">
-                    <input type="text" name="url" class="form-control" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
-                    <button type="button" class="btn btn-primary" onClick={handleClick}>Upload from URL</button>
+        return (
+            <section className = "container">
+                <div className="root-dropzone">
+                    <Dropzone                
+                        accept=".csv"
+                        onDrop={(accept, reject) => {
+                            this.setState({ rejected: this.state.rejected.concat(reject) })
+                            accept.forEach(file => this.upload(file))
+                        }}
+                    >
+                        {({ getRootProps, getInputProps }) => (
+                            <div {...getRootProps()} className="dropzone">
+                                <input {...getInputProps()} />
+                                <p>Try dropping some files here, or click to select files to upload.</p>
+                                <p>Only csv files will be accepted</p>
+                            </div>
+                        )}
+                    </Dropzone>
                 </div>
-            </div >
-        )
+                <aside>
+                    <div className="url-container">
+                        <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
+                        <button type="button" className="submit-btn" onClick={handleClick}>Upload</button>
+                    </div>
+                    <h4>Accepted files:</h4>
+                    <ul>
+                        {
+                            this.state.accepted.map(f => <li key={f.name}>{f.name} - {formatSize(f.size)} </li>)
+                        }
+                    </ul>
+                    <h4>Rejected files:</h4>
+                    <ul>
+                        {
+                            this.state.rejected.map(f => <li key={f.name}>{f.name} - {formatSize(f.size)} </li>)
+                        }
+                    </ul>
+                </aside>
+            </section>
+        );
     }
 }

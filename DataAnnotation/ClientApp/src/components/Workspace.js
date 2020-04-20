@@ -1,5 +1,4 @@
 ﻿import React, { Component } from 'react';
-import 'react-dropzone-uploader/dist/styles.css'
 import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
 
