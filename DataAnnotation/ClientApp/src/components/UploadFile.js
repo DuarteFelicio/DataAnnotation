@@ -12,43 +12,49 @@ export class UploadFile extends Component {
         super()
         this.state = {
             accepted: [],
-            rejected: []
+            rejected: [],
+            url: ""
         }
     }
 
-
-    async upload(files) {
-        files.foreach(file => {
-            let data = new FormData();
-            const token = await authService.getAccessToken()
-            data.append('files', file);
-            const response = await fetch('FileUpload/Physical', {
-                method: 'POST',
-                headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
-                body: data
-            })
-            if (response.status != 200) {
-                this.setState({ rejected: this.state.rejected.push(file) })
-            }
-            else {
-                this.setState({ accepted: this.state.accepted.push(file) })
-            }
+    onChange(e) {
+        this.setState({
+            [e.target.name]: e.target.value
         })
     }
 
-    /**
-     * 
-     * @param {any} param0
-     
-    async getUploadParams ({ file, meta }) {
+    handleClick(e){
+        e.preventDefault()
+        uploadFromUrl(this.state.url)
+    }
+
+    async upload(file) {
         let data = new FormData();
         const token = await authService.getAccessToken()
         data.append('files', file);
-        return {
-            url: 'FileUpload', method: 'POST', body: data, headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        const response = await fetch('FileUpload/Physical', {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            body: data
+        })
+        if (response.status != 200) {
+            this.setState({ rejected: this.state.rejected.push(file) })
         }
+        else {
+            this.setState({ accepted: this.state.accepted.push(file) })
+        }       
     }
-*/
+
+    async uploadFromUrl(url) {
+        const token = await authService.getAccessToken()
+        const response = await fetch('FileUpload/Remote', {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
+            body: url
+        })
+
+    }
+
     render() {
         const formatSize = (size, b = 2) => {
             if (0 === size) return "0 Bytes";
@@ -63,8 +69,7 @@ export class UploadFile extends Component {
                         accept=".csv"
                         onDrop={(accept, reject) => {
                             this.setState({ rejected: this.state.rejected.concat(reject) })
-                            this.upload(accept)
-                            
+                            accept.forEach(file => this.upload(file))
                         }}
                     >
                         {({ getRootProps, getInputProps }) => (
@@ -77,6 +82,10 @@ export class UploadFile extends Component {
                     </Dropzone>
                 </div>
                 <aside>
+                    <div className="url-container">
+                        <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
+                        <button type="button" className="submit-btn" onClick={handleClick}>Upload</button>
+                    </div>
                     <h4>Accepted files:</h4>
                     <ul>
                         {
