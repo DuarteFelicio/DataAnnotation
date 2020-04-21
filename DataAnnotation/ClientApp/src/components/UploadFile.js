@@ -16,6 +16,7 @@ export class UploadFile extends Component {
             url: ""
         }
         this.handleClick = this.handleClick.bind(this)
+        this.upload = this.upload.bind(this)
     }
 
     onChange(e) {
@@ -38,24 +39,23 @@ export class UploadFile extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
             body: data
         })
-        if (response.status != 200) {
-            //isto pode dar erro quando o servidor devolve tipo 500
-            this.setState({ rejected: this.state.rejected.push(file) })
+        if (response.status != 201) {
+            this.setState({ rejected: this.state.rejected.concat(file) })
         }
         else {
-            this.setState({ accepted: this.state.accepted.push(file) })
+            this.setState({ accepted: this.state.accepted.concat(file) })
         }       
     }
 
     async uploadFromUrl(url) {
         const token = await authService.getAccessToken()
-        const response = await fetch('FileUpload/Remote', {
+        const response =  await fetch('FileUpload/Remote', {
             method: 'POST',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
             body: url
         })
-
     }
+
 
     render() {
         const formatSize = (size, b = 2) => {
