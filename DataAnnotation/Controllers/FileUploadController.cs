@@ -168,7 +168,7 @@ namespace DataAnnotation.Controllers
 			var newPath = Path.Combine(_targetFilePath, userId);
 			System.IO.Directory.CreateDirectory(newPath);
 
-			var urlArray = url.Split("\\");
+			var urlArray = url.Split("/");
 			var trustedFileNameForDisplay = urlArray[urlArray.Length-1];		//last part of url is name 
 			var trustedFileNameForFileStorage = Path.GetRandomFileName();
 
