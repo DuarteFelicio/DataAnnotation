@@ -14,6 +14,7 @@ namespace DataAnnotation.Models
         public string UserId { get; set; }
         public int? RowsCount { get; set; }
         public int? ColumnsCount { get; set; }
+        public DateTime UploadTime { get; set; }
         public long Size { get; set; }
         public string Origin { get; set; }
         public string FileNameStorage { get; set; }

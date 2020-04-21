@@ -16,6 +16,7 @@ namespace DataAnnotation.Data.Migrations
 					UserId = table.Column<string>(maxLength: 450, nullable: false),
 					RowsCount = table.Column<int>(nullable: true),
 					ColumnsCount = table.Column<int>(nullable: true),
+					UploadTime = table.Column<DateTime>(nullable: false),
 					Size = table.Column<long>(nullable: false),
 					Origin = table.Column<string>(maxLength: 500, nullable : false),
 					FileNameStorage = table.Column<string>(maxLength: 500, nullable: false),

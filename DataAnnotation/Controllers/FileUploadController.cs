@@ -125,6 +125,7 @@ namespace DataAnnotation.Controllers
 							{
 								UserId = userId,
 								Origin = "local",
+								UploadTime = DateTime.Now,
 								Size = -1,
 								FileNameStorage = trustedFileNameForFileStorage,
 								FileNameDisplay = trustedFileNameForDisplay
@@ -178,6 +179,7 @@ namespace DataAnnotation.Controllers
 				{
 					UserId = userId,
 					Origin = url,
+					UploadTime = DateTime.Now,
 					Size = -1,
 					FileNameStorage = trustedFileNameForFileStorage,
 					FileNameDisplay = trustedFileNameForDisplay
