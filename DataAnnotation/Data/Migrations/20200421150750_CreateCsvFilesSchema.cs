@@ -13,8 +13,10 @@ namespace DataAnnotation.Data.Migrations
 				{
 					CsvFilesId = table.Column<int>(nullable: false)
 					.Annotation("SqlServer:Identity", "1, 1"),
+					UserId = table.Column<string>(maxLength: 450, nullable: false),
 					RowsCount = table.Column<int>(nullable: true),
 					ColumnsCount = table.Column<int>(nullable: true),
+					Size = table.Column<long>(nullable: false),
 					Origin = table.Column<string>(maxLength: 500, nullable : false),
 					FileNameStorage = table.Column<string>(maxLength: 500, nullable: false),
 					FileNameDisplay = table.Column<string>(maxLength: 500, nullable: false),
@@ -22,6 +24,12 @@ namespace DataAnnotation.Data.Migrations
 				constraints: table =>
 				{
 					table.PrimaryKey("PK_CsvFiles", x => x.CsvFilesId);
+					table.ForeignKey(
+						name: "FK_CsvFiles_AspNetUsers_Id",
+						column: x => x.UserId,
+						principalTable: "AspNetUsers",
+						principalColumn: "Id",
+						onDelete: ReferentialAction.Cascade);
 				});
 
 

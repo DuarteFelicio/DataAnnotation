@@ -120,13 +120,13 @@ namespace DataAnnotation.Controllers
 						
 						using (_context)
 						{
-							var std = new FileNames()
+							var std = new CsvFiles()
 							{
 								UserId = userId,
 								FileNameStorage = trustedFileNameForFileStorage,
 								FileNameDisplay = trustedFileNameForDisplay
 							};
-							_context.FileNames.Add(std);
+							_context.CsvFiles.Add(std);
 							_context.SaveChanges();
 						}
 
@@ -170,13 +170,13 @@ namespace DataAnnotation.Controllers
 
 			using (_context)
 			{
-				var std = new FileNames()
+				var std = new CsvFiles()
 				{
 					UserId = userId,
 					FileNameStorage = trustedFileNameForFileStorage,
 					FileNameDisplay = trustedFileNameForDisplay
 				};
-				_context.FileNames.Add(std);
+				_context.CsvFiles.Add(std);
 				_context.SaveChanges();
 			}
 
