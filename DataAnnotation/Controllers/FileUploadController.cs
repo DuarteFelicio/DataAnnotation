@@ -159,7 +159,8 @@ namespace DataAnnotation.Controllers
 			Uri uriObj = new Uri(uri);
 			Stream fileStream = await _httpClient.GetStreamAsync(uriObj);
 
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+			//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+			var userId = "TEST";
 			var newPath = Path.Combine(_targetFilePath, userId);
 			System.IO.Directory.CreateDirectory(newPath);
 
