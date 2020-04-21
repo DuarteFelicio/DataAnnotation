@@ -30,11 +30,10 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public async Task<string[]> GetUserFiles()
+		public IActionResult GetUserFiles()
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-
-			return _context.FileNames.Where(f => f.UserId == userId).ToList().Select(f => f.FileNameDisplay).ToArray();
+			return Ok(_context.CsvFiles.Where(f => f.UserId == userId).ToList());
 		}
 	}
 }

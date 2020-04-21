@@ -118,11 +118,14 @@ namespace DataAnnotation.Controllers
 						var newPath = Path.Combine(_targetFilePath, userId);
 						System.IO.Directory.CreateDirectory(newPath);
 						
+						//TO DO size
 						using (_context)
 						{
 							var std = new CsvFiles()
 							{
 								UserId = userId,
+								Origin = "local",
+								Size = -1,
 								FileNameStorage = trustedFileNameForFileStorage,
 								FileNameDisplay = trustedFileNameForDisplay
 							};
@@ -174,6 +177,8 @@ namespace DataAnnotation.Controllers
 				var std = new CsvFiles()
 				{
 					UserId = userId,
+					Origin = url,
+					Size = -1,
 					FileNameStorage = trustedFileNameForFileStorage,
 					FileNameDisplay = trustedFileNameForDisplay
 				};
