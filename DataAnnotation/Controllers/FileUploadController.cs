@@ -152,20 +152,21 @@ namespace DataAnnotation.Controllers
 			return Created(nameof(FileUploadController), null);
 		}
 
+
+		//troll post, passar parametro pelo header yikes
 		[HttpPost]
 		//[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Remote([FromForm]string uri)
+		public async Task<IActionResult> Remote([FromHeader]string url)
 		{
-			Uri uriObj = new Uri(uri);
-			Stream fileStream = await _httpClient.GetStreamAsync(uriObj);
+			Uri uri = new Uri(url);
+			Stream fileStream = await _httpClient.GetStreamAsync(uri);
 
-			//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
-			var userId = "TEST";
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
 			var newPath = Path.Combine(_targetFilePath, userId);
 			System.IO.Directory.CreateDirectory(newPath);
 
-			// TO DO: name for display
-			var trustedFileNameForDisplay = "uploadx";
+			var urlArray = url.Split("\\");
+			var trustedFileNameForDisplay = urlArray[urlArray.Length-1];		//last part of url is name 
 			var trustedFileNameForFileStorage = Path.GetRandomFileName();
 
 			using (_context)
@@ -183,7 +184,6 @@ namespace DataAnnotation.Controllers
 			using (var targetStream = System.IO.File.Create(
 				Path.Combine(newPath, trustedFileNameForFileStorage)))
 			{
-				fileStream.Seek(0, SeekOrigin.Begin);
 				await fileStream.CopyToAsync(targetStream);
 
 				_logger.LogInformation(
@@ -192,8 +192,19 @@ namespace DataAnnotation.Controllers
 					trustedFileNameForDisplay, _targetFilePath,
 					trustedFileNameForFileStorage);
 			}
-
-			return Created(nameof(FileUploadController), null);
+			var response = new CreatedResponse(trustedFileNameForDisplay, -1);	//TO DO file size
+			return Created(nameof(FileUploadController), response);
 		}
+	}
+
+	public class CreatedResponse
+	{
+		public CreatedResponse(string name, long size)
+		{
+			Name = name;
+			Size = size;
+		}
+		string Name { get; set; }
+		long Size { get; set; }
 	}
 }

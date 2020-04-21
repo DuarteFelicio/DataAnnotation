@@ -39,7 +39,7 @@ export class UploadFile extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
             body: data
         })
-        if (response.status != 201) {
+        if (response.status !== 201) {
             this.setState({ rejected: this.state.rejected.concat(file) })
         }
         else {
@@ -47,12 +47,12 @@ export class UploadFile extends Component {
         }       
     }
 
+    //troll post, passar parametro pelo header yikes
     async uploadFromUrl(url) {
         const token = await authService.getAccessToken()
-        const response =  await fetch('FileUpload/Remote', {
+        const response = await fetch('FileUpload/Remote', {
             method: 'POST',
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` },
-            body: url
+            headers: !token ? { 'url': url } : { 'Authorization': `Bearer ${token}`, 'url': url }
         })
     }
 
