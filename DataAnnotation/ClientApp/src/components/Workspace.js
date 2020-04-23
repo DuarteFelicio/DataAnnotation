@@ -15,7 +15,7 @@ export class Workspace extends Component {
 
     async componentDidMount() {
         const token = await authService.getAccessToken();
-        const response = await fetch('Workspace', {
+        const response = await fetch('Workspace/GetUserFiles', {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json();
