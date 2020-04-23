@@ -7,4 +7,4 @@ geoNames -> countries -> classifiers -> domainTypes -> domains
 
 GENERATE DBCONTEXT 
 
-Scaffold-DbContext "Data Source=DUDUZAN\DUDUZAN;Initial Catalog=DataAnnotationDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Tables CsvColumns,CsvFiles,CsvValues,DivisoesTerritoriais,DT_NomesAlternativos,HierarquiasTerritoriais,HT_NomesAlternativos,Nodes,Nomes,RowTrees,Unidades_Divisoes,Unidades_Divisoes_Hierarquias,UnidadesTerritoriais,UT_NomesAlternativos 
+Scaffold-DbContext "Data Source=DUDUZAN\DUDUZAN;Initial Catalog=DataAnnotationDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Tables CsvFiles,DivisoesTerritoriais,DT_NomesAlternativos,HierarquiasTerritoriais,HT_NomesAlternativos,Nomes,Unidades_Divisoes,Unidades_Divisoes_Hierarquias,UnidadesTerritoriais,UT_NomesAlternativos 

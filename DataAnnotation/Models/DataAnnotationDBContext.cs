@@ -15,50 +15,19 @@ namespace DataAnnotation.Models
         {
         }
 
-        public virtual DbSet<CsvColumns> CsvColumns { get; set; }
         public virtual DbSet<CsvFiles> CsvFiles { get; set; }
-        public virtual DbSet<CsvValues> CsvValues { get; set; }
         public virtual DbSet<DivisoesTerritoriais> DivisoesTerritoriais { get; set; }
         public virtual DbSet<DtNomesAlternativos> DtNomesAlternativos { get; set; }
         public virtual DbSet<HierarquiasTerritoriais> HierarquiasTerritoriais { get; set; }
         public virtual DbSet<HtNomesAlternativos> HtNomesAlternativos { get; set; }
-        public virtual DbSet<Nodes> Nodes { get; set; }
         public virtual DbSet<Nomes> Nomes { get; set; }
-        public virtual DbSet<RowTrees> RowTrees { get; set; }
         public virtual DbSet<UnidadesDivisoes> UnidadesDivisoes { get; set; }
         public virtual DbSet<UnidadesDivisoesHierarquias> UnidadesDivisoesHierarquias { get; set; }
         public virtual DbSet<UnidadesTerritoriais> UnidadesTerritoriais { get; set; }
         public virtual DbSet<UtNomesAlternativos> UtNomesAlternativos { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=DUDUZAN\\DUDUZAN;Initial Catalog=DataAnnotationDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CsvColumns>(entity =>
-            {
-                entity.HasIndex(e => e.CsvFilesId)
-                    .HasName("IX_CsvColumns_1");
-
-                entity.Property(e => e.ColumnName)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
-                entity.Property(e => e.MetricOrDimension)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.HasOne(d => d.CsvFiles)
-                    .WithMany(p => p.CsvColumns)
-                    .HasForeignKey(d => d.CsvFilesId);
-            });
-
             modelBuilder.Entity<CsvFiles>(entity =>
             {
                 entity.Property(e => e.FileNameDisplay)
@@ -76,24 +45,6 @@ namespace DataAnnotation.Models
                 entity.Property(e => e.UserId)
                     .IsRequired()
                     .HasMaxLength(450);
-            });
-
-            modelBuilder.Entity<CsvValues>(entity =>
-            {
-                entity.HasIndex(e => e.CsvColumnsId)
-                    .HasName("IX_CsvValues_1");
-
-                entity.Property(e => e.IntegerOrDecimal).HasMaxLength(50);
-
-                entity.Property(e => e.NumericValue).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.OriginalValue)
-                    .IsRequired()
-                    .HasMaxLength(1000);
-
-                entity.HasOne(d => d.CsvColumns)
-                    .WithMany(p => p.CsvValues)
-                    .HasForeignKey(d => d.CsvColumnsId);
             });
 
             modelBuilder.Entity<DivisoesTerritoriais>(entity =>
@@ -188,26 +139,6 @@ namespace DataAnnotation.Models
                     .HasConstraintName("FK_HT_NomesAlternativos_Nomes");
             });
 
-            modelBuilder.Entity<Nodes>(entity =>
-            {
-                entity.HasIndex(e => e.ParentId)
-                    .HasName("IX_Nodes_2");
-
-                entity.HasIndex(e => e.RowTreesId)
-                    .HasName("IX_Nodes_1");
-
-                entity.Property(e => e.Value).IsRequired();
-
-                entity.HasOne(d => d.Parent)
-                    .WithMany(p => p.InverseParent)
-                    .HasForeignKey(d => d.ParentId)
-                    .HasConstraintName("FK_Nodes_Parent");
-
-                entity.HasOne(d => d.RowTrees)
-                    .WithMany(p => p.Nodes)
-                    .HasForeignKey(d => d.RowTreesId);
-            });
-
             modelBuilder.Entity<Nomes>(entity =>
             {
                 entity.HasIndex(e => new { e.Nome, e.Idioma })
@@ -223,16 +154,6 @@ namespace DataAnnotation.Models
                     .IsRequired()
                     .HasMaxLength(500)
                     .IsUnicode(false);
-            });
-
-            modelBuilder.Entity<RowTrees>(entity =>
-            {
-                entity.HasIndex(e => e.CsvColumnsId)
-                    .HasName("IX_RowTrees_1");
-
-                entity.HasOne(d => d.CsvColumns)
-                    .WithMany(p => p.RowTrees)
-                    .HasForeignKey(d => d.CsvColumnsId);
             });
 
             modelBuilder.Entity<UnidadesDivisoes>(entity =>

@@ -29,10 +29,10 @@ namespace DataAnnotation.Utilities
 				_context.CsvFiles.Update(csvFile);
 				_context.SaveChanges();
 			}
-			csvFile.InitIntraAnalysis(data,_context);
-			csvFile.InitDivisoesCompare();
-			csvFile.CheckMetricsRelations();
-			Metadata metadata = new Metadata(file, filename);
+			//csvFile.InitIntraAnalysis(data,_context);
+			//csvFile.InitDivisoesCompare();
+			//csvFile.CheckMetricsRelations();
+			//Metadata metadata = new Metadata(file, filename);
 		}
 	}
 }
