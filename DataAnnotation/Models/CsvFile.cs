@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataAnnotation.Models
 {
-    public partial class CsvFiles
+    public partial class CsvFile
     {
         public int CsvFilesId { get; set; }
         public string UserId { get; set; }
@@ -14,6 +14,7 @@ namespace DataAnnotation.Models
         public string Origin { get; set; }
         public string FileNameStorage { get; set; }
         public string FileNameDisplay { get; set; }
-        public DateTime? AnalysisTime { get; set; }
+        public TimeSpan? AnalysisDuration { get; set; }
+        public DateTime? AnalysisCompletionTime { get; set; }
     }
 }

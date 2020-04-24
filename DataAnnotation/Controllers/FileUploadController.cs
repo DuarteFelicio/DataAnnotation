@@ -121,7 +121,7 @@ namespace DataAnnotation.Controllers
 						//TO DO size
 						using (_context)
 						{
-							var std = new CsvFiles()
+							var std = new CsvFile()
 							{
 								UserId = userId,
 								Origin = "local",
@@ -130,7 +130,7 @@ namespace DataAnnotation.Controllers
 								FileNameStorage = trustedFileNameForFileStorage,
 								FileNameDisplay = trustedFileNameForDisplay
 							};
-							_context.CsvFiles.Add(std);
+							_context.CsvFile.Add(std);
 							_context.SaveChanges();
 						}
 
@@ -175,7 +175,7 @@ namespace DataAnnotation.Controllers
 
 			using (_context)
 			{
-				var std = new CsvFiles()
+				var std = new CsvFile()
 				{
 					UserId = userId,
 					Origin = url,
@@ -184,7 +184,7 @@ namespace DataAnnotation.Controllers
 					FileNameStorage = trustedFileNameForFileStorage,
 					FileNameDisplay = trustedFileNameForDisplay
 				};
-				_context.CsvFiles.Add(std);
+				_context.CsvFile.Add(std);
 				_context.SaveChanges();
 			}
 

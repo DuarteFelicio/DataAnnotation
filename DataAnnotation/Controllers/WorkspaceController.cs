@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using DataAnnotation.Models;
 using DataAnnotation.Utilities;
 using System.Data;
+using DataAnnotation.Models.Analysis;
 
 namespace DataAnnotation.Controllers
 {
@@ -35,7 +36,7 @@ namespace DataAnnotation.Controllers
 		public IActionResult GetUserFiles()
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			return Ok(_context.CsvFiles.Where(f => f.UserId == userId).ToList());
+			return Ok(_context.CsvFile.Where(f => f.UserId == userId).ToList());
 		}
 
 
@@ -45,15 +46,15 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			userId = "b842a218-4cb2-44b1-9ee3-d92f5903049a";
-			CsvFiles file = _context.CsvFiles.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
 			if (file.CsvFilesId == 0) return NotFound();
 
 			string filepath = Path.Combine(_targetFilePath,Path.Combine(userId, file.FileNameStorage));
 
 			AnalyseCsvFile analyseCsvFile = new AnalyseCsvFile(_context);
-			analyseCsvFile.InitAnalysis(filepath,file);
+			Metadata metadata = analyseCsvFile.InitAnalysis(filepath,file);
 
-			return null;
+			return Ok(metadata);
 		}
 	}
 }

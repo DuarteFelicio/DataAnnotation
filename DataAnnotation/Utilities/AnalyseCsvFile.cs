@@ -1,4 +1,5 @@
 ﻿using DataAnnotation.Models;
+using DataAnnotation.Models.Analysis;
 using GenericParsing;
 using System;
 using System.Data;
@@ -12,8 +13,9 @@ namespace DataAnnotation.Utilities
 		{
 			_context = context;
 		}
-		public void InitAnalysis(string filepath, CsvFiles csvFile)
+		public Metadata InitAnalysis(string filepath, CsvFile csvFile)
 		{
+			DateTime timeInit = DateTime.Now;
 			DataTable data = new DataTable();
 			using (GenericParserAdapter parser = new GenericParserAdapter())
 			{
@@ -24,15 +26,14 @@ namespace DataAnnotation.Utilities
 			}
 			csvFile.ColumnsCount = data.Columns.Count;
 			csvFile.RowsCount = data.Rows.Count;
-			using (_context)
-			{
-				_context.CsvFiles.Update(csvFile);
-				_context.SaveChanges();
-			}
-			//csvFile.InitIntraAnalysis(data,_context);
-			//csvFile.InitDivisoesCompare();
-			//csvFile.CheckMetricsRelations();
-			//Metadata metadata = new Metadata(file, filename);
+			_context.CsvFile.Update(csvFile);
+			_context.SaveChanges();
+
+			CsvFileEx fileEx = new CsvFileEx(data, csvFile, _context);
+			fileEx.InitIntraAnalysis();
+			fileEx.InitDivisoesCompare();
+			fileEx.CheckMetricsRelations();
+			return new Metadata(csvFile, fileEx,timeInit,_context);
 		}
 	}
 }
