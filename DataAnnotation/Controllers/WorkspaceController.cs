@@ -34,7 +34,8 @@ namespace DataAnnotation.Controllers
 		[HttpGet]
 		public IActionResult GetUserFiles()
 		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			var userId = "c29e70c0-0f48-497d-afda-ba5ceac13087";
+			//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			return Ok(_context.CsvFiles.Where(f => f.UserId == userId).ToList());
 		}
 

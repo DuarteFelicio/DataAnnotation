@@ -20,7 +20,7 @@ using System.Net.Http;
 
 namespace DataAnnotation.Controllers
 {
-	[Authorize]
+	//[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
 	//[GenerateAntiforgeryTokenCookie]
@@ -113,8 +113,8 @@ namespace DataAnnotation.Controllers
 						{
 							return BadRequest(ModelState);
 						}
-
-						var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+						var userId = "c29e70c0-0f48-497d-afda-ba5ceac13087";
+						//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
 						var newPath = Path.Combine(_targetFilePath, userId);
 						System.IO.Directory.CreateDirectory(newPath);
 						
@@ -164,8 +164,8 @@ namespace DataAnnotation.Controllers
 		{
 			Uri uri = new Uri(url);
 			Stream fileStream = await _httpClient.GetStreamAsync(uri);
-
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+			var userId = "c29e70c0-0f48-497d-afda-ba5ceac13087";
+			//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
 			var newPath = Path.Combine(_targetFilePath, userId);
 			System.IO.Directory.CreateDirectory(newPath);
 
