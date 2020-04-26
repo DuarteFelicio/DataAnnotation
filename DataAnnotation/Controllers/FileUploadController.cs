@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using DataAnnotation.Attributes;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
-using DataAnnotation.Data;
 using System.Linq;
 using DataAnnotation.Models;
 using System;
@@ -20,7 +19,7 @@ using System.Net.Http;
 
 namespace DataAnnotation.Controllers
 {
-	//[Authorize]
+	[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
 	//[GenerateAntiforgeryTokenCookie]
@@ -113,29 +112,12 @@ namespace DataAnnotation.Controllers
 						{
 							return BadRequest(ModelState);
 						}
-						var userId = "c29e70c0-0f48-497d-afda-ba5ceac13087";
-						//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
-						var newPath = Path.Combine(_targetFilePath, userId);
-						System.IO.Directory.CreateDirectory(newPath);
-						
-						//TO DO size
-						using (_context)
-						{
-							var std = new CsvFiles()
-							{
-								UserId = userId,
-								Origin = "local",
-								UploadTime = DateTime.Now,
-								Size = -1,
-								FileNameStorage = trustedFileNameForFileStorage,
-								FileNameDisplay = trustedFileNameForDisplay
-							};
-							_context.CsvFiles.Add(std);
-							_context.SaveChanges();
-						}
+						var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+						var userPath = Path.Combine(_targetFilePath, userId);
+						Directory.CreateDirectory(userPath);
+						var filePath = Path.Combine(userPath, trustedFileNameForFileStorage);
 
-						using (var targetStream = System.IO.File.Create(
-							Path.Combine(newPath, trustedFileNameForFileStorage)))
+						using (var targetStream = System.IO.File.Create(filePath))
 						{
 							await targetStream.WriteAsync(streamedFileContent);
 
@@ -144,6 +126,22 @@ namespace DataAnnotation.Controllers
 								"'{TargetFilePath}' as {TrustedFileNameForFileStorage}",
 								trustedFileNameForDisplay, _targetFilePath,
 								trustedFileNameForFileStorage);
+						}
+
+						//size podia vir do client?
+						using (_context)
+						{
+							var std = new CsvFile()
+							{
+								UserId = userId,
+								Origin = "local",
+								UploadTime = DateTime.Now,
+								Size = new FileInfo(filePath).Length,
+								FileNameStorage = trustedFileNameForFileStorage,
+								FileNameDisplay = trustedFileNameForDisplay
+							};
+							_context.CsvFile.Add(std);
+							_context.SaveChanges();
 						}
 					}
 				}
@@ -162,34 +160,23 @@ namespace DataAnnotation.Controllers
 		//[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Remote([FromHeader]string url)
 		{
+			if (Path.GetExtension(url) != ".csv"){
+				ModelState.AddModelError("File", $"The request couldn't be processed (Error 3).");  // Log error
+				return BadRequest(ModelState);
+			}
 			Uri uri = new Uri(url);
 			Stream fileStream = await _httpClient.GetStreamAsync(uri);
-			var userId = "c29e70c0-0f48-497d-afda-ba5ceac13087";
-			//var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
-			var newPath = Path.Combine(_targetFilePath, userId);
-			System.IO.Directory.CreateDirectory(newPath);
+
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId, para saber quem deu upload
+			var userPath = Path.Combine(_targetFilePath, userId);
+			Directory.CreateDirectory(userPath);
 
 			var urlArray = url.Split("/");
 			var trustedFileNameForDisplay = urlArray[urlArray.Length-1];		//last part of url is name 
 			var trustedFileNameForFileStorage = Path.GetRandomFileName();
+			var filePath = Path.Combine(userPath, trustedFileNameForFileStorage);
 
-			using (_context)
-			{
-				var std = new CsvFiles()
-				{
-					UserId = userId,
-					Origin = url,
-					UploadTime = DateTime.Now,
-					Size = -1,
-					FileNameStorage = trustedFileNameForFileStorage,
-					FileNameDisplay = trustedFileNameForDisplay
-				};
-				_context.CsvFiles.Add(std);
-				_context.SaveChanges();
-			}
-
-			using (var targetStream = System.IO.File.Create(
-				Path.Combine(newPath, trustedFileNameForFileStorage)))
+			using (var targetStream = System.IO.File.Create(filePath))
 			{
 				await fileStream.CopyToAsync(targetStream);
 
@@ -199,19 +186,38 @@ namespace DataAnnotation.Controllers
 					trustedFileNameForDisplay, _targetFilePath,
 					trustedFileNameForFileStorage);
 			}
-			var response = new CreatedResponse(trustedFileNameForDisplay, -1);	//TO DO file size
+
+			var response = new CreatedResponse(trustedFileNameForDisplay, new FileInfo(filePath).Length);
+
+			using (_context)
+			{
+				var std = new CsvFile()
+				{
+					UserId = userId,
+					Origin = url,
+					UploadTime = DateTime.Now,
+					Size = response.Size,
+					FileNameStorage = trustedFileNameForFileStorage,
+					FileNameDisplay = trustedFileNameForDisplay
+				};
+				_context.CsvFile.Add(std);
+				_context.SaveChanges();
+			}
+
+			
 			return Created(nameof(FileUploadController), response);
 		}
 	}
 
-	public class CreatedResponse
+	public class CreatedResponse	//object response for upload by link, to give info to client
 	{
 		public CreatedResponse(string name, long size)
 		{
 			Name = name;
 			Size = size;
 		}
-		string Name { get; set; }
-		long Size { get; set; }
+
+		public string Name { get; set; }
+		public long Size { get; set; }
 	}
 }

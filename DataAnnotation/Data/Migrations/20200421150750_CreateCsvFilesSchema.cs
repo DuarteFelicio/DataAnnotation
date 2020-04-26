@@ -8,7 +8,7 @@ namespace DataAnnotation.Data.Migrations
 		protected override void Up(MigrationBuilder migrationBuilder)
 		{
 			migrationBuilder.CreateTable(
-				name: "CsvFiles",
+				name: "CsvFile",
 				columns: table => new
 				{
 					CsvFilesId = table.Column<int>(nullable: false)
@@ -21,13 +21,14 @@ namespace DataAnnotation.Data.Migrations
 					Origin = table.Column<string>(maxLength: 500, nullable : false),
 					FileNameStorage = table.Column<string>(maxLength: 500, nullable: false),
 					FileNameDisplay = table.Column<string>(maxLength: 500, nullable: false),
-					AnalysisTime = table.Column<DateTime>(nullable: true),
+					AnalysisDuration = table.Column<TimeSpan>(nullable: true),
+					AnalysisCompletionTime = table.Column<DateTime>(nullable: true)
 				},
 				constraints: table =>
 				{
-					table.PrimaryKey("PK_CsvFiles", x => x.CsvFilesId);
+					table.PrimaryKey("PK_CsvFile", x => x.CsvFilesId);
 					table.ForeignKey(
-						name: "FK_CsvFiles_AspNetUsers_Id",
+						name: "FK_CsvFile_AspNetUsers_Id",
 						column: x => x.UserId,
 						principalTable: "AspNetUsers",
 						principalColumn: "Id",

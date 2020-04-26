@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -15,7 +18,7 @@ namespace DataAnnotation.Models
         {
         }
 
-        public virtual DbSet<CsvFiles> CsvFiles { get; set; }
+        public virtual DbSet<CsvFile> CsvFile { get; set; }
         public virtual DbSet<DivisoesTerritoriais> DivisoesTerritoriais { get; set; }
         public virtual DbSet<DtNomesAlternativos> DtNomesAlternativos { get; set; }
         public virtual DbSet<HierarquiasTerritoriais> HierarquiasTerritoriais { get; set; }
@@ -28,8 +31,10 @@ namespace DataAnnotation.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CsvFiles>(entity =>
+            modelBuilder.Entity<CsvFile>(entity =>
             {
+                entity.HasKey(e => e.CsvFilesId);
+
                 entity.Property(e => e.FileNameDisplay)
                     .IsRequired()
                     .HasMaxLength(500);
@@ -263,5 +268,42 @@ namespace DataAnnotation.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        public List<T> ExecSQL<T>(string query)
+        {
+            using (var command = Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = query;
+                command.CommandType = CommandType.Text;
+                Database.OpenConnection();
+
+                List<T> list = new List<T>();
+                using (var result = command.ExecuteReader())
+                {
+                    T obj = default(T);
+                    while (result.Read())
+                    {
+                        obj = Activator.CreateInstance<T>();
+                        foreach (PropertyInfo prop in obj.GetType().GetProperties())
+                        {
+                            try
+                            {
+                                if (!object.Equals(result[prop.Name], DBNull.Value))
+                                {
+                                    prop.SetValue(obj, result[prop.Name], null);
+                                }
+                            }
+                            catch (IndexOutOfRangeException e)
+                            {
+                                break;
+                            }
+                        }
+                        list.Add(obj);
+                    }
+                }
+                Database.CloseConnection();
+                return list;
+            }
+        }
     }
 }
