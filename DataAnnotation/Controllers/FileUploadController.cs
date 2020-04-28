@@ -160,8 +160,7 @@ namespace DataAnnotation.Controllers
 		//troll post, passar parametro pelo header yikes
 		[HttpPost]
 		//[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Remote([FromHeader]string url)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		{
+		public async Task<IActionResult> Remote([FromQuery]string url) { 
 			if (Path.GetExtension(url) != ".csv"){
 				ModelState.AddModelError("File", $"The request couldn't be processed (Error 3).");  // Log error
 				return BadRequest(ModelState);

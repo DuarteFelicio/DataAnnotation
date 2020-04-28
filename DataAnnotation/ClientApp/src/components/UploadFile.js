@@ -47,13 +47,32 @@ export class UploadFile extends Component {
         }       
     }
 
-    //troll post, passar parametro pelo header yikes
+
     async uploadFromUrl(url) {
         const token = await authService.getAccessToken()
-        const response = await fetch('FileUpload/Remote', {
+        const response = await fetch(`FileUpload/Remote?url=${url}`, {
             method: 'POST',
-            headers: !token ? { 'url': url } : { 'Authorization': `Bearer ${token}`, 'url': url }
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}`, 'url': url }
         })
+        const data = await response.json()
+        if (response.status == 201) {
+            this.setState({
+                accepted: this.state.accepted.add(
+                    {
+                        name: data.Name,
+                        size: data.Size
+                    })
+            })
+        }
+        else {
+            this.setState({
+                rejected: this.state.rejected.add(
+                    {
+                        name: data.key,
+                        size : ""
+                    })
+            })
+        }       
     }
 
 
@@ -86,7 +105,7 @@ export class UploadFile extends Component {
                 <aside>
                     <div className="url-container">
                         <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
-                        <button type="button" className="submit-btn" onClick={this.handleClick}>Upload</button>
+                        <button type="button" class="btn btn-outline-primary" onClick={this.handleClick}>Upload</button>
                     </div>
                     <h4>Accepted files:</h4>
                     <ul>

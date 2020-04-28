@@ -35,12 +35,18 @@ namespace DataAnnotation.Controllers
 			return Ok(_context.CsvFile.Where(f => f.UserId == userId).ToList());
 		}
 
+		[HttpDelete]
+		public IActionResult RemoveFile([FromQuery]int fileId)
+		{
+			
+			return Ok();
+		}
+
 		//so para teste
 		[HttpGet]
-		public IActionResult AnalyseFile(int fileId)
+		public IActionResult AnalyseFile([FromQuery]int fileId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			userId = "b842a218-4cb2-44b1-9ee3-d92f5903049a";
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
 			if (file.CsvFilesId == 0) return NotFound();
 
