@@ -57,20 +57,20 @@ export class UploadFile extends Component {
         const data = await response.json()
         if (response.status == 201) {
             this.setState({
-                accepted: this.state.accepted.push(
+                accepted: this.state.accepted.concat([
                     {
-                        name: data.Name,
-                        size: data.Size
-                    })
+                        name: data.name,
+                        size: data.size
+                    }])
             })
         }
         else {
             this.setState({
-                rejected: this.state.rejected.push(
+                rejected: this.state.rejected.concat([
                     {
                         name: data.key,
                         size : ""
-                    })
+                    }])
             })
         }       
     }
