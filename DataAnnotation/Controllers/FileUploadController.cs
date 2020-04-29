@@ -155,9 +155,6 @@ namespace DataAnnotation.Controllers
 		}
 
 		
-
-
-		//troll post, passar parametro pelo header yikes
 		[HttpPost]
 		//[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Remote([FromQuery]string url) { 
