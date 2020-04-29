@@ -68,7 +68,7 @@ export class Workspace extends Component {
                             {this.state.files.map(item => {
                                 return <div class="tab-pane fade" id={'details-' + item.csvFilesId} role="tabpanel" aria-labelledby={'list-' + item.csvFilesId}>
                                     <h5>File details</h5>
-                                    <p> Uploaded on: {item.uploadTime}</p>
+                                    <p> Uploaded on: {item.uploadTime.split("T")[0]}</p>
                                     <p> Uploaded from: {item.origin}</p>
                                     <p> size: {formatSize(item.size)}</p>
                                     <button type="button" class="btn btn-outline-primary" onClick={()=> this.Analyze(item.csvFilesId)}>Analyze</button>
