@@ -57,7 +57,7 @@ export class UploadFile extends Component {
         const data = await response.json()
         if (response.status == 201) {
             this.setState({
-                accepted: this.state.accepted.add(
+                accepted: this.state.accepted.push(
                     {
                         name: data.Name,
                         size: data.Size
@@ -66,7 +66,7 @@ export class UploadFile extends Component {
         }
         else {
             this.setState({
-                rejected: this.state.rejected.add(
+                rejected: this.state.rejected.push(
                     {
                         name: data.key,
                         size : ""
