@@ -82,6 +82,7 @@ namespace DataAnnotation.Models.Analysis
         private void GenerateGeoDivisoesList(List<DivisaoTerritorial>[] rows)
         {
             this.GeoDivisoes = new List<MD_Divisao>();
+            if (rows == null) return;
 
             for (int row = 0; row < rows.Length; row++)
             {
