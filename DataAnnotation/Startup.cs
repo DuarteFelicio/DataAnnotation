@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http.Features;
 using DataAnnotation.Attributes;
 using System;
 using Microsoft.VisualBasic;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace DataAnnotation
 {
@@ -90,6 +91,10 @@ namespace DataAnnotation
 			app.UseSpaStaticFiles();
 
 			app.UseRouting();
+			app.UseForwardedHeaders(new ForwardedHeadersOptions
+			{
+    				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+			});
 
 			app.UseAuthentication();
 			app.UseIdentityServer();
