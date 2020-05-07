@@ -58,14 +58,14 @@ export class UploadFile extends Component {
                 let percent = Math.floor((loaded * 100) / total)
                 console.log(`${loaded}kb of ${total}kb | ${percent}%`);
 
-                if (percent < 100) {
+                //if (percent < 100) {
                     var array = this.state.uploading
                     var names = array.map(o => o.name)
                     var index = names.indexOf(file.name)
                     array[index].percentage = percent;
                     this.setState({ uploadPercentage: array })
                     
-                }
+                //}
             },
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }
@@ -85,8 +85,9 @@ export class UploadFile extends Component {
                     this.setState({ accepted: this.state.accepted.concat(file) })
                 }, 1000)
             }).catch(err => {
+                this.removeFileUploading(file)
                 this.setState({ rejected: this.state.rejected.concat(file) })
-            });
+            })
     }
 
 
@@ -155,8 +156,11 @@ export class UploadFile extends Component {
                             this.state.uploading.map(o =>
                                 <li key={o.name}>{o.name}
                                     <div class="progress">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={this.state.uploading[this.state.uploading.indexOf(o)].percentage} aria-valuemin="0" aria-valuemax="100"></div>
-                             </div>
+                                        <div class="progress-bar progress-bar-striped active" role="progressbar"
+                                            aria-valuenow={o.percentage} aria-valuemin="0" aria-valuemax="100" style={{ width: o.percentage+'%' }}>
+                                            {o.percentage}%
+                                        </div>
+                                    </div>
                                 </li>)
 
                         }
