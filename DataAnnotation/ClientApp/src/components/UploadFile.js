@@ -124,15 +124,49 @@ export class UploadFile extends Component {
                 }, 1000)
             })
             .catch(err => {
-                this.removeFileUploading(name)
-                this.setState({
-                    rejected: this.state.rejected.concat([
-                        {
-                            name: url,
-                            size: "0"
-                        }])
-                })
+                setTimeout(() => {
+                    this.removeFileUploading(name)
+                    this.setState({
+                        rejected: this.state.rejected.concat([
+                            {
+                                name: url,
+                                size: 0
+                            }])
+                    })
+                }, 1000)
             })
+    }
+
+    renderUploadingFiles() {
+        if (!this.state.uploading.length) {
+            return;
+        }
+        var remoteOrLocal = (file) => {
+            if (file.method === "local") {
+                return (
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar"
+                            aria-valuenow={file.percentage} aria-valuemin="0" aria-valuemax="100" style={{ width: file.percentage + '%' }}>
+                            {file.percentage}%
+                        </div>
+                    </div>
+                )
+            }
+            // file remote
+            return (
+                <div class="spinner-border text-primary"></div>
+            )
+        }
+        return (
+            <div className="uploadingFiles">
+                <h4>Uploading files:</h4>
+                <ul>
+                    {this.state.uploading.map(o =>
+                        <li key={o.name}>{o.name}{remoteOrLocal(o)}</li>
+                    )}
+                </ul>
+            </div>
+        )
     }
 
     render() {
@@ -166,21 +200,7 @@ export class UploadFile extends Component {
                         <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
                         <button type="button" class="btn btn-outline-primary" onClick={this.handleClick}>Upload</button>
                     </div>
-                    <h4>Uploading files:</h4>
-                    <ul>
-                        {
-                            this.state.uploading.map(o =>
-                                <li key={o.name}>{o.name}
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-striped active" role="progressbar"
-                                            aria-valuenow={o.percentage} aria-valuemin="0" aria-valuemax="100" style={{ width: o.percentage+'%' }}>
-                                            {o.percentage}%
-                                        </div>
-                                    </div>
-                                </li>)
-
-                       
-                    </ul>
+                    {this.renderUploadingFiles()}
                     <h4>Accepted files:</h4>
                     <ul>
                         {
