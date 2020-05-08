@@ -19,10 +19,10 @@ export class UploadFile extends Component {
             uploading: []
         }
 
-        this.handleClick = this.handleClick.bind(this)
+        this.handleUploadFromUrlClick = this.handleUploadFromUrlClick.bind(this)
         this.upload = this.upload.bind(this)
-        this.removeFileUploading = this.removeFileUploading.bind(this)
-        this.handleProgress = this.handleProgress.bind(this)
+        this.uploadFromUrl = this.uploadFromUrl.bind(this)
+        this.formatSize = this.formatSize.bind(this)
     }
  
     removeFileUploading(name) {
@@ -43,21 +43,15 @@ export class UploadFile extends Component {
         })
     }
 
-    handleClick(e){
+    handleUploadFromUrlClick(e) {
         e.preventDefault()
         this.uploadFromUrl(this.state.url)
     }
 
-    handleProgress(progressEvent, name) {
-        const { loaded, total } = progressEvent;
-        let percent = Math.floor((loaded * 100) / total)
-        console.log(`${loaded}kb of ${total}kb | ${percent}%`);
-
-        var array = this.state.uploading
-        var names = array.map(o => o.name)
-        var index = names.indexOf(name)
-        array[index].percentage = percent;
-        this.setState({ uploadPercentage: array })
+    formatSize(size, b = 2){
+        if (0 === size) return "0 Bytes";
+        const c = 0 > b ? 0 : b, d = Math.floor(Math.log(size) / Math.log(1024));
+        return parseFloat((size / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
     }
 
     async upload(file) {
@@ -67,7 +61,14 @@ export class UploadFile extends Component {
         
         const options = {
             onUploadProgress: (progressEvent) => {
-                this.handleProgress(progressEvent, file.name)
+                const { loaded, total } = progressEvent;
+                let percent = Math.floor((loaded * 100) / total)
+                console.log(`${loaded}kb of ${total}kb | ${percent}%`);
+                var array = this.state.uploading
+                var names = array.map(o => o.name)
+                var index = names.indexOf(file.name)
+                array[index].percentage = percent;
+                this.setState({ uploadPercentage: array })
             },
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }
@@ -136,7 +137,7 @@ export class UploadFile extends Component {
                 }, 1000)
             })
     }
-
+  
     renderUploadingFiles() {
         if (!this.state.uploading.length) {
             return;
@@ -151,8 +152,7 @@ export class UploadFile extends Component {
                         </div>
                     </div>
                 )
-            }
-            // file remote
+            }            
             return (
                 <div class="spinner-border text-primary"></div>
             )
@@ -169,13 +169,75 @@ export class UploadFile extends Component {
         )
     }
 
-    render() {
-        const formatSize = (size, b = 2) => {
-            if (0 === size) return "0 Bytes";
-            const c = 0 > b ? 0 : b, d = Math.floor(Math.log(size) / Math.log(1024));
-            return parseFloat((size / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
-        }
+    renderFiles() {
+        return (
+            <div class="row">
+                {this.renderAcceptedFiles()}
+                {this.renderRejectedFiles()}               
+            </div>
+       )
+    }
 
+    renderAcceptedFiles() {
+        if (!this.state.accepted.length) {
+            return
+        }
+        return (
+            <div class="col-6"v>
+                <h4>Accepted files:</h4>
+                <ul class="list-group">
+                    {
+                        this.state.accepted.map(f => <li class="list-group-item">
+                            <div class="row">
+                                <div class="column">
+                                    <svg class="bi bi-file-earmark-arrow-down" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z" />
+                                        <path d="M9 4.5V1l5 5h-3.5A1.5 1.5 0 019 4.5z" />
+                                        <path fill-rule="evenodd" d="M5.646 9.146a.5.5 0 01.708 0L8 10.793l1.646-1.647a.5.5 0 01.708.708l-2 2a.5.5 0 01-.708 0l-2-2a.5.5 0 010-.708z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd" d="M8 6a.5.5 0 01.5.5v4a.5.5 0 01-1 0v-4A.5.5 0 018 6z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="column">
+                                    {f.name} - {this.formatSize(f.size)} 
+                                </div>
+                            </div>
+                        </li>)
+                    }
+                </ul>
+            </div>
+            )
+    }
+
+    renderRejectedFiles() {
+        if (!this.state.rejected.length) {
+            return
+        }
+        return (
+            <div class="col-6">
+                <h4>Rejected files:</h4>
+                <ul class="list-group">
+                    {
+                        this.state.rejected.map(f => <li class="list-group-item">
+                            <div class="row">
+                                <div class="column">
+                                    <svg class="bi bi-x-circle" width="50" height="25" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 108 0a8 8 0 000 16z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd" />
+                                        </svg>
+                                </div>
+                                <div class="column">
+                                    {f.name} - {this.formatSize(f.size)} 
+                                </div>
+                            </div>
+                        </li>)
+                    }
+                </ul>
+            </div>
+        )
+    }
+
+    render() {        
         return (
             <section className = "container">
                 <div className="root-dropzone">
@@ -198,21 +260,11 @@ export class UploadFile extends Component {
                 <aside>
                     <div className="url-container">
                         <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
-                        <button type="button" class="btn btn-outline-primary" onClick={this.handleClick}>Upload</button>
+                        <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
                     </div>
                     {this.renderUploadingFiles()}
-                    <h4>Accepted files:</h4>
-                    <ul>
-                        {
-                            this.state.accepted.map(f => <li key={f.name}>{f.name} - {formatSize(f.size)} </li>)
-                        }
-                    </ul>
-                    <h4>Rejected files:</h4>
-                    <ul>
-                        {
-                            this.state.rejected.map(f => <li key={f.name}>{f.name} - {formatSize(f.size)} </li>)
-                        }
-                    </ul>
+                    {this.renderFiles()}
+                    
                 </aside>
             </section>
         );
