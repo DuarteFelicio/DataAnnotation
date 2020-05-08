@@ -93,7 +93,6 @@ export class UploadFile extends Component {
             })
     }
 
-
     async uploadFromUrl(url) {
         const token = await authService.getAccessToken()
         var urlArray = url.split('/')
@@ -136,7 +135,6 @@ export class UploadFile extends Component {
             })
     }
 
-
     render() {
         const formatSize = (size, b = 2) => {
             if (0 === size) return "0 Bytes";
@@ -168,7 +166,7 @@ export class UploadFile extends Component {
                         <input type="text" name="url" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
                         <button type="button" class="btn btn-outline-primary" onClick={this.handleClick}>Upload</button>
                     </div>
-                    {this.state.uploading.length>0 && <h4>Uploading files:</h4>
+                    <h4>Uploading files:</h4>
                     <ul>
                         {
                             this.state.uploading.map(o =>
@@ -181,8 +179,8 @@ export class UploadFile extends Component {
                                     </div>
                                 </li>)
 
-                        }
-                    </ul>}
+                       
+                    </ul>
                     <h4>Accepted files:</h4>
                     <ul>
                         {
@@ -200,3 +198,6 @@ export class UploadFile extends Component {
         );
     }
 }
+
+
+
