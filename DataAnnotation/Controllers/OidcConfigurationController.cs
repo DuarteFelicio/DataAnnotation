@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DataAnnotation.Controllers
 {
+
 	public class OidcConfigurationController : Controller
 	{
 		private readonly ILogger<OidcConfigurationController> _logger;
