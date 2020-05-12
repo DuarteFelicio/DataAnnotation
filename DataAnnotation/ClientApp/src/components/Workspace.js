@@ -23,23 +23,40 @@ export class Workspace extends Component {
         this.setState({ files: data })
     }
 
+    removeFile(Id) {
+        var array = this.state.files
+        var ids = array.map(o => o.csvFilesId)
+        var index = ids.indexOf(Id)
+        if (index !== -1) {
+            array.splice(index, 1)
+            this.setState({
+                files: array
+            })
+        }
+    }
+
     async Analyze(id) {
         const token = await authService.getAccessToken();
-        const response = await fetch(`Workspace/AnalyseFile?fileId=${id}`, {
+        fetch(`Workspace/AnalyseFile?fileId=${id}`, {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => {
+
         })
-        const data =  await response.json()
-      
+        
     }
 
     async Remove(id) {
         const token = await authService.getAccessToken();
-        const response = await fetch(`Workspace/RemoveFile?fileId=${id}`, {
+        fetch(`Workspace/RemoveFile?fileId=${id}`, {
             method: 'DELETE',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
-        const data = await response.json()
+            .then(res => res.json())
+            .then(response => {
+                this.removeFile(id)
+            })
+        
     }
 
     render() {
