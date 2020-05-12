@@ -9,6 +9,9 @@ using DataAnnotation.Models;
 using DataAnnotation.Utilities;
 using System.Data;
 using DataAnnotation.Models.Analysis;
+using System;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace DataAnnotation.Controllers
 {
@@ -38,7 +41,33 @@ namespace DataAnnotation.Controllers
 		[HttpDelete]
 		public IActionResult RemoveFile([FromQuery]int fileId)
 		{
-			
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
+			if (file.CsvFilesId == 0) return NotFound();
+
+			string filepath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
+
+			try
+			{
+				_context.CsvFile.Remove(file);
+				_context.SaveChanges();
+				System.IO.File.Delete(filepath);
+				//to do remove analysis
+			}
+			catch (DbUpdateException e)
+			{
+				return StatusCode(500, e);
+			}
+			catch (Exception e)
+			{
+				_context.CsvFile.Add(file);
+				_context.SaveChanges();
+				return StatusCode(500, e);
+			}
+			finally
+			{
+				_context.Dispose();
+			}
 			return Ok();
 		}
 
@@ -50,10 +79,15 @@ namespace DataAnnotation.Controllers
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
 			if (file.CsvFilesId == 0) return NotFound();
 
-			string filepath = Path.Combine(_targetFilePath,Path.Combine(userId, file.FileNameStorage));
+			string folderPath = Path.Combine(_targetFilePath, userId);
+			string filePath = Path.Combine(folderPath, file.FileNameStorage);
 
 			AnalyseCsvFile analyseCsvFile = new AnalyseCsvFile(_context);
-			Metadata metadata = analyseCsvFile.InitAnalysis(filepath,file);
+			Metadata metadata = analyseCsvFile.InitAnalysis(filePath, file);
+
+			var json = JsonSerializer.Serialize(metadata);
+			filePath += "_analysis";
+			System.IO.File.WriteAllText(filePath, json);
 
 			return Ok(metadata);
 		}
