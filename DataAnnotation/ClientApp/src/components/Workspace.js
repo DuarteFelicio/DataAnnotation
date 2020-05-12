@@ -40,7 +40,8 @@ export class Workspace extends Component {
         fetch(`Workspace/AnalyseFile?fileId=${id}`, {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        }).then(res => {
+        })
+            .then(res => {
 
         })
         
@@ -52,11 +53,7 @@ export class Workspace extends Component {
             method: 'DELETE',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
-            .then(res => res.json())
-            .then(response => {
-                this.removeFile(id)
-            })
-        
+            .then(res => this.removeFile(id))                   
     }
 
     render() {
