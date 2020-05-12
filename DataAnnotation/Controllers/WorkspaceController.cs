@@ -45,14 +45,18 @@ namespace DataAnnotation.Controllers
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
 			if (file.CsvFilesId == 0) return NotFound();
 
-			string filepath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
+			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
 
 			try
 			{
 				_context.CsvFile.Remove(file);
 				_context.SaveChanges();
-				System.IO.File.Delete(filepath);
-				//to do remove analysis
+				System.IO.File.Delete(filePath);
+				if(file.AnalysisCompletionTime != null)
+				{
+					filePath += "_analysis";
+					System.IO.File.Delete(filePath);
+				}
 			}
 			catch (DbUpdateException e)
 			{
