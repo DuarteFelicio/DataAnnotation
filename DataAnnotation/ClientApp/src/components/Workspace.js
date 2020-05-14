@@ -84,8 +84,8 @@ export class Workspace extends Component {
                             })}
                         </div>
                     </div>
-                    <div class="col-4">
-                        <div class="tab-content" id="nav-tabContent">
+                    <div class="col-4" >
+                        <div class="tab-content" id="nav-tabContent" >
                             {this.state.files.map(item => {
                                 return <div class="tab-pane fade" id={'details-' + item.csvFilesId} role="tabpanel" aria-labelledby={'list-' + item.csvFilesId}>
                                     <h5>File details</h5>

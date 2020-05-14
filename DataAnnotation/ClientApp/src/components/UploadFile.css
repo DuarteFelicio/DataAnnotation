@@ -3,13 +3,21 @@
 }
 
 .dropzone {
-    display: flex;
-    justify-content: center;
+    display: flex;    
     align-items: center;
+    margin-bottom: 25px;
     width: 100%;
     height: 150px;
     border-style: dashed;
     border-color: lightslategrey;
-    background-color: #ff0000;
+    background-color: whitesmoke;
+}
+
+.container .url-container{
+    margin-bottom : 30px;
+}
+
+.container .url-container .login-input {
+    margin-right: 5px;
 }
 
