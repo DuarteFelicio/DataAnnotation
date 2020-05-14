@@ -2,6 +2,7 @@
 import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
+import './Workspace.css'
 
 export class Workspace extends Component {
 
