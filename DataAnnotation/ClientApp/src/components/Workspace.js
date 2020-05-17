@@ -50,19 +50,20 @@ export class Workspace extends Component {
         fetch(`Workspace/AnalyseFile?fileId=${id}`, {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        })
-            .then(res => {
+        }).then(res => {
+            res.json().then(newFile => {
                 array.forEach(f => {
                     if (f.csvFilesId === id) {
-                        //f = res.file
-                        f.isAnalysing = false;
-
-                        
+                        f.analysisCompletionTime = newFile.analysisCompletionTime
+                        f.analysisDuration = newFile.analysisDuration
+                        f.rowsCount = newFile.rowsCount
+                        f.columnsCount = newFile.columnsCount
+                        f.isAnalysing = false
                     }
                 })
                 this.setState({ files: array })
+            })
         })
-        
     }
 
     async Remove(id) {
@@ -92,7 +93,7 @@ export class Workspace extends Component {
             return (
                 <div>
                     {!isAnalysing && <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFilesId)}>Analyze</button>}
-                    {isAnalysing && <div class="spinner-border text-primary"></div>}
+                    {isAnalysing && <div><p>Analysing</p><div class="spinner-border text-primary"></div></div>}
                 </div>
             )
         }
