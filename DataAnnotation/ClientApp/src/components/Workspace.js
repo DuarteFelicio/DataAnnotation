@@ -13,6 +13,7 @@ export class Workspace extends Component {
         this.state = {
             files: []
         }
+
     }
 
     async componentDidMount() {
@@ -20,7 +21,8 @@ export class Workspace extends Component {
         const response = await fetch('Workspace/GetUserFiles', {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
-        const data = await response.json()
+        const data = await response.json()      
+        data.forEach(f => f.isAnalysing = false)
         this.setState({ files: data })
     }
 
@@ -38,12 +40,27 @@ export class Workspace extends Component {
 
     async Analyze(id) {
         const token = await authService.getAccessToken();
+        var array = this.state.files
+        array.forEach(f => {
+            if (f.csvFilesId === id) {
+                f.isAnalysing = true;
+            }
+        })
+        this.setState({files : array})
         fetch(`Workspace/AnalyseFile?fileId=${id}`, {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
             .then(res => {
+                array.forEach(f => {
+                    if (f.csvFilesId === id) {
+                        //f = res.file
+                        f.isAnalysing = false;
 
+                        
+                    }
+                })
+                this.setState({ files: array })
         })
         
     }
@@ -55,6 +72,37 @@ export class Workspace extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
             .then(res => this.removeFile(id))                   
+    }
+
+    showTime(value) {
+        var str = ""
+        if (value.hours !== 0)
+            str += value.hours + "h "
+        if (value.minutes !== 0)
+            str += value.minutes + "m "
+        if (value.seconds !== 0)
+            str += value.seconds +  "s "
+        str += value.milliseconds + "ms "
+        return str
+    }
+
+    renderFileInfo(item) {
+        var isAnalysing = item.isAnalysing;
+        if (item.analysisDuration === null) { // ainda não analizou
+            return (
+                <div>
+                    {!isAnalysing && <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFilesId)}>Analyze</button>}
+                    {isAnalysing && <div class="spinner-border text-primary"></div>}
+                </div>
+            )
+        }
+        return (    //já analizou
+            <div>
+                <p> Analysis Duration: {this.showTime(item.analysisDuration.value)}</p>
+                <p> Analysis Completed on: {item.analysisCompletionTime.split("T")[0]}</p>
+                <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFilesId)}>Go to Analysis</button>
+            </div>
+            )
     }
 
     render() {
@@ -93,8 +141,9 @@ export class Workspace extends Component {
                                     <p> Uploaded on: {item.uploadTime.split("T")[0]}</p>
                                     <p> Uploaded from: {item.origin}</p>
                                     <p> size: {formatSize(item.size)}</p>
-                                    <button type="button" class="btn btn-outline-primary" onClick={()=> this.Analyze(item.csvFilesId)}>Analyze</button>
-                                    <button type="button" class="btn btn-outline-danger" onClick={()=> this.Remove(item.csvFilesId)}>Remove</button>
+                                    {this.renderFileInfo(item)}
+                                    <button type="button" class="btn btn-outline-danger" onClick={() => this.Remove(item.csvFilesId)}>Remove</button>
+
                                 </div>
                             })}
                         </div>
