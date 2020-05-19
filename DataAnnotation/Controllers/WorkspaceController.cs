@@ -93,7 +93,7 @@ namespace DataAnnotation.Controllers
 			filePath += "_analysis";
 			System.IO.File.WriteAllText(filePath, json);
 
-			return Ok(metadata);
+			return Ok(file);
 		}
 	}
 }
