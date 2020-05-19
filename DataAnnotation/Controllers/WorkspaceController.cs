@@ -12,10 +12,12 @@ using DataAnnotation.Models.Analysis;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using RabbitMQ.Client;
+using System.Text;
 
 namespace DataAnnotation.Controllers
 {
-	[Authorize]
+	//[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
 	public class WorkspaceController : Controller
@@ -94,6 +96,61 @@ namespace DataAnnotation.Controllers
 			System.IO.File.WriteAllText(filePath, json);
 
 			return Ok(file);
+		}
+
+		[HttpGet]
+		public IActionResult DownloadAnalysis([FromQuery]int fileId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
+			if (file.CsvFilesId == 0) return NotFound();
+
+			string folderPath = Path.Combine(_targetFilePath, userId);
+			string filePath = Path.Combine(folderPath, file.FileNameStorage);
+			filePath += "_analysis";
+			FileStream fileStream = System.IO.File.OpenRead(filePath);
+			return File(fileStream, "application/octet-stream");
+		}
+
+		[HttpGet]
+		public IActionResult ReturnAnalysis([FromQuery]int fileId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
+			if (file.CsvFilesId == 0) return NotFound();
+
+			string folderPath = Path.Combine(_targetFilePath, userId);
+			string filePath = Path.Combine(folderPath, file.FileNameStorage);
+			filePath += "_analysis";
+			var json = System.IO.File.ReadAllText(filePath);
+			return Ok(json);
+		}
+
+		//so para teste
+		[HttpGet]
+		public IActionResult Sender([FromQuery]int fileId)
+		{
+			var factory = new ConnectionFactory() { HostName = "localhost" };	//as longs as it is running in the same machine
+			using (var connection = factory.CreateConnection())
+			using (var channel = connection.CreateModel())
+			{
+				channel.QueueDeclare(queue: "orders",
+									 durable: false,
+									 exclusive: false,
+									 autoDelete: false,
+									 arguments: null);
+
+				string message = "Hello World!";
+				var body = Encoding.UTF8.GetBytes(message);
+
+				channel.BasicPublish(exchange: "",
+									 routingKey: "orders",
+									 basicProperties: null,
+									 body: body);
+				Console.WriteLine(" [x] Sent {0}", message);
+			}
+
+			return Ok();
 		}
 	}
 }

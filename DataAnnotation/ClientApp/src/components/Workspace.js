@@ -66,6 +66,30 @@ export class Workspace extends Component {
         })
     }
 
+    async Analyzis(id) {
+        const token = await authService.getAccessToken();
+        
+        fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => {
+            res.json().then(metadata => {
+            })
+        })
+    }
+
+    async DownloadAnalyzis(id) {
+        const token = await authService.getAccessToken();
+
+        fetch(`Workspace/DownloadAnalysis?fileId=${id}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => {
+            res.json().then(file => {
+            })
+        })
+    }
+
     async Remove(id) {
         const token = await authService.getAccessToken();
         fetch(`Workspace/RemoveFile?fileId=${id}`, {
@@ -101,7 +125,8 @@ export class Workspace extends Component {
             <div>
                 <p> Analysis Duration: {this.showTime(item.analysisDuration.value)}</p>
                 <p> Analysis Completed on: {item.analysisCompletionTime.split("T")[0]}</p>
-                <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFilesId)}>Go to Analysis</button>
+                <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyzis(item.csvFilesId)}>Go to Analysis</button>
+                <button type="button" class="btn btn-outline-primary" onClick={() => this.DownloadAnalyzis(item.csvFilesId)}>Download Analysis</button>
             </div>
             )
     }
