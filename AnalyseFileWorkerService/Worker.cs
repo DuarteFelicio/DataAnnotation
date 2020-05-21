@@ -20,7 +20,6 @@ namespace AnalyseFileWorkerService
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly DataAnnotationDBContext _context = new DataAnnotationDBContext();
 
         public Worker(ILogger<Worker> logger)
         {
@@ -64,37 +63,48 @@ namespace AnalyseFileWorkerService
         {
             int fileId = int.Parse(message.Split("|")[0]);
             string filePath = message.Split("|")[1];
+            Metadata metadata;
 
-            CsvFile file = _context.CsvFile.Where(f => f.CsvFilesId == fileId).FirstOrDefault();
-            if (file.CsvFilesId == 0) ; //return NotFound();
-
-            DateTime timeInit = DateTime.Now;
-            DataTable data = new DataTable();
-            using (GenericParserAdapter parser = new GenericParserAdapter())
+            DataAnnotationDBContext _context;
+            using (_context = new DataAnnotationDBContext())
             {
-                parser.SetDataSource(filePath);
-                parser.ColumnDelimiter = ';';
-                parser.FirstRowHasHeader = true;
-                data = parser.GetDataTable();
-            }
-            file.ColumnsCount = data.Columns.Count;
-            file.RowsCount = data.Rows.Count;
-            _context.CsvFile.Update(file);
-            _context.SaveChanges();
+                
 
-            CsvFileEx fileEx = new CsvFileEx(data, file, _context);
-            fileEx.InitIntraAnalysis();
-            fileEx.InitDivisoesCompare();
-            fileEx.CheckMetricsRelations();
-            Metadata metadata = new Metadata(file, fileEx, timeInit, _context);
+                CsvFile file = _context.CsvFile.Where(f => f.CsvFilesId == fileId).FirstOrDefault();
+                if (file.CsvFilesId == 0)
+                {
+                    _logger.LogInformation("Message {0} - File not found in database", message);
+                    return;
+                }
+
+
+                DateTime timeInit = DateTime.Now;
+                DataTable data = new DataTable();
+                using (GenericParserAdapter parser = new GenericParserAdapter())
+                {
+                    parser.SetDataSource(filePath);
+                    parser.ColumnDelimiter = ';';
+                    parser.FirstRowHasHeader = true;
+                    data = parser.GetDataTable();
+                }
+                file.ColumnsCount = data.Columns.Count;
+                file.RowsCount = data.Rows.Count;
+                _context.CsvFile.Update(file);
+                _context.SaveChanges();
+
+                CsvFileEx fileEx = new CsvFileEx(data, file, _context);
+                fileEx.InitIntraAnalysis();
+                fileEx.InitDivisoesCompare();
+                fileEx.CheckMetricsRelations();
+                metadata = new Metadata(file, fileEx, timeInit, _context);
+            }
 
             var json = JsonSerializer.Serialize(metadata);
             filePath += "_analysis";
             System.IO.File.WriteAllText(filePath, json);
 
-            _logger.LogInformation("Message {0} Work Complete", message);
+            _logger.LogInformation("Message {0} - Work Complete", message);
 
-            //rabbitmq mandar msg de completion
         }
     }
 }

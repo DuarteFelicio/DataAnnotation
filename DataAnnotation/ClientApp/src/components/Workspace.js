@@ -51,19 +51,39 @@ export class Workspace extends Component {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => {
-            /*res.json().then(newFile => {
-                array.forEach(f => {
-                    if (f.csvFilesId === id) {
-                        f.analysisCompletionTime = newFile.analysisCompletionTime
-                        f.analysisDuration = newFile.analysisDuration
-                        f.rowsCount = newFile.rowsCount
-                        f.columnsCount = newFile.columnsCount
-                        f.isAnalysing = false
-                    }
-                })
-                this.setState({ files: array })
-            })*/
+            this.checkAnalysisStatus(id,token)
         })
+    }
+
+    async checkAnalysisStatus(id, token) {
+        var array = this.state.files
+        var requestLoop = setInterval(function () {
+            fetch(`Workspace/IsAnalysisComplete?fileId=${id}`, {
+                method: 'GET',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => {
+                console.log(res.status)
+                if (res.status !== 204) { //204 = empty response -> not yet completed analysis
+                    res.json().then(newFile => {
+                        array.forEach(f => {
+                            if (f.csvFilesId === id) {
+                                f.analysisCompletionTime = newFile.analysisCompletionTime
+                                f.analysisDuration = newFile.analysisDuration
+                                f.rowsCount = newFile.rowsCount
+                                f.columnsCount = newFile.columnsCount
+                                f.isAnalysing = false
+                            }
+                        })
+                        stopLoop(array)
+                    })
+                }
+            })
+        }, 5000); //5 seconds?
+
+        var stopLoop = (newArray) => {
+            this.setState({ files: newArray })
+            clearInterval(requestLoop)
+        }
     }
 
     async Analyzis(id) {

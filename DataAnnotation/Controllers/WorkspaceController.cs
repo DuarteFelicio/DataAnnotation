@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using RabbitMQ.Client;
 using System.Text;
+using RabbitMQ.Client.Events;
+using System.Threading;
 
 namespace DataAnnotation.Controllers
 {
@@ -119,6 +121,22 @@ namespace DataAnnotation.Controllers
 			return Ok(json);
 		}
 
+		[HttpGet]
+		public IActionResult IsAnalysisComplete([FromQuery]int fileId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
+			if (file.CsvFilesId == 0) return NotFound();
+
+			string folderPath = Path.Combine(_targetFilePath, userId);
+			string filePath = Path.Combine(folderPath, file.FileNameStorage);
+			filePath += "_analysis";
+			if(System.IO.File.Exists(filePath))
+			{
+				return Ok(file);
+			}
+			return NoContent();
+		}
 
 		public void Sender(int fileId, string filePath)
 		{
