@@ -51,7 +51,7 @@ export class Workspace extends Component {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => {
-            res.json().then(newFile => {
+            /*res.json().then(newFile => {
                 array.forEach(f => {
                     if (f.csvFilesId === id) {
                         f.analysisCompletionTime = newFile.analysisCompletionTime
@@ -62,7 +62,7 @@ export class Workspace extends Component {
                     }
                 })
                 this.setState({ files: array })
-            })
+            })*/
         })
     }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using AnalyseFileWorkerService.Models;
 
 namespace DataAnnotation.Models.Analysis
 {

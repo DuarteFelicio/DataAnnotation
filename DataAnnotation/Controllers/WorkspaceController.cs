@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using DataAnnotation.Models;
 using DataAnnotation.Utilities;
 using System.Data;
-using DataAnnotation.Models.Analysis;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -77,7 +76,6 @@ namespace DataAnnotation.Controllers
 			return Ok();
 		}
 
-		//so para teste
 		[HttpGet]
 		public IActionResult AnalyseFile([FromQuery]int fileId)
 		{
@@ -88,12 +86,7 @@ namespace DataAnnotation.Controllers
 			string folderPath = Path.Combine(_targetFilePath, userId);
 			string filePath = Path.Combine(folderPath, file.FileNameStorage);
 
-			AnalyseCsvFile analyseCsvFile = new AnalyseCsvFile(_context);
-			Metadata metadata = analyseCsvFile.InitAnalysis(filePath, file);
-
-			var json = JsonSerializer.Serialize(metadata);
-			filePath += "_analysis";
-			System.IO.File.WriteAllText(filePath, json);
+			Sender(fileId, filePath);
 
 			return Ok(file);
 		}
@@ -126,9 +119,8 @@ namespace DataAnnotation.Controllers
 			return Ok(json);
 		}
 
-		//so para teste
-		[HttpGet]
-		public IActionResult Sender([FromQuery]int fileId)
+
+		public void Sender(int fileId, string filePath)
 		{
 			var factory = new ConnectionFactory() { HostName = "localhost" };	//as longs as it is running in the same machine
 			using (var connection = factory.CreateConnection())
@@ -140,17 +132,16 @@ namespace DataAnnotation.Controllers
 									 autoDelete: false,
 									 arguments: null);
 
-				string message = "Hello World!";
+				string message = fileId + "|" + filePath;
 				var body = Encoding.UTF8.GetBytes(message);
 
 				channel.BasicPublish(exchange: "",
 									 routingKey: "orders",
 									 basicProperties: null,
 									 body: body);
-				Console.WriteLine(" [x] Sent {0}", message);
-			}
 
-			return Ok();
+				_logger.LogInformation("[x] Sent {0} ", message);
+			}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,12 +9,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using GenericParsing;
+using AnalyseFileWorkerService.Models;
+using DataAnnotation.Models.Analysis;
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace AnalyseFileWorkerService
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly DataAnnotationDBContext _context = new DataAnnotationDBContext();
 
         public Worker(ILogger<Worker> logger)
         {
@@ -37,7 +44,7 @@ namespace AnalyseFileWorkerService
                 {
                     var body = ea.Body;
                     var message = Encoding.UTF8.GetString(body.ToArray());
-                    //_logger.LogInformation("Recieved {0}", message);
+                    _logger.LogInformation("Recieved {0}", message);
                     ThreadPool.QueueUserWorkItem((state)=> Work(message));
                 };
                 channel.BasicConsume(queue: "orders",
@@ -55,10 +62,39 @@ namespace AnalyseFileWorkerService
 
         private void Work(string message)
         {
-            for(int i =0; i<500000000; ++i)
-            {
+            int fileId = int.Parse(message.Split("|")[0]);
+            string filePath = message.Split("|")[1];
 
+            CsvFile file = _context.CsvFile.Where(f => f.CsvFilesId == fileId).FirstOrDefault();
+            if (file.CsvFilesId == 0) ; //return NotFound();
+
+            DateTime timeInit = DateTime.Now;
+            DataTable data = new DataTable();
+            using (GenericParserAdapter parser = new GenericParserAdapter())
+            {
+                parser.SetDataSource(filePath);
+                parser.ColumnDelimiter = ';';
+                parser.FirstRowHasHeader = true;
+                data = parser.GetDataTable();
             }
+            file.ColumnsCount = data.Columns.Count;
+            file.RowsCount = data.Rows.Count;
+            _context.CsvFile.Update(file);
+            _context.SaveChanges();
+
+            CsvFileEx fileEx = new CsvFileEx(data, file, _context);
+            fileEx.InitIntraAnalysis();
+            fileEx.InitDivisoesCompare();
+            fileEx.CheckMetricsRelations();
+            Metadata metadata = new Metadata(file, fileEx, timeInit, _context);
+
+            var json = JsonSerializer.Serialize(metadata);
+            filePath += "_analysis";
+            System.IO.File.WriteAllText(filePath, json);
+
+            _logger.LogInformation("Message {0} Work Complete", message);
+
+            //rabbitmq mandar msg de completion
         }
     }
 }
