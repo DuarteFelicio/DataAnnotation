@@ -33,8 +33,6 @@ namespace DataAnnotation.Models
         {
             modelBuilder.Entity<CsvFile>(entity =>
             {
-                entity.HasKey(e => e.CsvFilesId);
-
                 entity.Property(e => e.FileNameDisplay)
                     .IsRequired()
                     .HasMaxLength(500);
@@ -268,6 +266,7 @@ namespace DataAnnotation.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
 
         public List<T> ExecSQL<T>(string query)
         {

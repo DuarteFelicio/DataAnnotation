@@ -29,21 +29,10 @@ namespace AnalyseFileWorkerService.Models
         public virtual DbSet<UnidadesTerritoriais> UnidadesTerritoriais { get; set; }
         public virtual DbSet<UtNomesAlternativos> UtNomesAlternativos { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=DUDUZAN\\DUDUZAN;Initial Catalog=DataAnnotationDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CsvFile>(entity =>
             {
-                entity.HasKey(e => e.CsvFilesId);
-
                 entity.Property(e => e.FileNameDisplay)
                     .IsRequired()
                     .HasMaxLength(500);
@@ -277,6 +266,7 @@ namespace AnalyseFileWorkerService.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
 
         public List<T> ExecSQL<T>(string query)
         {

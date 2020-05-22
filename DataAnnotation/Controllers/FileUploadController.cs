@@ -206,7 +206,7 @@ namespace DataAnnotation.Controllers
 			return Created(nameof(FileUploadController), response);
 		}
 	}
-
+	
 	public class CreatedResponse	//object response for upload by link, to give info to client
 	{
 		public CreatedResponse(string name, long size)
@@ -218,4 +218,5 @@ namespace DataAnnotation.Controllers
 		public string Name { get; set; }
 		public long Size { get; set; }
 	}
+	
 }

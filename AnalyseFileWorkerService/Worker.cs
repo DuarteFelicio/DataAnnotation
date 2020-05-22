@@ -14,16 +14,19 @@ using AnalyseFileWorkerService.Models;
 using DataAnnotation.Models.Analysis;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace AnalyseFileWorkerService
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly WorkerOptions options;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, WorkerOptions options)
         {
             _logger = logger;
+            this.options = options;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -66,12 +69,14 @@ namespace AnalyseFileWorkerService
             Metadata metadata;
 
             DataAnnotationDBContext _context;
-            using (_context = new DataAnnotationDBContext())
+            var optionsBuilder = new DbContextOptionsBuilder<DataAnnotationDBContext>();
+            optionsBuilder.UseSqlServer(options.DefaultConnection);
+            using (_context = new DataAnnotationDBContext(optionsBuilder.Options))
             {
                 
 
-                CsvFile file = _context.CsvFile.Where(f => f.CsvFilesId == fileId).FirstOrDefault();
-                if (file.CsvFilesId == 0)
+                CsvFile file = _context.CsvFile.Where(f => f.CsvFileId == fileId).FirstOrDefault();
+                if (file.CsvFileId == 0)
                 {
                     _logger.LogInformation("Message {0} - File not found in database", message);
                     return;

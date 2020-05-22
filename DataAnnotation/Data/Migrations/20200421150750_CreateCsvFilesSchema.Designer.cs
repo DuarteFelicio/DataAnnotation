@@ -11,7 +11,7 @@ namespace DataAnnotation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20200421150750_CreateCsvFilesSchema")]
-    partial class CreateCsvFilesSchema
+    partial class CreateCsvFileSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

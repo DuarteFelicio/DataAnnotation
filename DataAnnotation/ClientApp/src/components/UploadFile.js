@@ -196,7 +196,7 @@ export class UploadFile extends Component {
             return
         }
         return (
-            <div class="col-6"v>
+            <div class="col-6">
                 <h4>Accepted files:</h4>
                 <ul class="list-group">
                     {

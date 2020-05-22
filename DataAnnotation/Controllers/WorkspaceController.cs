@@ -45,8 +45,8 @@ namespace DataAnnotation.Controllers
 		public IActionResult RemoveFile([FromQuery]int fileId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
-			if (file.CsvFilesId == 0) return NotFound();
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
 
 			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
 
@@ -82,11 +82,15 @@ namespace DataAnnotation.Controllers
 		public IActionResult AnalyseFile([FromQuery]int fileId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
-			if (file.CsvFilesId == 0) return NotFound();
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId);
 			string filePath = Path.Combine(folderPath, file.FileNameStorage);
+
+			file.IsAnalysing = true;
+			_context.CsvFile.Update(file);
+			_context.SaveChanges();
 
 			Sender(fileId, filePath);
 
@@ -97,8 +101,8 @@ namespace DataAnnotation.Controllers
 		public IActionResult DownloadAnalysis([FromQuery]int fileId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
-			if (file.CsvFilesId == 0) return NotFound();
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId);
 			string filePath = Path.Combine(folderPath, file.FileNameStorage);
@@ -111,8 +115,8 @@ namespace DataAnnotation.Controllers
 		public IActionResult ReturnAnalysis([FromQuery]int fileId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
-			if (file.CsvFilesId == 0) return NotFound();
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId);
 			string filePath = Path.Combine(folderPath, file.FileNameStorage);
@@ -125,14 +129,17 @@ namespace DataAnnotation.Controllers
 		public IActionResult IsAnalysisComplete([FromQuery]int fileId)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFilesId == fileId).FirstOrDefault();
-			if (file.CsvFilesId == 0) return NotFound();
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId);
 			string filePath = Path.Combine(folderPath, file.FileNameStorage);
 			filePath += "_analysis";
 			if(System.IO.File.Exists(filePath))
 			{
+				file.IsAnalysing = false;
+				_context.CsvFile.Update(file);
+				_context.SaveChanges();
 				return Ok(file);
 			}
 			return NoContent();

@@ -3,7 +3,7 @@ using System;
 
 namespace DataAnnotation.Data.Migrations
 {
-	public partial class CreateCsvFilesSchema : Migration
+	public partial class CreateCsvFileSchema : Migration
 	{
 		protected override void Up(MigrationBuilder migrationBuilder)
 		{
@@ -11,7 +11,7 @@ namespace DataAnnotation.Data.Migrations
 				name: "CsvFile",
 				columns: table => new
 				{
-					CsvFilesId = table.Column<int>(nullable: false)
+					CsvFileId = table.Column<int>(nullable: false)
 					.Annotation("SqlServer:Identity", "1, 1"),
 					UserId = table.Column<string>(maxLength: 450, nullable: false),
 					RowsCount = table.Column<int>(nullable: true),
@@ -22,11 +22,12 @@ namespace DataAnnotation.Data.Migrations
 					FileNameStorage = table.Column<string>(maxLength: 500, nullable: false),
 					FileNameDisplay = table.Column<string>(maxLength: 500, nullable: false),
 					AnalysisDuration = table.Column<TimeSpan>(nullable: true),
-					AnalysisCompletionTime = table.Column<DateTime>(nullable: true)
+					AnalysisCompletionTime = table.Column<DateTime>(nullable: true),
+					IsAnalysing = table.Column<bool>(nullable:true)
 				},
 				constraints: table =>
 				{
-					table.PrimaryKey("PK_CsvFile", x => x.CsvFilesId);
+					table.PrimaryKey("PK_CsvFile", x => x.CsvFileId);
 					table.ForeignKey(
 						name: "FK_CsvFile_AspNetUsers_Id",
 						column: x => x.UserId,
@@ -40,7 +41,7 @@ namespace DataAnnotation.Data.Migrations
 		{
 
 			migrationBuilder.DropTable(
-				name: "CsvFiles");
+				name: "CsvFile");
 
 		}
 	}
