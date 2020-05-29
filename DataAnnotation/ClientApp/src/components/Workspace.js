@@ -56,8 +56,8 @@ export class Workspace extends Component {
         fetch(`Workspace/AnalyseFile?fileId=${id}`, {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        }).then(res => {
-            res.json().then(newFile => {
+        }).then(res => res.json())
+          .then(newFile => {
                 array.forEach(f => {
                     if (f.csvFileId === id) {
                         f.isAnalysing = newFile.isAnalysing
@@ -66,7 +66,7 @@ export class Workspace extends Component {
                 this.setState({ files: array })
             })
             this.checkAnalysisStatus(id,token)
-        })
+        
     }
 
     async checkAnalysisStatus(id, token) {
@@ -102,15 +102,7 @@ export class Workspace extends Component {
     }
 
     async Analyzis(id) {
-        const token = await authService.getAccessToken();
-        
-        fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
-            method: 'GET',
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        }).then(res => {
-            res.json().then(metadata => {
-            })
-        })
+        this.props.history.push(`/workspace/analysis/${id}`)
     }
 
     async DownloadAnalyzis(id,fileName) {
