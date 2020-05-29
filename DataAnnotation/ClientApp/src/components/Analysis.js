@@ -55,7 +55,7 @@ export class Analysis extends Component {
                 <div class="col-8">
                     <div class="row">
                         <div class="col-10">
-                            <h4>{this.state.metadata.Nome}</h4>
+                            <h4>{this.state.metadata.Nome.split('.')[0]}</h4>
                         </div>
                         <div class="col-2">
                             <div class="dropdown">
