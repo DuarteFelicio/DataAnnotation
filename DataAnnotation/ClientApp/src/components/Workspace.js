@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import { Container } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
@@ -173,7 +174,7 @@ export class Workspace extends Component {
 
 
         return (
-            <div className="Container"> 
+            <Container> 
                 <h1>My Workspace</h1>
                 <div class="row">
                     <div class = "col-sm-8">
@@ -208,7 +209,7 @@ export class Workspace extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            </Container>
         )
     }
 }
