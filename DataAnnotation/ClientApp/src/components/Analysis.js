@@ -42,7 +42,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 const getListStyle = isDraggingOver => ({
     background: isDraggingOver ? 'lightblue' : 'lightgrey',
     padding: grid,
-    width: 250
+    width: '100vw',
 });
 
 export class Analysis extends Component {
@@ -60,6 +60,7 @@ export class Analysis extends Component {
             Dimensoes: [],
             Metricas_Categorias: [],
             Metricas_Colunas: [],
+            Niveis_De_Detalhe: ""
         }
 
     }
@@ -70,6 +71,31 @@ export class Analysis extends Component {
     };
 
     getList = id => this.state[this.id2List[id]];
+
+    generateDetailLevels() {
+        let head
+        this.state.Metricas_Categorias.map(categoria => {
+            if (categoria.CategoriaPaiId === null) {
+                head = categoria
+            }
+        })
+        head.ChildrenCategories = this.findCategorieChildren(head)
+        this.setState({ Niveis_De_Detalhe : head })
+    }
+
+    findCategorieChildren(category) {
+        let children = []
+        this.state.Metricas_Categorias.map(categoria => {
+            if (categoria.CategoriaPaiId === category.CategoriaId) {
+                children.push(categoria)
+            }
+        })
+        //recursive
+        children.map(child => {
+            child.ChildrenCategories = this.findCategorieChildren(child)
+        })
+        return children
+    }
 
     async onLoadClick() {
 
@@ -105,6 +131,8 @@ export class Analysis extends Component {
             Metricas_Categorias: metadata.Metricas.Categorias,
             Metricas_Colunas: metadata.Metricas.Colunas
         })
+
+        this.generateDetailLevels()
     }
 
     renderMetricsAndDimensions() {
@@ -174,6 +202,23 @@ export class Analysis extends Component {
         )
     }
 
+    renderDetailLevels() {
+        return (
+            <div>
+                <div style={{ borderStyle : 'solid' }}>
+                    <Droppable droppableId="droppable3">
+                        {(droppableProvided, droppableSnapshot) => (
+                            <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
+                                {droppableProvided.placeholder}
+                                {this.state.Nome} 
+                            </div>
+                        )}
+                    </Droppable>
+                </div>
+            </div>
+        )
+    }
+
     onDragEnd = result => {
         const { source, destination } = result;
 
@@ -219,7 +264,7 @@ export class Analysis extends Component {
 
     render() {
         return (
-            <div class="row" style={{ height: '100vh', width: '100vw' }}>
+            <div class="row" style={{ height: '100vh', width: '100vw', margin: '20px' }}>
                 <DragDropContext onDragEnd={this.onDragEnd}>
                     <div class="col-3">
                         {this.renderMetricsAndDimensions()}
@@ -241,6 +286,9 @@ export class Analysis extends Component {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
+                            {this.renderDetailLevels()}
                         </div>
                     </div>
                 </DragDropContext>
