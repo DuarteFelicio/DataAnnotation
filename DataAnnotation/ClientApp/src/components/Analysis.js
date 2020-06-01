@@ -61,17 +61,40 @@ export class Analysis extends Component {
             GeoDivisoes: [],
             Dimensoes: [],
             Metricas_Categorias: [],
-            Metricas_Colunas: [],
-            Niveis_De_Detalhe: "",
-            Test: []
+            Metricas_Colunas: []
         }
+
+    }
+
+    async componentDidMount() {
+
+        const token = await authService.getAccessToken();
+        let id = this.props.match.params.id
+
+        fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => res.json())
+            .then(metadata => {
+                this.setState({
+                    Nome: metadata.Nome.split('.')[0],
+                    NumLinhas: metadata.NumLinhas,
+                    NumColunas: metadata.NumColunas,
+                    DataGeracao: metadata.DataGeracao,
+                    GeoDivisoes: metadata.GeoDivisoes,
+                    Dimensoes: metadata.Dimensoes,
+                    Metricas_Categorias: metadata.Metricas.Categorias,
+                    Metricas_Colunas: metadata.Metricas.Colunas
+                })
+
+                this.generateDetailLevels()
+            })
 
     }
 
     id2List = {
         droppable1: 'Dimensoes',
-        droppable2: 'Metricas_Colunas',
-        droppable3: 'Test'
+        droppable2: 'Metricas_Colunas',        
 
     };
 
@@ -81,7 +104,23 @@ export class Analysis extends Component {
     generateDetailLevels() {
         let array = []
         let columns = []
+        let metrics = []
+        this.state.Metricas_Colunas.forEach(col => {
+            if (col.CategoriaId !== null) {
+                if (columns[col.CategoriaId] === undefined) {
+                    columns[col.CategoriaId] = [col]
+                }
+                else {
+                    columns[col.CategoriaId].push(col)
+                }
+            }
+            else {
+                metrics.push(col)
+            }
+            
+        })
         this.state.Metricas_Categorias.forEach(c => {
+            c.columns = columns[c.CategoriaId]
             if (c.CategoriaPaiId === null) {
                 array[0] = c
             }
@@ -94,24 +133,16 @@ export class Analysis extends Component {
                 }
             }
         })
-        this.state.Metricas_Colunas.forEach(col => {
-            if (columns[col.CategoriaId] === undefined) {
-                columns[col.CategoriaId] = [col]
-            }
-            else {
-                columns[col.CategoriaId].push(col)
-            }
-        })
-        array[0].children = this.recursiveOrganize(array[0], array)
+        
+        array[0].children = this.recursiveOrganize(array[0], array, columns)
         this.setState({
-            Niveis_De_Detalhe: array[0]
+            Niveis_De_Detalhe: array[0],
+            Metricas_Colunas: metrics
         })
     }
 
-    // array[x].columns = columns[x]
-
     recursiveOrganize(categoria, array) {
-        let children = array[categoria.CategoriaId]
+        let children = array[categoria.CategoriaId]      
         if (children === undefined)return []
         children.forEach(c => {
             c.children = this.recursiveOrganize(c, array)
@@ -131,31 +162,45 @@ export class Analysis extends Component {
 
     }
 
-    async componentDidMount() {
-
-        const token = await authService.getAccessToken();
-        let id = this.props.match.params.id
-
-        fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
-            method: 'GET',
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        }).then(res => res.json())
-        .then(metadata => {
-            this.setState({
-                Nome: metadata.Nome.split('.')[0],
-                NumLinhas: metadata.NumLinhas,
-                NumColunas: metadata.NumColunas,
-                DataGeracao: metadata.DataGeracao,
-                GeoDivisoes: metadata.GeoDivisoes,
-                Dimensoes: metadata.Dimensoes,
-                Metricas_Categorias: metadata.Metricas.Categorias,
-                Metricas_Colunas: metadata.Metricas.Colunas
-            })
-
-            this.generateDetailLevels()
-        })
-        
+    recursiveDroppable(categoria) {
+        console.log(categoria)
+        if(categoria === undefined)return
+        return (
+            <div>
+            <Droppable droppableId={""+categoria.CategoriaId}>
+                {(droppableProvided, droppableSnapshot) => (
+                    <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
+                            {droppableProvided.placeholder}
+                            {categoria.Nome}                            
+                            {categoria.children.map(child => {
+                                this.recursiveDroppable(child)
+                            })}
+                    </div>
+                )}
+                </Droppable>
+                </div>
+            )
     }
+
+    /**
+     {categoria.columns.map((col, index) => (
+                            <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
+                                {(draggableProvided, draggableSnapshot) => (
+                                    <div
+                                        ref={draggableProvided.innerRef}
+                                        {...draggableProvided.draggableProps}
+                                        {...draggableProvided.dragHandleProps}
+                                        style={getItemStyle(
+                                            draggableSnapshot.isDragging,
+                                            draggableProvided.draggableProps.style
+                                        )}
+                                    >
+                                        {col.NomeColuna}
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+     * */
 
     renderMetricsAndDimensions() {
         return (
@@ -226,23 +271,8 @@ export class Analysis extends Component {
 
     renderDetailLevels() {
         return (
-            <div>
-                <Droppable droppableId="droppable3">
-                    {(droppableProvided, droppableSnapshot) => (
-                        <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
-                            {droppableProvided.placeholder}
-                            {this.state.Nome}
-                            <Droppable droppableId="droppable4">
-                                {(droppableProvided, droppableSnapshot) => (
-                                    <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
-                                        {droppableProvided.placeholder}
-                                        <p>yo</p>
-                                    </div>
-                                )}
-                            </Droppable>
-                        </div>
-                    )}
-                </Droppable>
+            <div style={{ marginLeft: "15px" }}>
+                {this.recursiveDroppable(this.state.Niveis_De_Detalhe)}
             </div>   
         )
     }
@@ -266,7 +296,7 @@ export class Analysis extends Component {
 
             this.setState({
                 [changedList]: items
-            }, () => console.log(this.state.dimensoes))
+            })
 
         } else {
             const result = updateDroppables(
@@ -296,7 +326,7 @@ export class Analysis extends Component {
                     <div class="col-9">
                         <div class="row">
                             <div class="col-10">
-                                <h4>{this.state.Nome}</h4>
+                                <h3>{this.state.Nome}</h3>
                             </div>
                             <div class="col-2">
                                 <div class="dropdown">
