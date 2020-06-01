@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Container } from 'reactstrap'
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -10,7 +11,7 @@ const reorder = (list, startIndex, endIndex) => {
     return result;
 };
 
-const move = (source, destination, droppableSource, droppableDestination) => {
+const updateDroppables = (source, destination, droppableSource, droppableDestination) => {
     const sourceClone = Array.from(source);
     const destClone = Array.from(destination);
     const [removed] = sourceClone.splice(droppableSource.index, 1);
@@ -24,31 +25,30 @@ const move = (source, destination, droppableSource, droppableDestination) => {
     return result;
 };
 
+
 const grid = 8;
 
 const getItemStyle = (isDragging, draggableStyle) => ({
     // some basic styles to make the items look a bit nicer
     userSelect: 'none',
-    padding: grid * 2,
+    padding: grid,
     margin: `0 0 ${grid}px 0`,
 
     // change background colour if dragging
-    background: isDragging ? 'lightgreen' : 'grey',
+    background: isDragging ? 'grey' : 'lightgrey',
 
     // styles we need to apply on draggables
     ...draggableStyle
 });
 
 const getListStyle = isDraggingOver => ({
-    background: isDraggingOver ? 'lightblue' : 'lightgrey',
+    background: isDraggingOver ? 'white' : 'white',
     padding: grid,
     width: '100vw',
 });
 
 export class Analysis extends Component {
     static displayName = Analysis.name;
-
-
     constructor(props) {
         super(props)
         this.state = {
@@ -71,6 +71,31 @@ export class Analysis extends Component {
     };
 
     getList = id => this.state[this.id2List[id]];
+
+
+    generateDetailProLevels() {
+        let array = []
+        this.state.Metricas_Categorias.forEach(c => {
+            if (c.CategoriaPaiId === null) {
+                array[0] = c
+            }
+            else {
+                array[c.CategoriaPaiId].push(c)
+            }
+        })
+        array[0].children = recursiveOrganize(array[0], array)
+        this.setState({
+            Niveis_De_Detalhe: array[0]
+        }, () => console.log(this.state.Niveis_De_Detalhe))
+    }
+
+    recursiveOrganize(categoria, array) {
+        let children = array[categoria.CategoriaId]
+        children.forEach(c => {
+            c.children = recursiveOrganize(c, array)
+        })
+        return children
+    }
 
     generateDetailLevels() {
         let head
@@ -114,38 +139,40 @@ export class Analysis extends Component {
         const token = await authService.getAccessToken();
         let id = this.props.match.params.id
 
-        var res = await fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
+        fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
             method: 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        })
+        }).then(res => res.json())
+        .then(metadata => {
+            this.setState({
+                Nome: metadata.Nome.split('.')[0],
+                NumLinhas: metadata.NumLinhas,
+                NumColunas: metadata.NumColunas,
+                DataGeracao: metadata.DataGeracao,
+                GeoDivisoes: metadata.GeoDivisoes,
+                Dimensoes: metadata.Dimensoes,
+                Metricas_Categorias: metadata.Metricas.Categorias,
+                Metricas_Colunas: metadata.Metricas.Colunas
+            })
 
-        var metadata = await res.json()
-            
-        this.setState({
-            Nome: metadata.Nome,
-            NumLinhas: metadata.NumLinhas,
-            NumColunas: metadata.NumColunas,
-            DataGeracao: metadata.DataGeracao,
-            GeoDivisoes: metadata.GeoDivisoes,
-            Dimensoes: metadata.Dimensoes,
-            Metricas_Categorias: metadata.Metricas.Categorias,
-            Metricas_Colunas: metadata.Metricas.Colunas
+            this.generateDetailProLevels()
         })
-
-        this.generateDetailLevels()
+        
     }
 
     renderMetricsAndDimensions() {
         return (
             <div>
                 <h3>Dimensions</h3>
-                <div class="row">
+                <div class="row" style={{
+                    border: "5px solid lightgrey",
+                    borderRadius: "5px"}}>
                     <Droppable droppableId="droppable1">
                         {(droppableProvided, droppableSnapshot) => (
                             <div
                                 ref={droppableProvided.innerRef}
                                 style={getListStyle(droppableSnapshot.isDraggingOver)}
-                            >
+                               >
                                 {this.state.Dimensoes.map((dimensoes, index) => (
                                     <Draggable key={dimensoes.NomeColuna} draggableId={dimensoes.NomeColuna} index={index}>
                                         {(draggableProvided, draggableSnapshot) => (
@@ -169,7 +196,10 @@ export class Analysis extends Component {
                     </Droppable>
                 </div>
                 <h3>Metrics</h3>
-                <div class="row">
+                <div class="row" style={{
+                    border: "5px solid lightgrey",
+                    borderRadius: "5px"
+                }}>
                     <Droppable droppableId="droppable2">
                         {(droppableProvided, droppableSnapshot) => (
                             <div
@@ -204,18 +234,16 @@ export class Analysis extends Component {
 
     renderDetailLevels() {
         return (
-            <div>
-                <div style={{ borderStyle : 'solid' }}>
-                    <Droppable droppableId="droppable3">
-                        {(droppableProvided, droppableSnapshot) => (
-                            <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
-                                {droppableProvided.placeholder}
-                                {this.state.Nome} 
-                            </div>
-                        )}
-                    </Droppable>
-                </div>
-            </div>
+            <div style={{ borderStyle : 'solid' }}>
+                <Droppable droppableId="droppable3">
+                    {(droppableProvided, droppableSnapshot) => (
+                        <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
+                            {droppableProvided.placeholder}
+                            {this.state.Nome}
+                        </div>
+                    )}
+                </Droppable>
+            </div>   
         )
     }
 
@@ -228,43 +256,39 @@ export class Analysis extends Component {
         }
 
         if (source.droppableId === destination.droppableId) {
-            /*const items = reorder(   //nao funciona nao sei é do reorder mas tb who cares de reordenar
+            const items = reorder(  
                 this.getList(source.droppableId),
                 source.index,
                 destination.index
             );
 
-            let changedList = this.getList(source.droppableId);
+            let changedList = this.id2List[source.droppableId]
 
-            if (changedList === 'Dimensoes') {
-                this.setState({
-                    Dimensoes: items
-                });
-            }
-            else {
-                this.setState({
-                    Metricas_Colunas: items
-                });
-            }*/
+            this.setState({
+                [changedList]: items
+            }, () => console.log(this.state.dimensoes))
 
         } else {
-            const result = move(
+            const result = updateDroppables(
                 this.getList(source.droppableId),
                 this.getList(destination.droppableId),
                 source,
                 destination
             );
 
+            let sourceList = this.id2List[source.droppableId]
+            let destinationList = this.id2List[destination.droppableId]
+
             this.setState({
-                Dimensoes: result.droppable1,
-                Metricas_Colunas: result.droppable2
+                [sourceList]: result[source.droppableId],
+                [destinationList]: result[destination.droppableId]
             });
         }
     };
 
     render() {
         return (
-            <div class="row" style={{ height: '100vh', width: '100vw', margin: '20px' }}>
+            <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px"}}>
                 <DragDropContext onDragEnd={this.onDragEnd}>
                     <div class="col-3">
                         {this.renderMetricsAndDimensions()}
@@ -292,7 +316,7 @@ export class Analysis extends Component {
                         </div>
                     </div>
                 </DragDropContext>
-            </div>
+                </div>
         )
     }
 }
