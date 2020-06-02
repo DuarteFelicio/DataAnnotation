@@ -98,8 +98,67 @@ export class Analysis extends Component {
 
     };
 
-    getList = id => this.state[this.id2List[id]];
+    getList(id) {        
+        let list = this.id2List[id]
+        if (list === undefined) {             
+            let columns =[]
+            return this.getCategoryColumns(id, this.state.Niveis_De_Detalhe, columns)
+        }
+        return this.state[this.id2List[id]]
+    }
 
+    getCategoryColumns(id, node, columns) {
+        if (node.CategoriaId === parseInt(id)) {
+            return node.columns
+        }
+        node.children.forEach(child => {
+            if (columns.length !== 0) {
+                return columns
+            }
+            return this.getCategoryColumns(child.CategoriaId, child, columns)
+            
+        })
+    }
+
+    onDragEnd = result => {
+        const { source, destination } = result;
+        console.log(this.getList(source.droppableId))
+        // dropped outside the list
+        if (!destination) {
+            return;
+        }
+
+        if (source.droppableId === destination.droppableId) {
+            const items = reorder(
+                this.getList(source.droppableId),
+                source.index,
+                destination.index
+            );
+
+            let changedList = this.id2List[source.droppableId]
+            if(changedList === un)
+
+            this.setState({
+                [changedList]: items
+            })
+
+        } else {
+            const result = updateDroppables(
+                this.getList(source.droppableId),
+                this.getList(destination.droppableId),
+                source,
+                destination
+            );
+
+            let sourceList = this.id2List[source.droppableId]
+            let destinationList = this.id2List[destination.droppableId]
+
+            this.setState({
+                [sourceList]: result[source.droppableId],
+                [destinationList]: result[destination.droppableId]
+            });
+        }
+    };
 
     generateDetailLevels() {
         let array = []
@@ -138,7 +197,7 @@ export class Analysis extends Component {
         this.setState({
             Niveis_De_Detalhe: array[0],
             Metricas_Colunas: metrics
-        })
+        }, () => console.log(this.state))
     }
 
     recursiveOrganize(categoria, array) {
@@ -167,13 +226,17 @@ export class Analysis extends Component {
         let children = []
         categoria.children.forEach(child => {
             children.push(
-                <div>
+                <div class="col" style={{
+                    border: "5px solid black",
+                    borderRadius: "5px"}}>
+                    <p>{child.Nome}</p>
                     <Droppable droppableId={"" + child.CategoriaId}>
                         {(droppableProvided, droppableSnapshot) => (
                             <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
                                 {droppableProvided.placeholder}
-                                {child.Nome}
+                                
                                 {child.columns !== undefined && child.columns.map((col, index) => (
+                                    <div class="row">
                                     <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
                                         {(draggableProvided, draggableSnapshot) => (
                                             <div
@@ -188,7 +251,8 @@ export class Analysis extends Component {
                                                 {col.NomeColuna}
                                             </div>
                                         )}
-                                    </Draggable>
+                                        </Draggable>
+                                        </div>
                                 ))}
                                 {this.recursiveDroppable(child)}
                             </div>
@@ -274,13 +338,19 @@ export class Analysis extends Component {
     renderDetailLevels() {
         if (this.state.Niveis_De_Detalhe === undefined)return 
         return (
-            <div style={{ marginLeft: "15px" }}>
+            <div class="col" style={{
+                marginLeft: "15px",
+                border: "5px solid black",
+                borderRadius: "5px"
+            }}>
+                <p>{this.state.Niveis_De_Detalhe.Nome}</p>
                 <Droppable droppableId={"" + this.state.Niveis_De_Detalhe.CategoriaId}>
                     {(droppableProvided, droppableSnapshot) => (
                         <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
                             {droppableProvided.placeholder}
-                            {this.state.Niveis_De_Detalhe.Nome}
+                            
                             {this.state.Niveis_De_Detalhe.columns !== undefined && this.state.Niveis_De_Detalhe.columns.map((col, index) => (
+                                <div class="row">
                                 <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
                                     {(draggableProvided, draggableSnapshot) => (
                                         <div
@@ -295,7 +365,8 @@ export class Analysis extends Component {
                                             {col.NomeColuna}
                                         </div>
                                     )}
-                                </Draggable>
+                                    </Draggable>
+                                    </div>
                             ))}
                             {this.recursiveDroppable(this.state.Niveis_De_Detalhe) }
                         </div>
@@ -305,44 +376,7 @@ export class Analysis extends Component {
         )
     }
 
-    onDragEnd = result => {
-        const { source, destination } = result;
-
-        // dropped outside the list
-        if (!destination) {
-            return;
-        }
-
-        if (source.droppableId === destination.droppableId) {
-            const items = reorder(  
-                this.getList(source.droppableId),
-                source.index,
-                destination.index
-            );
-
-            let changedList = this.id2List[source.droppableId]
-
-            this.setState({
-                [changedList]: items
-            })
-
-        } else {
-            const result = updateDroppables(
-                this.getList(source.droppableId),
-                this.getList(destination.droppableId),
-                source,
-                destination
-            );
-
-            let sourceList = this.id2List[source.droppableId]
-            let destinationList = this.id2List[destination.droppableId]
-
-            this.setState({
-                [sourceList]: result[source.droppableId],
-                [destinationList]: result[destination.droppableId]
-            });
-        }
-    };
+   
 
     render() {
         return (
