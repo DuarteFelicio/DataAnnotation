@@ -150,7 +150,7 @@ export class Analysis extends Component {
         return children
     }
 
-    async onLoadClick() {
+    async onLoadVersionClick() {
 
     }
 
@@ -163,44 +163,46 @@ export class Analysis extends Component {
     }
 
     recursiveDroppable(categoria) {
-        console.log(categoria)
-        if(categoria === undefined)return
-        return (
-            <div>
-            <Droppable droppableId={""+categoria.CategoriaId}>
-                {(droppableProvided, droppableSnapshot) => (
-                    <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
-                            {droppableProvided.placeholder}
-                            {categoria.Nome}                            
-                            {categoria.children.map(child => {
-                                this.recursiveDroppable(child)
-                            })}
-                    </div>
-                )}
-                </Droppable>
+        if (categoria === undefined) return
+        let children = []
+        categoria.children.forEach(child => {
+            children.push(
+                <div>
+                    <Droppable droppableId={"" + child.CategoriaId}>
+                        {(droppableProvided, droppableSnapshot) => (
+                            <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
+                                {droppableProvided.placeholder}
+                                {child.Nome}
+                                {child.columns !== undefined && child.columns.map((col, index) => (
+                                    <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
+                                        {(draggableProvided, draggableSnapshot) => (
+                                            <div
+                                                ref={draggableProvided.innerRef}
+                                                {...draggableProvided.draggableProps}
+                                                {...draggableProvided.dragHandleProps}
+                                                style={getItemStyle(
+                                                    draggableSnapshot.isDragging,
+                                                    draggableProvided.draggableProps.style
+                                                )}
+                                            >
+                                                {col.NomeColuna}
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {this.recursiveDroppable(child)}
+                            </div>
+                        )}
+                    </Droppable>
                 </div>
             )
+        })
+        return (
+            <div>
+                {children}
+            </div>
+        )
     }
-
-    /**
-     {categoria.columns.map((col, index) => (
-                            <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
-                                {(draggableProvided, draggableSnapshot) => (
-                                    <div
-                                        ref={draggableProvided.innerRef}
-                                        {...draggableProvided.draggableProps}
-                                        {...draggableProvided.dragHandleProps}
-                                        style={getItemStyle(
-                                            draggableSnapshot.isDragging,
-                                            draggableProvided.draggableProps.style
-                                        )}
-                                    >
-                                        {col.NomeColuna}
-                                    </div>
-                                )}
-                            </Draggable>
-                        ))}
-     * */
 
     renderMetricsAndDimensions() {
         return (
@@ -270,9 +272,35 @@ export class Analysis extends Component {
     }
 
     renderDetailLevels() {
+        if (this.state.Niveis_De_Detalhe === undefined)return 
         return (
             <div style={{ marginLeft: "15px" }}>
-                {this.recursiveDroppable(this.state.Niveis_De_Detalhe)}
+                <Droppable droppableId={"" + this.state.Niveis_De_Detalhe.CategoriaId}>
+                    {(droppableProvided, droppableSnapshot) => (
+                        <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
+                            {droppableProvided.placeholder}
+                            {this.state.Niveis_De_Detalhe.Nome}
+                            {this.state.Niveis_De_Detalhe.columns !== undefined && this.state.Niveis_De_Detalhe.columns.map((col, index) => (
+                                <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
+                                    {(draggableProvided, draggableSnapshot) => (
+                                        <div
+                                            ref={draggableProvided.innerRef}
+                                            {...draggableProvided.draggableProps}
+                                            {...draggableProvided.dragHandleProps}
+                                            style={getItemStyle(
+                                                draggableSnapshot.isDragging,
+                                                draggableProvided.draggableProps.style
+                                            )}
+                                        >
+                                            {col.NomeColuna}
+                                        </div>
+                                    )}
+                                </Draggable>
+                            ))}
+                            {this.recursiveDroppable(this.state.Niveis_De_Detalhe) }
+                        </div>
+                    )}
+                </Droppable>
             </div>   
         )
     }
@@ -334,7 +362,7 @@ export class Analysis extends Component {
                                         Options
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                        <button class="dropdown-item" type="button" onClick={ () => this.onLoadClick() }>Load</button>
+                                        <button class="dropdown-item" type="button" onClick={ () => this.onLoadVersionClick() }>Load Version</button>
                                         <button class="dropdown-item" type="button" onClick={ () => this.onSaveClick() }>Save</button>
                                         <button class="dropdown-item" type="button" onClick={ () => this.onDownloadClick()}>Download</button>
                                     </div>
