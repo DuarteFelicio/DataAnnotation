@@ -115,7 +115,11 @@ namespace DataAnnotation.Controllers
 						var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 						var userPath = Path.Combine(_targetFilePath, userId);
 						Directory.CreateDirectory(userPath);
-						var filePath = Path.Combine(userPath, trustedFileNameForFileStorage);
+
+						var fileFolderPath = Path.Combine(userPath, trustedFileNameForFileStorage);
+						Directory.CreateDirectory(fileFolderPath);
+
+						var filePath = Path.Combine(fileFolderPath, trustedFileNameForFileStorage);
 
 						using (var targetStream = System.IO.File.Create(filePath))
 						{
@@ -172,7 +176,11 @@ namespace DataAnnotation.Controllers
 			var urlArray = url.Split("/");
 			var trustedFileNameForDisplay = urlArray[urlArray.Length-1];		//last part of url is name 
 			var trustedFileNameForFileStorage = Path.GetRandomFileName();
-			var filePath = Path.Combine(userPath, trustedFileNameForFileStorage);
+
+			var fileFolderPath = Path.Combine(userPath, trustedFileNameForFileStorage);
+			Directory.CreateDirectory(fileFolderPath);
+
+			var filePath = Path.Combine(fileFolderPath, trustedFileNameForFileStorage);
 
 			using (var targetStream = System.IO.File.Create(filePath))
 			{

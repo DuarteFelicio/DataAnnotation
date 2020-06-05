@@ -15,10 +15,11 @@ using RabbitMQ.Client;
 using System.Text;
 using RabbitMQ.Client.Events;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace DataAnnotation.Controllers
 {
-	//[Authorize]
+	[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
 	public class WorkspaceController : Controller
@@ -48,18 +49,13 @@ namespace DataAnnotation.Controllers
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file.CsvFileId == 0) return NotFound();
 
-			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
+			string fileFolderPath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
 
 			try
 			{
 				_context.CsvFile.Remove(file);
 				_context.SaveChanges();
-				System.IO.File.Delete(filePath);
-				if(file.AnalysisCompletionTime != null)
-				{
-					filePath += "_analysis";
-					System.IO.File.Delete(filePath);
-				}
+				System.IO.Directory.Delete(fileFolderPath, true);	//deletes sub folders and files within
 			}
 			catch (DbUpdateException e)
 			{
@@ -86,7 +82,8 @@ namespace DataAnnotation.Controllers
 			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId);
-			string filePath = Path.Combine(folderPath, file.FileNameStorage);
+			string fileFolderPath = Path.Combine(folderPath, file.FileNameStorage);
+			string filePath = Path.Combine(fileFolderPath, file.FileNameStorage);
 
 			file.IsAnalysing = true;
 			_context.CsvFile.Update(file);
@@ -104,9 +101,10 @@ namespace DataAnnotation.Controllers
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file.CsvFileId == 0) return NotFound();
 
-			string folderPath = Path.Combine(_targetFilePath, userId);
-			string filePath = Path.Combine(folderPath, file.FileNameStorage);
-			filePath += "_analysis";
+			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
+			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count-1].Name);
+			
 			FileStream fileStream = System.IO.File.OpenRead(filePath);
 			return File(fileStream, "application/octet-stream");
 		}
@@ -118,9 +116,10 @@ namespace DataAnnotation.Controllers
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file.CsvFileId == 0) return NotFound();
 
-			string folderPath = Path.Combine(_targetFilePath, userId);
-			string filePath = Path.Combine(folderPath, file.FileNameStorage);
-			filePath += "_analysis";
+			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
+			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count - 1].Name);
+
 			var json = System.IO.File.ReadAllText(filePath);
 			return Ok(json);
 		}
@@ -132,10 +131,10 @@ namespace DataAnnotation.Controllers
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file.CsvFileId == 0) return NotFound();
 
-			string folderPath = Path.Combine(_targetFilePath, userId);
+			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			string filePath = Path.Combine(folderPath, file.FileNameStorage);
-			filePath += "_analysis";
-			if(System.IO.File.Exists(filePath))
+			filePath += "_analysis_v1";
+			if (System.IO.File.Exists(filePath))
 			{
 				file.IsAnalysing = false;
 				_context.CsvFile.Update(file);
@@ -143,6 +142,34 @@ namespace DataAnnotation.Controllers
 				return Ok(file);
 			}
 			return NoContent();
+		}
+
+		[HttpGet]
+		public IActionResult GetAnalysis(int fileId)
+		{
+			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			
+			if (analysisFiles.Count == 0 || analysisFiles == null)
+			{
+				return NotFound(); //é mesmo este?
+			}
+			return Ok(analysisFiles);	//é preciso ser em array?
+		}
+
+		public List<AnalysisFile> GetAnalysisFiles(int fileId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return null;
+
+			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
+			var dirInfo = new DirectoryInfo(folderPath);
+			List<AnalysisFile> analysisFiles = new List<AnalysisFile>();
+			foreach (FileInfo fi in dirInfo.EnumerateFiles())
+			{
+				analysisFiles.Add(new AnalysisFile(fi.Name, fi.LastWriteTime));
+			}
+			return analysisFiles;
 		}
 
 		public void Sender(int fileId, string filePath)
@@ -167,6 +194,18 @@ namespace DataAnnotation.Controllers
 
 				_logger.LogInformation("[x] Sent {0} ", message);
 			}
+		}
+
+		public class AnalysisFile
+		{
+			public AnalysisFile(string name, DateTime lastEdit)
+			{
+				Name = name;
+				LastEdit = lastEdit;
+			}
+
+			public string Name { get; set; }
+			public DateTime LastEdit { get; set; }
 		}
 	}
 }

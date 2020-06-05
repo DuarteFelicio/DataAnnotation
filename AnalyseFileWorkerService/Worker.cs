@@ -15,6 +15,7 @@ using DataAnnotation.Models.Analysis;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace AnalyseFileWorkerService
 {
@@ -105,7 +106,13 @@ namespace AnalyseFileWorkerService
             }
 
             var json = JsonSerializer.Serialize(metadata);
-            filePath += "_analysis";
+            string fileFolderPath = Directory.GetParent(filePath).FullName;
+            string fileName = Path.GetFileName(filePath);
+            fileFolderPath = Path.Combine(fileFolderPath, "analysis");
+            Directory.CreateDirectory(fileFolderPath);
+
+            filePath = Path.Combine(fileFolderPath, fileName);
+            filePath += "_analysis_v1";
             System.IO.File.WriteAllText(filePath, json);
 
             _logger.LogInformation("Message {0} - Work Complete", message);
