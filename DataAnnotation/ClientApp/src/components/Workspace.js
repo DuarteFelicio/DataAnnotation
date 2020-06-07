@@ -92,7 +92,7 @@ export class Workspace extends Component {
                     })
                 }
             })
-        }, 5000); //5 seconds?
+        }, 5000); //5 seconds
         this.setState({ requestLoops: this.state.requestLoops.concat(requestLoop) })
 
         var stopLoop = (newArray) => {

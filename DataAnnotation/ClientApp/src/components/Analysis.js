@@ -237,7 +237,7 @@ export class Analysis extends Component {
                 }
             }
         })
-        
+        if (array[0].CategoriaId === undefined) return
         array[0].children = this.recursiveOrganize(array[0], array, columns)
         this.setState({
             Niveis_De_Detalhe: array[0],
