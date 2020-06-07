@@ -242,7 +242,7 @@ export class Analysis extends Component {
         this.setState({
             Niveis_De_Detalhe: array[0],
             Metricas_Colunas: metrics
-        }, () => console.log(this.state))
+        }, () => console.log(this.state.Niveis_De_Detalhe))
     }
 
     recursiveOrganize(categoria, array) {
