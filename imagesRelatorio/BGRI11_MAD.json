@@ -1,0 +1,32 @@
+{
+  "Nome": "BGRI11_MAD.csv",
+  "NumLinhas": 5901,
+  "NumColunas": 128,
+  "DataGeracao": "2020-06-07T20:54:45.2363137+01:00",
+  "GeoDivisoes": [
+    { "DivisoesTerritoriaisId": 5, "Tipo": "NUTS 0", "Linhas": [0]},
+    {"DivisoesTerritoriaisId": 6,"Tipo": "NUTS 1","Linhas": [1]},
+	...
+  ],
+  "Dimensoes": [
+    {"IndiceColuna": 0,"NomeColuna": "ANO","NumValoresUnicos": 1,"NumValoresNulos": 0,
+      "TodosDiferentes": false,
+      "TipoValores": [{"Tipo": "numeric","Count": 5901}],
+      "ValoresUnicos": ["2011"],
+      "TipoDominioGeo": null
+    },
+    ...
+  ],
+  "Metricas": {
+    "Categorias": [
+	  {"CategoriaId": 1,"Nome": "N_","CategoriaPaiId": null},
+      {"CategoriaId": 2,"Nome": "N_EDIFICIOS_","CategoriaPaiId": 1},
+      ...
+    ],
+    "Colunas": [
+      {"IndiceColuna": 17,"NomeColuna": ".N_EDIFICIOS_5OU_MAIS_PISOS","CategoriaId": null,"E_Total": false},
+      {"IndiceColuna": 38,"NomeColuna": "N_CLASSICOS_RES_HABITUAL","CategoriaId": 1,"E_Total": false},
+      ...
+    ]
+  }
+}
