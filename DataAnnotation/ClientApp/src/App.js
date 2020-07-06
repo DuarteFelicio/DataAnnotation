@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router';
-import { Layout } from './components/Layout';
-import { Home } from './components/Home';
-import { UploadFile } from './components/UploadFile';
-import { Workspace } from './components/Workspace';
-import { Analysis } from './components/Analysis';
-import AuthorizeRoute from './components/api-authorization/AuthorizeRoute';
-import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
-import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
+import { Layout } from './pages/Layout';
+import { Home } from './pages/Home';
+import { UploadFile } from './pages/UploadFile';
+import { Workspace } from './pages/Workspace';
+import { Analysis } from './pages/Analysis';
+import AuthorizeRoute from './pages/api-authorization/AuthorizeRoute';
+import ApiAuthorizationRoutes from './pages/api-authorization/ApiAuthorizationRoutes';
+import { ApplicationPaths } from './pages/api-authorization/ApiAuthorizationConstants';
 
 import './custom.css'
 

@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService'
-import Dropzone  from 'react-dropzone'
+import Dropzone from '../components/Dropzone'
 import 'bootstrap/dist/css/bootstrap.css'
 import './UploadFile.css';
 import axios from 'axios';
@@ -23,6 +23,7 @@ export class UploadFile extends Component {
         this.upload = this.upload.bind(this)
         this.uploadFromUrl = this.uploadFromUrl.bind(this)
         this.formatSize = this.formatSize.bind(this)
+        this.onDrop = this.onDrop.bind(this)
     }
  
     removeFileUploading(name) {
@@ -35,6 +36,11 @@ export class UploadFile extends Component {
                 uploading: array
             })
         }
+    }
+
+    onDrop(accept, reject) {
+        this.setState({ rejected: this.state.rejected.concat(reject) })
+        accept.forEach(file => this.upload(file))
     }
 
     onChange(e) {
@@ -256,30 +262,14 @@ export class UploadFile extends Component {
                 <div className="root-dropzone">
                     <Dropzone                
                         accept=".csv"
-                        onDrop={(accept, reject) => {
-                            this.setState({ rejected: this.state.rejected.concat(reject) })
-                            accept.forEach(file => this.upload(file))
-                        }}
-                    >
-                        {({ getRootProps, getInputProps }) => (
-                            <div {...getRootProps()} className="dropzone">
-                                <input {...getInputProps()} />
-                                <div class="column" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
-                                    <div class="row">
-                                        <p>Try dropping some files here, or click to select files to upload.</p>
-                                        <p>Only csv files will be accepted</p>
-                                    </div>
-                                    <div class="row justify-content-center" >
-                                        <svg class="bi bi-cloud-upload" width="50" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"> 
-                                            <path d="M4.887 6.2l-.964-.165A2.5 2.5 0 103.5 11H6v1H3.5a3.5 3.5 0 11.59-6.95 5.002 5.002 0 119.804 1.98A2.501 2.501 0 0113.5 12H10v-1h3.5a1.5 1.5 0 00.237-2.981L12.7 7.854l.216-1.028a4 4 0 10-7.843-1.587l-.185.96z"/>
-                                            <path fill-rule="evenodd" d="M5 8.854a.5.5 0 00.707 0L8 6.56l2.293 2.293A.5.5 0 1011 8.146L8.354 5.5a.5.5 0 00-.708 0L5 8.146a.5.5 0 000 .708z" clip-rule="evenodd" />
-                                            <path fill-rule="evenodd" d="M8 6a.5.5 0 01.5.5v8a.5.5 0 01-1 0v-8A.5.5 0 018 6z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                 </div>
-                            </div>
-                        )}
-                    </Dropzone>
+                        onDrop={this.onDrop}
+                        history={this.props.history}
+                        text={
+                            <div align="center">
+                                <p>Try dropping some files here, or click to select files to upload.</p>
+                                <p>Only csv files will be accepted</p>
+                            </div>}
+                    />
                 </div>
                 <aside>
                     <div className="url-container">
