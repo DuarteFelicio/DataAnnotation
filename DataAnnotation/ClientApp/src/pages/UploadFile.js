@@ -1,11 +1,30 @@
 ﻿import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService'
 import Dropzone from '../components/Dropzone'
+import ListGroup from '../components/ListGroup'
 import 'bootstrap/dist/css/bootstrap.css'
 import './UploadFile.css';
 import axios from 'axios';
 import 'bootstrap';
 
+const acceptedSymbol = <svg class="bi bi-file-earmark-arrow-down" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z" />
+    <path d="M9 4.5V1l5 5h-3.5A1.5 1.5 0 019 4.5z" />
+    <path fill-rule="evenodd" d="M5.646 9.146a.5.5 0 01.708 0L8 10.793l1.646-1.647a.5.5 0 01.708.708l-2 2a.5.5 0 01-.708 0l-2-2a.5.5 0 010-.708z" clip-rule="evenodd" />
+    <path fill-rule="evenodd" d="M8 6a.5.5 0 01.5.5v4a.5.5 0 01-1 0v-4A.5.5 0 018 6z" clip-rule="evenodd" />
+</svg>;
+
+const rejectedSymbol = <svg class="bi bi-x-circle" width="50" height="25" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 108 0a8 8 0 000 16z" clip-rule="evenodd" />
+    <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd" />
+    <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd" />
+</svg>;
+
+const uploadingSymbol = <svg class="bi bi-download" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" d="M.5 8a.5.5 0 01.5.5V12a1 1 0 001 1h12a1 1 0 001-1V8.5a.5.5 0 011 0V12a2 2 0 01-2 2H2a2 2 0 01-2-2V8.5A.5.5 0 01.5 8z" clip-rule="evenodd" />
+    <path fill-rule="evenodd" d="M5 7.5a.5.5 0 01.707 0L8 9.793 10.293 7.5a.5.5 0 11.707.707l-2.646 2.647a.5.5 0 01-.708 0L5 8.207A.5.5 0 015 7.5z" clip-rule="evenodd" />
+    <path fill-rule="evenodd" d="M8 1a.5.5 0 01.5.5v8a.5.5 0 01-1 0v-8A.5.5 0 018 1z" clip-rule="evenodd" />
+</svg>;
 
 export class UploadFile extends Component {
     static displayName = UploadFile.name;
@@ -24,6 +43,8 @@ export class UploadFile extends Component {
         this.uploadFromUrl = this.uploadFromUrl.bind(this)
         this.formatSize = this.formatSize.bind(this)
         this.onDrop = this.onDrop.bind(this)
+        this.toShow = this.toShow.bind(this)
+        this.remoteOrLocal = this.remoteOrLocal.bind(this)
     }
  
     removeFileUploading(name) {
@@ -143,115 +164,43 @@ export class UploadFile extends Component {
                 }, 1000)
             })
     }
-  
-    renderUploadingFiles() {
-        if (!this.state.uploading.length) {
-            return;
-        }
-        var remoteOrLocal = (file) => {
-            if (file.method === "local") {
-                return (
+
+    toShow(file) {
+        return (<div class="column">{file.name} - { this.formatSize(file.size) }</div> )
+    }
+
+    remoteOrLocal(file) {
+        if (file.method === "local") {
+            return (
+                <div class="column" style={{ width: '100%' }}>
+                    {file.name}
                     <div class="progress">
                         <div class="progress-bar progress-bar-striped active" role="progressbar"
                             aria-valuenow={file.percentage} aria-valuemin="0" aria-valuemax="100" style={{ width: file.percentage + '%' }}>
                             {file.percentage}%
-                        </div>
+                                </div>
                     </div>
-                )
-            }            
-            return (
-                <div class="spinner-border text-primary"></div>
+                </div>
             )
         }
         return (
-            <div className="uploadingFiles">
-                <h4>Uploading files:</h4>
-                <ul>
-                    {this.state.uploading.map(o =>
-                        <li class="list-group-item">                     
-                            <div class="row">
-                                <div class="column">
-                                    <svg class="bi bi-download" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M.5 8a.5.5 0 01.5.5V12a1 1 0 001 1h12a1 1 0 001-1V8.5a.5.5 0 011 0V12a2 2 0 01-2 2H2a2 2 0 01-2-2V8.5A.5.5 0 01.5 8z" clip-rule="evenodd" />
-                                        <path fill-rule="evenodd" d="M5 7.5a.5.5 0 01.707 0L8 9.793 10.293 7.5a.5.5 0 11.707.707l-2.646 2.647a.5.5 0 01-.708 0L5 8.207A.5.5 0 015 7.5z" clip-rule="evenodd" />
-                                        <path fill-rule="evenodd" d="M8 1a.5.5 0 01.5.5v8a.5.5 0 01-1 0v-8A.5.5 0 018 1z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div class="column" style={{width: '100%'}}>
-                                    {o.name}{remoteOrLocal(o)}
-                                </div>
-                            </div>
-                        </li>
-                    )}
-                </ul>
-            </div>
+            <div class="column" style={{ width: '100%' }}>{file.name}<div class="spinner-border text-primary"></div></div>
         )
     }
 
-    renderFiles() {
-        return (
-            <div class="row">
-                {this.renderAcceptedFiles()}
-                {this.renderRejectedFiles()}               
-            </div>
-       )
-    }
-
-    renderAcceptedFiles() {
-        if (!this.state.accepted.length) {
+    renderFiles(fileList, title, symbol, toShow, classDiv) {
+        if (!fileList.length) {
             return
         }
         return (
-            <div class="col-6">
-                <h4>Accepted files:</h4>
-                <ul class="list-group">
-                    {
-                        this.state.accepted.map(f => <li class="list-group-item">
-                            <div class="row">
-                                <div class="column">
-                                    <svg class="bi bi-file-earmark-arrow-down" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z" />
-                                        <path d="M9 4.5V1l5 5h-3.5A1.5 1.5 0 019 4.5z" />
-                                        <path fill-rule="evenodd" d="M5.646 9.146a.5.5 0 01.708 0L8 10.793l1.646-1.647a.5.5 0 01.708.708l-2 2a.5.5 0 01-.708 0l-2-2a.5.5 0 010-.708z" clip-rule="evenodd" />
-                                        <path fill-rule="evenodd" d="M8 6a.5.5 0 01.5.5v4a.5.5 0 01-1 0v-4A.5.5 0 018 6z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div class="column">
-                                    {f.name} - {this.formatSize(f.size)} 
-                                </div>
-                            </div>
-                        </li>)
-                    }
-                </ul>
-            </div>
-            )
-    }
-
-    renderRejectedFiles() {
-        if (!this.state.rejected.length) {
-            return
-        }
-        return (
-            <div class="col-6">
-                <h4>Rejected files:</h4>
-                <ul class="list-group">
-                    {
-                        this.state.rejected.map(f => <li class="list-group-item">
-                            <div class="row">
-                                <div class="column">
-                                    <svg class="bi bi-x-circle" width="50" height="25" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 108 0a8 8 0 000 16z" clip-rule="evenodd" />
-                                        <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z" clip-rule="evenodd" />
-                                        <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z" clip-rule="evenodd" />
-                                        </svg>
-                                </div>
-                                <div class="column">
-                                    {f.name} - {this.formatSize(f.size)} 
-                                </div>
-                            </div>
-                        </li>)
-                    }
-                </ul>
+            <div class={classDiv}>
+                <ListGroup
+                    title={title}
+                    files={fileList}
+                    symbol={symbol}
+                    toShow={toShow}
+                    history={this.props.history}
+                />
             </div>
         )
     }
@@ -276,8 +225,11 @@ export class UploadFile extends Component {
                         <input type="text" name="url" size="75" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
                         <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
                     </div>
-                    {this.renderUploadingFiles()}
-                    {this.renderFiles()}
+                    {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "")}
+                    <div class="row">
+                        {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6")}
+                        {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6")}
+                    </div>
                     
                 </aside>
             </section>
