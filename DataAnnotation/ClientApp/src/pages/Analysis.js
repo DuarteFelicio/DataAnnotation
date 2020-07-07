@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService';
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Container } from 'reactstrap'
+import { DragDropContext } from "react-beautiful-dnd";
+import DroppableComp from "../components/DroppableComp.js"
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -25,29 +25,6 @@ const updateDroppables = (source, destination, droppableSource, droppableDestina
     return result;
 };
 
-const grid = 8;
-
-const getItemStyle = (isDragging, draggableStyle) => ({
-    // some basic styles to make the items look a bit nicer
-    userSelect: 'none',
-    padding: grid,
-    margin: `0 0 ${grid}px 0`,
-
-    // change background colour if dragging
-    background: isDragging ? 'grey' : 'lightgrey',
-
-    // styles we need to apply on draggables
-    ...draggableStyle
-});
-
-const getListStyle = isDraggingOver => ({
-    background: isDraggingOver ? 'white' : 'white',
-    padding: grid,
-    width: '100%',
-    border: "5px solid lightgrey",
-    borderRadius: "5px"
-});
-
 export class Analysis extends Component {
     static displayName = Analysis.name;
 
@@ -64,7 +41,6 @@ export class Analysis extends Component {
             Metricas_Colunas: [],
             Niveis_De_Detalhe: undefined
         }
-
     }
 
     async componentDidMount() {
@@ -87,21 +63,71 @@ export class Analysis extends Component {
                     Metricas_Categorias: metadata.Metricas.Categorias,
                     Metricas_Colunas: metadata.Metricas.Colunas
                 })
-
                 this.generateDetailLevels()
             })
-
     }
 
+    /*Gerar árvore*/
+    generateDetailLevels() {
+        let array = []
+        let columns = []
+        let metrics = []
+        this.state.Metricas_Colunas.forEach(col => {
+            if (col.CategoriaId !== null) {
+                if (columns[col.CategoriaId] === undefined) {
+                    columns[col.CategoriaId] = [col]
+                }
+                else {
+                    columns[col.CategoriaId].push(col)
+                }
+            }
+            else {
+                metrics.push(col)
+            }
+
+        })
+        this.state.Metricas_Categorias.forEach(c => {
+            c.columns = columns[c.CategoriaId]
+            if (c.CategoriaPaiId === null) {
+                array[0] = c
+            }
+            else {
+                if (array[c.CategoriaPaiId] === undefined) {
+                    array[c.CategoriaPaiId] = [c]
+                }
+                else {
+                    array[c.CategoriaPaiId].push(c)
+                }
+            }
+        })
+        if (array[0].CategoriaId === undefined) return
+        array[0].children = this.recursiveOrganize(array[0], array, columns)
+        this.setState({
+            Niveis_De_Detalhe: array[0],
+            Metricas_Colunas: metrics
+        }, () => console.log(this.state.Niveis_De_Detalhe))
+    }
+
+    recursiveOrganize(categoria, array) {
+        let children = array[categoria.CategoriaId]
+        if (children === undefined) return []
+        children.forEach(c => {
+            c.children = this.recursiveOrganize(c, array)
+        })
+        return children
+    }
+    /**/
+
+    /* Métodos auxiliares para onDragEnd*/
     id2List = {
-        droppable1: 'Dimensoes',
-        droppable2: 'Metricas_Colunas',        
+        dimensoes: 'Dimensoes',
+        metricas: 'Metricas_Colunas',
     };
 
-    getList(id) {        
+    getList(id) {
         let list = this.id2List[id]
-        if (list === undefined) {             
-            return this.getCategoryColumns(this.state.Niveis_De_Detalhe,id)
+        if (list === undefined) {
+            return this.getCategoryColumns(this.state.Niveis_De_Detalhe, id)
         }
         return this.state[this.id2List[id]]
     }
@@ -138,7 +164,6 @@ export class Analysis extends Component {
         if (!destination) {
             return;
         }
-
 
         if (source.droppableId === destination.droppableId) {
             const items = reorder(
@@ -204,56 +229,9 @@ export class Analysis extends Component {
             }
         }
     };
+    /**/
 
-    generateDetailLevels() {
-        let array = []
-        let columns = []
-        let metrics = []
-        this.state.Metricas_Colunas.forEach(col => {
-            if (col.CategoriaId !== null) {
-                if (columns[col.CategoriaId] === undefined) {
-                    columns[col.CategoriaId] = [col]
-                }
-                else {
-                    columns[col.CategoriaId].push(col)
-                }
-            }
-            else {
-                metrics.push(col)
-            }
-            
-        })
-        this.state.Metricas_Categorias.forEach(c => {
-            c.columns = columns[c.CategoriaId]
-            if (c.CategoriaPaiId === null) {
-                array[0] = c
-            }
-            else {
-                if (array[c.CategoriaPaiId] === undefined) {
-                    array[c.CategoriaPaiId] = [c]
-                }
-                else {
-                    array[c.CategoriaPaiId].push(c)
-                }
-            }
-        })
-        if (array[0].CategoriaId === undefined) return
-        array[0].children = this.recursiveOrganize(array[0], array, columns)
-        this.setState({
-            Niveis_De_Detalhe: array[0],
-            Metricas_Colunas: metrics
-        }, () => console.log(this.state.Niveis_De_Detalhe))
-    }
-
-    recursiveOrganize(categoria, array) {
-        let children = array[categoria.CategoriaId]      
-        if (children === undefined)return []
-        children.forEach(c => {
-            c.children = this.recursiveOrganize(c, array)
-        })
-        return children
-    }
-
+    /*Métodos para os três botões*/
     async onLoadVersionClick() {
 
     }
@@ -265,6 +243,16 @@ export class Analysis extends Component {
     async onDownloadClick() {
 
     }
+    /**/
+
+    /*Métodos de render*/
+    renderDroppable(title, id, draggables) {
+        return <DroppableComp
+                    title={title}
+                    id={id}
+                    draggables={draggables}
+                />
+    }
 
     recursiveDroppable(categoria) {
         if (categoria === undefined) return
@@ -273,108 +261,14 @@ export class Analysis extends Component {
             children.push(
                 <div class="col" style={{
                     border: "5px solid black",
-                    borderRadius: "5px"}}>
-                    <p>{child.Nome}</p>
-                    <Droppable droppableId={"" + child.CategoriaId}>
-                        {(droppableProvided, droppableSnapshot) => (
-                            <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
-                                {child.columns !== undefined && child.columns.map((col, index) => (
-                                    <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
-                                        {(draggableProvided, draggableSnapshot) => (
-                                            <div
-                                                ref={draggableProvided.innerRef}
-                                                {...draggableProvided.draggableProps}
-                                                {...draggableProvided.dragHandleProps}
-                                                style={getItemStyle(
-                                                    draggableSnapshot.isDragging,
-                                                    draggableProvided.draggableProps.style
-                                                )}
-                                            >
-                                                {col.NomeColuna}
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {droppableProvided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
+                    borderRadius: "5px"
+                }}>
+                    {this.renderDroppable(child.Nome, child.CategoriaId, child.columns)}
                     {this.recursiveDroppable(child)}
                 </div>
             )
         })
-        return (
-            <div>
-                {children}
-            </div>
-        )
-    }
-
-    renderMetricsAndDimensions() {
-        return (
-            <div>
-                <h3>Dimensions</h3>
-                <div class="row">
-                    <Droppable droppableId="droppable1">
-                        {(droppableProvided, droppableSnapshot) => (
-                            <div
-                                ref={droppableProvided.innerRef}
-                                style={getListStyle(droppableSnapshot.isDraggingOver)}
-                               >
-                                {this.state.Dimensoes.map((dimensoes, index) => (
-                                    <Draggable key={dimensoes.NomeColuna} draggableId={dimensoes.NomeColuna} index={index}>
-                                        {(draggableProvided, draggableSnapshot) => (
-                                            <div
-                                                ref={draggableProvided.innerRef}
-                                                {...draggableProvided.draggableProps}
-                                                {...draggableProvided.dragHandleProps}
-                                                style={getItemStyle(
-                                                    draggableSnapshot.isDragging,
-                                                    draggableProvided.draggableProps.style
-                                                )}
-                                            >
-                                                {dimensoes.NomeColuna}
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {droppableProvided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                </div>
-                <h3>Metrics</h3>
-                <div class="row">
-                    <Droppable droppableId="droppable2">
-                        {(droppableProvided, droppableSnapshot) => (
-                            <div
-                                ref={droppableProvided.innerRef}
-                                style={getListStyle(droppableSnapshot.isDraggingOver)}
-                            >
-                                {this.state.Metricas_Colunas.map((metrica_coluna, index) => (
-                                    <Draggable key={metrica_coluna.NomeColuna} draggableId={metrica_coluna.NomeColuna} index={index}>
-                                        {(draggableProvided, draggableSnapshot) => (
-                                            <div
-                                                ref={draggableProvided.innerRef}
-                                                {...draggableProvided.draggableProps}
-                                                {...draggableProvided.dragHandleProps}
-                                                style={getItemStyle(
-                                                    draggableSnapshot.isDragging,
-                                                    draggableProvided.draggableProps.style
-                                                )}
-                                            >
-                                                {metrica_coluna.NomeColuna}
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {droppableProvided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                </div>
-            </div>
-        )
+        return <div>{children}</div>
     }
 
     renderDetailLevels() {
@@ -385,43 +279,20 @@ export class Analysis extends Component {
                 border: "5px solid black",
                 borderRadius: "5px"
             }}>
-                <p>{this.state.Niveis_De_Detalhe.Nome}</p>
-                <Droppable droppableId={"" + this.state.Niveis_De_Detalhe.CategoriaId}>
-                    {(droppableProvided, droppableSnapshot) => (
-                        <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
-                            {this.state.Niveis_De_Detalhe.columns !== undefined && this.state.Niveis_De_Detalhe.columns.map((col, index) => (
- 
-                                <Draggable key={col.NomeColuna} draggableId={col.NomeColuna} index={index}>
-                                    {(draggableProvided, draggableSnapshot) => (
-                                        <div
-                                            ref={draggableProvided.innerRef}
-                                            {...draggableProvided.draggableProps}
-                                            {...draggableProvided.dragHandleProps}
-                                            style={getItemStyle(
-                                                draggableSnapshot.isDragging,
-                                                draggableProvided.draggableProps.style
-                                            )}
-                                        >
-                                            {col.NomeColuna}
-                                        </div>
-                                    )}
-                                </Draggable>              
-                            ))}
-                            {droppableProvided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
+                {this.renderDroppable(this.state.Niveis_De_Detalhe.Nome, this.state.Niveis_De_Detalhe.CategoriaId, this.state.Niveis_De_Detalhe.columns)}
                 {this.recursiveDroppable(this.state.Niveis_De_Detalhe)}
             </div>   
         )
     }
+    /**/
 
     render() {
         return (
             <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px"}}>
                 <DragDropContext onDragEnd={this.onDragEnd}>
                     <div class="col-3">
-                        {this.renderMetricsAndDimensions()}
+                        {this.renderDroppable("Dimensions", "dimensoes", this.state.Dimensoes)}
+                        {this.renderDroppable("Metrics", "metricas", this.state.Metricas_Colunas)}
                     </div>
                     <div class="col-9">
                         <div class="row">
@@ -446,7 +317,7 @@ export class Analysis extends Component {
                         </div>
                     </div>
                 </DragDropContext>
-                </div>
+            </div>
         )
     }
 }
