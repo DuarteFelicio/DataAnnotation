@@ -4,6 +4,7 @@ import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
 import './Workspace.css'
+import ModalComp from '../components/ModalComp.js'
 
 export class Workspace extends Component {
 
@@ -13,9 +14,14 @@ export class Workspace extends Component {
         super(props)
         this.state = {
             files: new Map(),
-            requestLoops: []
+            requestLoops: [],
+            onShowDeleteModal: false,
+            idToRemove: -1
         }
-
+        this.enableDeleteModal = this.enableDeleteModal.bind(this)
+        this.disableDeleteModal = this.disableDeleteModal.bind(this)
+        this.removeFile = this.removeFile.bind(this)
+        this.Remove = this.Remove.bind(this)
     }
 
     async componentDidMount() {
@@ -110,12 +116,20 @@ export class Workspace extends Component {
 
     }
 
-    async Remove(id) {
+    enableDeleteModal(id) { this.setState({ onShowDeleteModal: true, idToRemove: id }) }
+    
+    disableDeleteModal() { this.setState({ onShowDeleteModal: false }) }
+
+    async Remove() {
         const token = await authService.getAccessToken();
+        let id = this.state.idToRemove
         fetch(`Workspace/RemoveFile?fileId=${id}`, {
             method: 'DELETE',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        }).then(res => this.removeFile(id))                   
+        }).then(res => {
+            this.removeFile(id)
+            this.disableDeleteModal()
+        })                   
     }
 
     showTime(value) {
@@ -187,12 +201,20 @@ export class Workspace extends Component {
                                     <p> Uploaded from: {item.origin}</p>
                                     <p> size: {formatSize(item.size)}</p>
                                     {this.renderFileInfo(item)}
-                                    <button type="button" class="btn btn-outline-danger" onClick={() => this.Remove(item.csvFileId)}>Remove</button>
+                                    <button type="button" class="btn btn-outline-danger" onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
                                 </div>
                             })}
                         </div>
                     </div>
                 </div>
+                <ModalComp
+                    title="Delete File"
+                    body="Are you sure you want to delete this file. This will delete every analysis (if any) as well as the file itself."
+                    okButtonText="Delete"
+                    okButtonFunc={this.Remove}
+                    cancelButtonFunc={this.disableDeleteModal}
+                    visible={this.state.onShowDeleteModal}
+                />
             </Container>
         )
     }
