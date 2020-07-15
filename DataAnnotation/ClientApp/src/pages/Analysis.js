@@ -2,6 +2,8 @@
 import authService from './api-authorization/AuthorizeService';
 import { DragDropContext } from "react-beautiful-dnd";
 import DroppableComp from "../components/DroppableComp.js"
+import ModalComp from '../components/ModalComp.js'
+import { FormControl, InputGroup } from 'react-bootstrap'
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -39,12 +41,20 @@ export class Analysis extends Component {
             Dimensoes: [],
             Metricas_Categorias: [],
             Metricas_Colunas: [],
-            Niveis_De_Detalhe: undefined
+            Niveis_De_Detalhe: undefined,
+            onShowLoadModal: false,
+            onShowSaveModal: false,
+            saveName: '',
+            loadVersion: []
         }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.enableLoadModal = this.enableLoadModal.bind(this)
+        this.enableSaveModal = this.enableSaveModal.bind(this)
+        this.disableLoadModal = this.disableLoadModal.bind(this)
+        this.disableSaveModal = this.disableSaveModal.bind(this)
     }
 
     async componentDidMount() {
-
         const token = await authService.getAccessToken();
         let id = this.props.match.params.id
 
@@ -65,6 +75,36 @@ export class Analysis extends Component {
                 })
                 this.generateDetailLevels()
             })
+    }
+
+    enableLoadModal() {
+        this.setState({
+            onShowLoadModal: true
+        })
+    }
+
+    disableLoadModal() {
+        this.setState({
+            onShowLoadModal: false
+        })
+    }
+
+    enableSaveModal() {
+        this.setState({
+            onShowSaveModal: true
+        })
+    }
+
+    disableSaveModal() {
+        this.setState({
+            onShowSaveModal:false
+        })
+    }
+
+    handleOnChange(e) {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
     }
 
     /*Gerar árvore*/
@@ -305,9 +345,9 @@ export class Analysis extends Component {
                                         Options
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                        <button class="dropdown-item" type="button" onClick={ () => this.onLoadVersionClick() }>Load Version</button>
-                                        <button class="dropdown-item" type="button" onClick={ () => this.onSaveClick() }>Save</button>
-                                        <button class="dropdown-item" type="button" onClick={ () => this.onDownloadClick()}>Download</button>
+                                        <button class="dropdown-item" type="button" onClick={this.enableLoadModal}>Load Version</button>
+                                        <button class="dropdown-item" type="button" onClick={this.enableSaveModal}>Save</button>
+                                        <button class="dropdown-item" type="button" onClick={this.onDownloadClick}>Download</button>
                                     </div>
                                 </div>
                             </div>
@@ -317,6 +357,29 @@ export class Analysis extends Component {
                         </div>
                     </div>
                 </DragDropContext>
+                <ModalComp
+                    title="Load Analysis"
+                    body="fazer o pedido e radio button com as hipoteses disponiveis"
+                    okButtonText="Load"
+                    okButtonFunc={this.onLoadVersionClick}
+                    cancelButtonFunc={this.disableLoadModal}
+                    visible={this.state.onShowLoadModal}
+                />
+                <ModalComp
+                    title="Save Analysis"
+                    body=
+                    {
+                        <div>
+                            <InputGroup className="mb-3" >
+                                <FormControl id="inputForm" placeholder="Version name..." required name="saveName" onChange={this.handleOnChange} />                      
+                            </InputGroup>
+                        </div>
+                    }
+                    okButtonText="Save"
+                    okButtonFunc={this.onSaveClick}
+                    cancelButtonFunc={this.disableSaveModal}
+                    visible={this.state.onShowSaveModal}
+                />               
             </div>
         )
     }
