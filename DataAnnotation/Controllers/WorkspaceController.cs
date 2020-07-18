@@ -36,14 +36,14 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetUserFiles()
+		public IActionResult GetUserFiles()	//list all user csv files
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			return Ok(_context.CsvFile.Where(f => f.UserId == userId).ToList());
-		}
+		}   
 
 		[HttpDelete]
-		public IActionResult RemoveFile([FromQuery]int fileId)
+		public IActionResult RemoveFile([FromQuery]int fileId)	//remove a csv file and all its analysis if aplicable
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -75,7 +75,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult AnalyseFile([FromQuery]int fileId)
+		public IActionResult AnalyseFile([FromQuery]int fileId)	//start a file analysis
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -95,7 +95,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult DownloadAnalysis([FromQuery]int fileId)
+		public IActionResult DownloadAnalysis([FromQuery]int fileId)	//send analysis file to download
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -103,14 +103,14 @@ namespace DataAnnotation.Controllers
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
-			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count-1].Name);
+			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count-1].Name);	//return last analysis
 			
 			FileStream fileStream = System.IO.File.OpenRead(filePath);
 			return File(fileStream, "application/octet-stream");
 		}
 
 		[HttpGet]
-		public IActionResult ReturnAnalysis([FromQuery]int fileId)
+		public IActionResult ReturnAnalysis([FromQuery]int fileId)	//returns last analysis of csv file
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -118,14 +118,29 @@ namespace DataAnnotation.Controllers
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
-			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count - 1].Name);
+			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count - 1].Name);    //return last analysis
 
 			var json = System.IO.File.ReadAllText(filePath);
 			return Ok(json);
 		}
 
 		[HttpGet]
-		public IActionResult IsAnalysisComplete([FromQuery]int fileId)
+		public IActionResult ReturnAnalysis([FromQuery]int fileId, int index)	//returns analysis version given by index
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
+
+			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
+			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			string filePath = Path.Combine(folderPath, analysisFiles[index].Name);    //return analysis given by index
+
+			var json = System.IO.File.ReadAllText(filePath);
+			return Ok(json);
+		}
+
+		[HttpGet]
+		public IActionResult IsAnalysisComplete([FromQuery]int fileId)	//checks analysis completion
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -145,7 +160,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetAnalysis(int fileId)
+		public IActionResult GetAnalysis(int fileId)	//return list of analysis versions
 		{
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
 			
@@ -154,6 +169,12 @@ namespace DataAnnotation.Controllers
 				return NotFound(); //é mesmo este?
 			}
 			return Ok(analysisFiles);	//é preciso ser em array?
+		}
+
+		[HttpGet]
+		public IActionResult SaveAnalysis(string json)
+		{
+			throw new NotImplementedException();
 		}
 
 		public List<AnalysisFile> GetAnalysisFiles(int fileId)
