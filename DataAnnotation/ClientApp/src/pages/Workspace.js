@@ -4,6 +4,7 @@ import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap';
 import './Workspace.css'
+import ModalComp from '../components/ModalComp.js'
 
 export class Workspace extends Component {
 
@@ -12,10 +13,15 @@ export class Workspace extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            files: [],
-            requestLoops: []
+            files: new Map(),
+            requestLoops: [],
+            onShowDeleteModal: false,
+            idToRemove: -1
         }
-
+        this.enableDeleteModal = this.enableDeleteModal.bind(this)
+        this.disableDeleteModal = this.disableDeleteModal.bind(this)
+        this.removeFile = this.removeFile.bind(this)
+        this.Remove = this.Remove.bind(this)
     }
 
     async componentDidMount() {
@@ -23,9 +29,13 @@ export class Workspace extends Component {
         const response = await fetch('Workspace/GetUserFiles', {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         })
-        const data = await response.json()      
-        this.setState({ files: data })
-        this.state.files.forEach(f => {
+        const data = await response.json()  
+        var allFiles = new Map()
+        data.forEach(file => {
+            allFiles.set(file.csvFileId, file)
+        })
+        this.setState({ files: allFiles })
+        data.forEach(f => {
             if (f.isAnalysing === true) {
                 this.checkAnalysisStatus(f.csvFileId,token)
             }
@@ -39,39 +49,29 @@ export class Workspace extends Component {
     }
 
     removeFile(Id) {
-        var array = this.state.files
-        var ids = array.map(o => o.csvFileId)
-        var index = ids.indexOf(Id)
-        if (index !== -1) {
-            array.splice(index, 1)
-            this.setState({
-                files: array
-            })
-        }
+        var mapAux = this.state.files
+        mapAux.delete(Id)
+        this.setState({
+            files: mapAux
+        })
     }
 
     async Analyze(id) {
         const token = await authService.getAccessToken();
-        var array = this.state.files
-        this.setState({files : array})
+        var map = this.state.files
         fetch(`Workspace/AnalyseFile?fileId=${id}`, {
             method : 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
-          .then(newFile => {
-                array.forEach(f => {
-                    if (f.csvFileId === id) {
-                        f.isAnalysing = newFile.isAnalysing
-                    }
-                })
-                this.setState({ files: array })
-            })
-            this.checkAnalysisStatus(id,token)
-        
+        .then(newFile => {
+            map.set(id, newFile)
+            this.setState({ files: map })
+        })
+        this.checkAnalysisStatus(id,token) 
     }
 
     async checkAnalysisStatus(id, token) {
-        var array = this.state.files
+        var map = this.state.files
         var requestLoop = setInterval(function () {
             fetch(`Workspace/IsAnalysisComplete?fileId=${id}`, {
                 method: 'GET',
@@ -79,24 +79,16 @@ export class Workspace extends Component {
             }).then(res => {
                 if (res.status !== 204) { //204 = empty response -> not yet completed analysis
                     res.json().then(newFile => {
-                        array.forEach(f => {
-                            if (f.csvFileId === id) {
-                                f.analysisCompletionTime = newFile.analysisCompletionTime
-                                f.analysisDuration = newFile.analysisDuration
-                                f.rowsCount = newFile.rowsCount
-                                f.columnsCount = newFile.columnsCount
-                                f.isAnalysing = newFile.isAnalysing
-                            }
-                        })
-                        stopLoop(array)
+                        map.set(id, newFile)
+                        stopLoop(map)
                     })
                 }
             })
-        }, 5000); //5 seconds?
+        }, 5000); //5 seconds
         this.setState({ requestLoops: this.state.requestLoops.concat(requestLoop) })
 
-        var stopLoop = (newArray) => {
-            this.setState({ files: newArray })
+        var stopLoop = (newMap) => {
+            this.setState({ files: newMap })
             this.forceUpdate()
             clearInterval(requestLoop)
         }
@@ -124,13 +116,20 @@ export class Workspace extends Component {
 
     }
 
-    async Remove(id) {
+    enableDeleteModal(id) { this.setState({ onShowDeleteModal: true, idToRemove: id }) }
+    
+    disableDeleteModal() { this.setState({ onShowDeleteModal: false }) }
+
+    async Remove() {
         const token = await authService.getAccessToken();
+        let id = this.state.idToRemove
         fetch(`Workspace/RemoveFile?fileId=${id}`, {
             method: 'DELETE',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        })
-            .then(res => this.removeFile(id))                   
+        }).then(res => {
+            this.removeFile(id)
+            this.disableDeleteModal()
+        })                   
     }
 
     showTime(value) {
@@ -178,9 +177,9 @@ export class Workspace extends Component {
                 <h1>My Workspace</h1>
                 <div class="row">
                     <div class = "col-sm-8">
-                        <div class="list-group" id = "list-tab" role = "tablist">
-                            {this.state.files.map(item => {
-                                return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab">
+                        <div class="list-group" id="list-tab" role="tablist">
+                            {Array.from(this.state.files).map(([key, item]) => {
+                                return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab" >
                                     <div class="row">
                                         <div class="column">
                                             <svg class="bi bi-file-text" width="100" height="40" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fill-rule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></svg>
@@ -189,26 +188,33 @@ export class Workspace extends Component {
                                             {item.fileNameDisplay.split('.')[0]}
                                         </div>
                                     </div>
-                                    </a>
+                                </a>
                             })}
                         </div>
                     </div>
                     <div class="col-4" >
                         <div class="tab-content" id="nav-tabContent" >
-                            {this.state.files.map(item => {
+                            {Array.from(this.state.files).map(([key, item]) => {
                                 return <div class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
                                     <h5>File details</h5>
                                     <p> Uploaded on: {item.uploadTime.split("T")[0]}</p>
                                     <p> Uploaded from: {item.origin}</p>
                                     <p> size: {formatSize(item.size)}</p>
                                     {this.renderFileInfo(item)}
-                                    <button type="button" class="btn btn-outline-danger" onClick={() => this.Remove(item.csvFileId)}>Remove</button>
-
+                                    <button type="button" class="btn btn-outline-danger" onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
                                 </div>
                             })}
                         </div>
                     </div>
                 </div>
+                <ModalComp
+                    title="Delete File"
+                    body="Are you sure you want to delete this file. This will delete every analysis (if any) as well as the file itself."
+                    okButtonText="Delete"
+                    okButtonFunc={this.Remove}
+                    cancelButtonFunc={this.disableDeleteModal}
+                    visible={this.state.onShowDeleteModal}
+                />
             </Container>
         )
     }

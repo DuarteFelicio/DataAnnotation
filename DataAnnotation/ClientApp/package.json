@@ -18,7 +18,8 @@
     "bootstrap-icons": "1.0.0-alpha3",
     "axios": "0.19.2",
     "react-native-progress": "4.1.2",
-    "react-beautiful-dnd": "13.0.0"
+    "react-beautiful-dnd": "13.0.0",
+    "react-bootstrap": "1.2.2"
   },
   "devDependencies": {
     "ajv": "^6.9.1",

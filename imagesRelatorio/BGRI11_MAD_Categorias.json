@@ -1,0 +1,32 @@
+...
+"Metricas": {
+    "Categorias": [
+      {
+        "CategoriaId": 1,
+        "Nome": "N_",
+        "CategoriaPaiId": null
+      },
+      {
+        "CategoriaId": 2,
+        "Nome": "N_EDIFICIOS_",
+        "CategoriaPaiId": 1
+      },
+      {
+        "CategoriaId": 3,
+        "Nome": "N_EDIFICIOS_CLASSICOS",
+        "CategoriaPaiId": 2
+      },
+      {
+        "CategoriaId": 4,
+        "Nome": "N_EDIFICIOS_CONSTR_",
+        "CategoriaPaiId": 2
+      },
+      {
+        "CategoriaId": 5,
+        "Nome": "N_EDIFICIOS_CONSTR_19",
+        "CategoriaPaiId": 4
+      },
+	  ...
+	],
+},
+...	
