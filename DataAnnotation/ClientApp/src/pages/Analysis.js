@@ -66,30 +66,48 @@ export class Analysis extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
             .then(metadata => {
-                this.setState({
-                    Nome: metadata.Nome.split('.')[0],
-                    NumLinhas: metadata.NumLinhas,
-                    NumColunas: metadata.NumColunas,
-                    DataGeracao: metadata.DataGeracao,
-                    GeoDivisoes: metadata.GeoDivisoes,
-                    Dimensoes: metadata.Dimensoes,
-                    Metricas_Categorias: metadata.Metricas.Categorias,
-                    Metricas_Colunas: metadata.Metricas.Colunas
-                })
-                this.generateDetailLevels()
+                this.newMetainformation(metadata)
             })
     }
 
-    enableLoadModal() {
-        let array = ['uno', 'dos', 'tres']
-        if (this.state.requestVersion) {
-            //fazer o pedido
-        }
+    newMetainformation(metadata) {
         this.setState({
-            onShowLoadModal: true,
-            loadVersion: array,
-            requestVersion : false
+            Nome: metadata.Nome.split('.')[0],
+            NumLinhas: metadata.NumLinhas,
+            NumColunas: metadata.NumColunas,
+            DataGeracao: metadata.DataGeracao,
+            GeoDivisoes: metadata.GeoDivisoes,
+            Dimensoes: metadata.Dimensoes,
+            Metricas_Categorias: metadata.Metricas.Categorias,
+            Metricas_Colunas: metadata.Metricas.Colunas
         })
+        this.generateDetailLevels()
+    }
+
+    async enableLoadModal() {
+        let id = this.props.match.params.id
+        const token = await authService.getAccessToken();
+        if (this.state.requestVersion) {
+
+            fetch(`Workspace/ListAnalysis?fileId=${id}`, {
+                method: 'GET',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json())
+                .then(arrayRet => {
+                    console.log(arrayRet)
+
+                    this.setState({
+                        onShowLoadModal: true,
+                        loadVersion: arrayRet,
+                        requestVersion: false
+                    })
+                })
+        }
+        else {
+            this.setState({
+                onShowLoadModal: true,
+            })
+        }
     }
 
     disableLoadModal() {
@@ -282,12 +300,19 @@ export class Analysis extends Component {
         else {
             let selected = this.state.selectedVersion;
             let fileId = this.props.match.params.id
-            //fazer o pedido
-            console.log("fileId:" + fileId + "------------" + "version:" + selected)
-            this.setState({
-                selectedVersion: "",
-                onShowLoadModal: false
-            })
+            const token = await authService.getAccessToken();
+
+            fetch(`Workspace/ReturnAnalysisVersion?fileId=${fileId}&fileName=${selected}`, {
+                method: 'GET',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json())
+                .then(metadata => {
+                    this.newMetainformation(metadata)
+                    this.setState({
+                        selectedVersion: "",
+                        onShowLoadModal: false
+                    })
+                })
         }
         
     }
@@ -381,10 +406,10 @@ export class Analysis extends Component {
                         this.state.loadVersion.map(v => {
                             return (
                                 <Form.Check
-                                    key={v}
+                                    key={v.name}
                                     type='radio'
-                                    id={v}
-                                    label={v}
+                                    id={v.name}
+                                    label={v.name + ' | ' + v.lastEdit.split('T')[0]}
                                     onChange={this.handleOnToggleVersion}
                                     name='selectedVersion'
                                 />
