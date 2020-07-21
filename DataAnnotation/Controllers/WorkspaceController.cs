@@ -125,15 +125,14 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult ReturnAnalysis2([FromQuery]int fileId, int index)	//returns analysis version given by index
+		public IActionResult ReturnAnalysisVersion([FromQuery]int fileId, string fileName)	//returns analysis version given by index
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
-			string filePath = Path.Combine(folderPath, analysisFiles[index].Name);    //return analysis given by index
+			string filePath = Path.Combine(folderPath, fileName);    //return analysis given by index
 
 			var json = System.IO.File.ReadAllText(filePath);
 			return Ok(json);
@@ -160,7 +159,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetAnalysis(int fileId)	//return list of analysis versions
+		public IActionResult ListAnalysis(int fileId)	//return list of analysis versions
 		{
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
 			
