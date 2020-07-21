@@ -111,8 +111,9 @@ namespace AnalyseFileWorkerService
             fileFolderPath = Path.Combine(fileFolderPath, "analysis");
             Directory.CreateDirectory(fileFolderPath);
 
-            filePath = Path.Combine(fileFolderPath, fileName);
-            filePath += "_analysis_v1";
+            //filePath = Path.Combine(fileFolderPath, fileName);
+            //filePath += "_analysis_v1";
+            filePath = Path.Combine(fileFolderPath, "analysis_v1");
             System.IO.File.WriteAllText(filePath, json);
 
             _logger.LogInformation("Message {0} - Work Complete", message);

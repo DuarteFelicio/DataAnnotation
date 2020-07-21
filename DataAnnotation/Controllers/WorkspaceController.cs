@@ -146,8 +146,9 @@ namespace DataAnnotation.Controllers
 			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			string filePath = Path.Combine(folderPath, file.FileNameStorage);
-			filePath += "_analysis_v1";
+			//string filePath = Path.Combine(folderPath, file.FileNameStorage);
+			//filePath += "_analysis_v1";
+			string filePath = Path.Combine(folderPath, "analysis_v1");
 			if (System.IO.File.Exists(filePath))
 			{
 				file.IsAnalysing = false;
@@ -170,9 +171,10 @@ namespace DataAnnotation.Controllers
 			return Ok(analysisFiles);	//é preciso ser em array?
 		}
 
-		[HttpGet]
-		public IActionResult SaveAnalysis(string json)
+		[HttpPost]
+		public IActionResult SaveAnalysis()
 		{
+
 			throw new NotImplementedException();
 		}
 
