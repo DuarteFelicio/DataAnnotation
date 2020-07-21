@@ -81,10 +81,9 @@ export class Analysis extends Component {
     }
 
     enableLoadModal() {
-        let array = []
+        let array = ['uno', 'dos', 'tres']
         if (this.state.requestVersion) {
             //fazer o pedido
-            array = ['uno', 'dos', 'tres']
         }
         this.setState({
             onShowLoadModal: true,
@@ -277,10 +276,20 @@ export class Analysis extends Component {
 
     /*Métodos para os três botões*/
     async onLoadVersionClick() {
-        let selected = this.state.selectedVersion;
-        let fileId = this.props.match.params.id
-        //fazer o pedido
-        console.log("fileId:" + fileId + "------------" + "version:" + selected)
+        if (this.state.selectedVersion === "") {
+            this.disableLoadModal()
+        }
+        else {
+            let selected = this.state.selectedVersion;
+            let fileId = this.props.match.params.id
+            //fazer o pedido
+            console.log("fileId:" + fileId + "------------" + "version:" + selected)
+            this.setState({
+                selectedVersion: "",
+                onShowLoadModal: false
+            })
+        }
+        
     }
 
     async onSaveClick() {
