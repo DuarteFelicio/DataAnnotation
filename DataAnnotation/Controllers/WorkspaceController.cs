@@ -63,7 +63,7 @@ namespace DataAnnotation.Controllers
 			}
 			catch (Exception e)
 			{
-				_context.CsvFile.Add(file);
+				_context.CsvFile.Add(file);		//isto da bug se o ficheiro tiver sido removido pelo file system
 				_context.SaveChanges();
 				return StatusCode(500, e);
 			}
