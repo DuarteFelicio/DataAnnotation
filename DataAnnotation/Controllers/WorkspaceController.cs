@@ -125,7 +125,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult ReturnAnalysis([FromQuery]int fileId, int index)	//returns analysis version given by index
+		public IActionResult ReturnAnalysis2([FromQuery]int fileId, int index)	//returns analysis version given by index
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();

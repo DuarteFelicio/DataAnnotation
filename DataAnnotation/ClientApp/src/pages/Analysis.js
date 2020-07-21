@@ -3,7 +3,7 @@ import authService from './api-authorization/AuthorizeService';
 import { DragDropContext } from "react-beautiful-dnd";
 import DroppableComp from "../components/DroppableComp.js"
 import ModalComp from '../components/ModalComp.js'
-import { FormControl, InputGroup } from 'react-bootstrap'
+import {Form } from 'react-bootstrap'
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -43,15 +43,18 @@ export class Analysis extends Component {
             Metricas_Colunas: [],
             Niveis_De_Detalhe: undefined,
             onShowLoadModal: false,
-            onShowSaveModal: false,
-            saveName: '',
-            loadVersion: []
+            loadVersion: [],
+            selectedVersion:'',
+            requestVersion: true
         }
         this.handleOnChange = this.handleOnChange.bind(this)
-        this.enableLoadModal = this.enableLoadModal.bind(this)
-        this.enableSaveModal = this.enableSaveModal.bind(this)
-        this.disableLoadModal = this.disableLoadModal.bind(this)
-        this.disableSaveModal = this.disableSaveModal.bind(this)
+        this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
+        this.enableLoadModal = this.enableLoadModal.bind(this)        
+        this.disableLoadModal = this.disableLoadModal.bind(this)    
+        this.onLoadVersionClick = this.onLoadVersionClick.bind(this)
+        this.onSaveClick = this.onSaveClick.bind(this)
+        this.onDownloadClick = this.onDownloadClick.bind(this)
+
     }
 
     async componentDidMount() {
@@ -78,8 +81,15 @@ export class Analysis extends Component {
     }
 
     enableLoadModal() {
+        let array = []
+        if (this.state.requestVersion) {
+            //fazer o pedido
+            array = ['uno', 'dos', 'tres']
+        }
         this.setState({
-            onShowLoadModal: true
+            onShowLoadModal: true,
+            loadVersion: array,
+            requestVersion : false
         })
     }
 
@@ -89,21 +99,15 @@ export class Analysis extends Component {
         })
     }
 
-    enableSaveModal() {
-        this.setState({
-            onShowSaveModal: true
-        })
-    }
-
-    disableSaveModal() {
-        this.setState({
-            onShowSaveModal:false
-        })
-    }
-
     handleOnChange(e) {
         this.setState({
             [e.target.name]: e.target.value
+        })
+    }
+
+    handleOnToggleVersion(e) {
+        this.setState({
+            [e.target.name]: e.target.id,
         })
     }
 
@@ -145,7 +149,7 @@ export class Analysis extends Component {
         this.setState({
             Niveis_De_Detalhe: array[0],
             Metricas_Colunas: metrics
-        }, () => console.log(this.state.Niveis_De_Detalhe))
+        })
     }
 
     recursiveOrganize(categoria, array) {
@@ -273,18 +277,23 @@ export class Analysis extends Component {
 
     /*Métodos para os três botões*/
     async onLoadVersionClick() {
-
+        let selected = this.state.selectedVersion;
+        let fileId = this.props.match.params.id
+        //fazer o pedido
+        console.log("fileId:" + fileId + "------------" + "version:" + selected)
     }
 
     async onSaveClick() {
-
+        this.setState({
+            requestVersion : true
+        })
     }
 
     async onDownloadClick() {
 
     }
-    /**/
 
+    
     /*Métodos de render*/
     renderDroppable(title, id, draggables) {
         return <DroppableComp
@@ -346,7 +355,7 @@ export class Analysis extends Component {
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
                                         <button class="dropdown-item" type="button" onClick={this.enableLoadModal}>Load Version</button>
-                                        <button class="dropdown-item" type="button" onClick={this.enableSaveModal}>Save</button>
+                                        <button class="dropdown-item" type="button" onClick={this.onSaveClick}>Save</button>
                                         <button class="dropdown-item" type="button" onClick={this.onDownloadClick}>Download</button>
                                     </div>
                                 </div>
@@ -359,27 +368,25 @@ export class Analysis extends Component {
                 </DragDropContext>
                 <ModalComp
                     title="Load Analysis"
-                    body="fazer o pedido e radio button com as hipoteses disponiveis"
+                    body={
+                        this.state.loadVersion.map(v => {
+                            return (
+                                <Form.Check
+                                    key={v}
+                                    type='radio'
+                                    id={v}
+                                    label={v}
+                                    onChange={this.handleOnToggleVersion}
+                                    name='selectedVersion'
+                                />
+                            )
+                        })
+                    }
                     okButtonText="Load"
                     okButtonFunc={this.onLoadVersionClick}
                     cancelButtonFunc={this.disableLoadModal}
                     visible={this.state.onShowLoadModal}
-                />
-                <ModalComp
-                    title="Save Analysis"
-                    body=
-                    {
-                        <div>
-                            <InputGroup className="mb-3" >
-                                <FormControl id="inputForm" placeholder="Version name..." required name="saveName" onChange={this.handleOnChange} />                      
-                            </InputGroup>
-                        </div>
-                    }
-                    okButtonText="Save"
-                    okButtonFunc={this.onSaveClick}
-                    cancelButtonFunc={this.disableSaveModal}
-                    visible={this.state.onShowSaveModal}
-                />               
+                />                
             </div>
         )
     }
