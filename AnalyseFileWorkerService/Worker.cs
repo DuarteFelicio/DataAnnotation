@@ -110,9 +110,6 @@ namespace AnalyseFileWorkerService
             string fileName = Path.GetFileName(filePath);
             fileFolderPath = Path.Combine(fileFolderPath, "analysis");
             Directory.CreateDirectory(fileFolderPath);
-
-            //filePath = Path.Combine(fileFolderPath, fileName);
-            //filePath += "_analysis_v1";
             filePath = Path.Combine(fileFolderPath, "analysis_v1");
             System.IO.File.WriteAllText(filePath, json);
 

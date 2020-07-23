@@ -146,8 +146,6 @@ namespace DataAnnotation.Controllers
 			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			//string filePath = Path.Combine(folderPath, file.FileNameStorage);
-			//filePath += "_analysis_v1";
 			string filePath = Path.Combine(folderPath, "analysis_v1");
 			if (System.IO.File.Exists(filePath))
 			{
@@ -160,7 +158,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult ListAnalysis(int fileId)	//return list of analysis versions
+		public IActionResult ListAnalysis([FromQuery]int fileId)	//return list of analysis versions
 		{
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
 			
@@ -172,10 +170,19 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult SaveAnalysis()
+		public IActionResult SaveAnalysis([FromQuery]int fileId, [FromBody] JsonElement body)	//saves a edited file
 		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
 
-			throw new NotImplementedException();
+			string json = System.Text.Json.JsonSerializer.Serialize(body);
+
+			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
+			int nextVersion = GetAnalysisFiles(fileId).Count;
+			string filePath = Path.Combine(folderPath, "analysis_v" + ++nextVersion);
+			System.IO.File.WriteAllText(filePath, json);
+			return Created(nameof(WorkspaceController), null);
 		}
 
 		public List<AnalysisFile> GetAnalysisFiles(int fileId)
