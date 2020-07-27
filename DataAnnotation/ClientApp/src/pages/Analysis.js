@@ -54,7 +54,6 @@ export class Analysis extends Component {
         this.onLoadVersionClick = this.onLoadVersionClick.bind(this)
         this.onSaveClick = this.onSaveClick.bind(this)
         this.onDownloadClick = this.onDownloadClick.bind(this)
-
     }
 
     async componentDidMount() {
@@ -318,8 +317,37 @@ export class Analysis extends Component {
     }
 
     async onSaveClick() {
+        //obrigar a fazer o pedido do load novamente
         this.setState({
-            requestVersion : true
+            requestVersion: true
+        })
+        //save version
+        let fileId = this.props.match.params.id
+        const token = await authService.getAccessToken();
+        //generate new metadata file
+        console.log(this.state.Niveis_De_Detalhe)
+        let metadata = {
+            Nome : this.state.Nome + '.csv',
+            NumLinhas : this.state.NumLinhas,
+            NumColunas : this.state.NumColunas,
+            DataGeracao : this.state.DataGeracao,
+            GeoDivisoes : this.state.GeoDivisoes,
+            Dimensoes : this.state.Dimensoes,
+            Metricas: {
+                Categorias: this.state.Metricas_Categorias,
+                Colunas : this.state.Metricas_Colunas
+            }
+        }
+
+        fetch(`Workspace/SaveAnalysis?fileId=${fileId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(metadata)
+        }).then(res => {
+            //fazer aparecer qquer coisa
         })
     }
 
@@ -409,7 +437,7 @@ export class Analysis extends Component {
                                     key={v.name}
                                     type='radio'
                                     id={v.name}
-                                    label={v.name + ' | ' + v.lastEdit.split('T')[0]}
+                                    label={v.name + ' | ' + v.lastEdit.split('T')[0] + ' at ' +v.lastEdit.split('T')[1].split('.')[0]}
                                     onChange={this.handleOnToggleVersion}
                                     name='selectedVersion'
                                 />
