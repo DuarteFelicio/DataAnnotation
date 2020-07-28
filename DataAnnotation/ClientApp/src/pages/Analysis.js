@@ -3,7 +3,9 @@ import authService from './api-authorization/AuthorizeService';
 import { DragDropContext } from "react-beautiful-dnd";
 import DroppableComp from "../components/DroppableComp.js"
 import ModalComp from '../components/ModalComp.js'
-import {Form } from 'react-bootstrap'
+import { Form } from 'react-bootstrap'
+import SlidingPane from "react-sliding-pane";
+import "react-sliding-pane/dist/react-sliding-pane.css";
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -45,7 +47,8 @@ export class Analysis extends Component {
             onShowLoadModal: false,
             loadVersion: [],
             selectedVersion:'',
-            requestVersion: true
+            requestVersion: true,
+            openSidePanel: false
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -54,6 +57,7 @@ export class Analysis extends Component {
         this.onLoadVersionClick = this.onLoadVersionClick.bind(this)
         this.onSaveClick = this.onSaveClick.bind(this)
         this.onDownloadClick = this.onDownloadClick.bind(this)
+        this.enableSidePanel = this.enableSidePanel.bind(this)
     }
 
     async componentDidMount() {
@@ -81,6 +85,10 @@ export class Analysis extends Component {
             Metricas_Colunas: metadata.Metricas.Colunas
         })
         this.generateDetailLevels()
+    }
+
+    enableSidePanel() {
+        this.setState({ openSidePanel: true })
     }
 
     async enableLoadModal() {
@@ -361,6 +369,7 @@ export class Analysis extends Component {
         return <DroppableComp
                     title={title}
                     id={id}
+                    moreInfo={this.enableSidePanel}
                     draggables={draggables}
                 />
     }
@@ -448,7 +457,21 @@ export class Analysis extends Component {
                     okButtonFunc={this.onLoadVersionClick}
                     cancelButtonFunc={this.disableLoadModal}
                     visible={this.state.onShowLoadModal}
-                />                
+                />   
+                <SlidingPane
+                    className="some-custom-class"
+                    overlayClassName="some-custom-overlay-class"
+                    isOpen={this.state.openSidePanel}
+                    title="Hey, it is optional pane title.  I can be React component too."
+                    subtitle="Optional subtitle."
+                    width="1000px"
+                    onRequestClose={() => {
+                        // triggered on "<" on left top click or on outside click
+                        this.setState({ openSidePanel: false });
+                    }}
+                >
+                    <div>And I am pane content. BTW, what rocks?</div>
+                </SlidingPane>
             </div>
         )
     }

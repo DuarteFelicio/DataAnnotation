@@ -20,6 +20,7 @@ export default class DraggableComp extends React.Component {
     render() {
         let coluna = this.props.coluna
         let index = this.props.index
+        let moreInfo = this.props.moreInfo
 
         return <Draggable key={coluna.NomeColuna} draggableId={coluna.NomeColuna} index={index} >
                    {(draggableProvided, draggableSnapshot) => (
@@ -32,7 +33,8 @@ export default class DraggableComp extends React.Component {
                            draggableProvided.draggableProps.style
                        )}
                    >
-                   {coluna.NomeColuna}
+                    {coluna.NomeColuna}
+                    <button type="button" style={{ float: "right" }} onClick={moreInfo}>...</button>
                    </div>
                    )}
                 </Draggable>

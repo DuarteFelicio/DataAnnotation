@@ -17,6 +17,7 @@ export default class DroppableComp extends React.Component {
         let title = this.props.title
         let id = this.props.id
         let draggables = this.props.draggables
+        let moreInfo = this.props.moreInfo
 
         return (
             <div>
@@ -28,6 +29,7 @@ export default class DroppableComp extends React.Component {
                                 <Draggable
                                     coluna={col}
                                     index={index}
+                                    moreInfo={moreInfo}
                                     history={this.props.history}
                                 />
                             ))}
