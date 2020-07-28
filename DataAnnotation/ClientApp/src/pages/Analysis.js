@@ -248,7 +248,7 @@ export class Analysis extends Component {
 
         // dropped outside the list
         if (!destination) {
-            return;
+            return
         }
 
         if (source.droppableId === destination.droppableId) {
@@ -327,10 +327,11 @@ export class Analysis extends Component {
                     if (addedColumn.CategoriaId !== null) return
                     //adicionar ao droppable o novo draggable
                     let destinationColumns = this.getList(destination.droppableId)
-                    addedColumn.CategoriaId = 
+                    addedColumn.CategoriaId = parseInt(destination.droppableId)
                     destinationColumns.splice(destination.index, 0, sourceColumns[source.index]);
                     let headCopy = this.state.Niveis_De_Detalhe
                     headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
+                    return 
                 }
             }
 
