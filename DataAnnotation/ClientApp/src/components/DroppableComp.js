@@ -22,11 +22,12 @@ export default class DroppableComp extends React.Component {
         return (
             <div>
                 <p>{title}</p>
-                <Droppable droppableId={"" + id}>
+                <Droppable droppableId={"" + id} key={""+id}>
                     {(droppableProvided, droppableSnapshot) => (
                         <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>
                             {draggables !== undefined && draggables.map((col, index) => (
                                 <Draggable
+                                    droppableId={id}
                                     coluna={col}
                                     index={index}
                                     moreInfo={moreInfo}

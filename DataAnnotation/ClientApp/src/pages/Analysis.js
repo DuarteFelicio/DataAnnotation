@@ -138,8 +138,7 @@ export class Analysis extends Component {
     /*Gerar árvore*/
     generateDetailLevels() {
         let array = []
-        let columns = []
-        let metrics = []
+        let columns = []       
         this.state.Metricas_Colunas.forEach(col => {
             if (col.CategoriaId !== null) {
                 if (columns[col.CategoriaId] === undefined) {
@@ -148,11 +147,7 @@ export class Analysis extends Component {
                 else {
                     columns[col.CategoriaId].push(col)
                 }
-            }
-            else {
-                metrics.push(col)
-            }
-
+            }            
         })
         this.state.Metricas_Categorias.forEach(c => {
             c.columns = columns[c.CategoriaId]
@@ -171,8 +166,7 @@ export class Analysis extends Component {
         if (array[0].CategoriaId === undefined) return
         array[0].children = this.recursiveOrganize(array[0], array, columns)
         this.setState({
-            Niveis_De_Detalhe: array[0],
-            Metricas_Colunas: metrics
+            Niveis_De_Detalhe: array[0]          
         })
     }
 
