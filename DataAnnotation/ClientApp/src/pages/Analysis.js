@@ -50,7 +50,8 @@ export class Analysis extends Component {
             requestVersion: true,
             openSidePanel: false,
             onShowWarningModal: false,
-            panelColumn: ""
+            panelColumn: "",
+            dragResult: ""
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -137,8 +138,8 @@ export class Analysis extends Component {
         this.setState({ onShowWarningModal:true })
     }
 
-    disableWarning(){
-        this.setState({ onShowWarningModal: false })
+    disableWarning() {
+        this.setState({ onShowWarningModal: false, dragResult: "" })
     }
         
 
@@ -239,7 +240,91 @@ export class Analysis extends Component {
     }
 
     changeClassifier() {
-        //alterar as listas
+        let source = this.state.dragResult.source
+        let destination = this.state.dragResult.destination
+        let cases = this.state.dragResult.case
+
+        let sourceColumns = this.getList(source.droppableId)
+        let destinationColumns = this.getList(destination.droppableId)
+
+        switch (cases) {
+            case 'DM':
+                const [removedDM] = sourceColumns.splice(source.index, 1);
+                let newMetric = { IndiceColuna: removedDM.IndiceColuna, NomeColuna: removedDM.NomeColuna, CategoriaId: null, E_Total: false }
+                destinationColumns.splice(destination.index, 0, newMetric);
+                this.setState({ Dimensoes: sourceColumns, Metricas_Colunas: destinationColumns })
+                break;
+            case 'MD':
+                const [removedMD] = sourceColumns.splice(source.index, 1);          
+                let newDimension = {
+                    IndiceColuna: removedMD.IndiceColuna,
+                    NomeColuna: removedMD.NomeColuna,
+                    NumValoresUnicos: 0,
+                    NumValoresNulos: 0,
+                    TodosDiferentes: false,
+                    TipoValores: [],
+                    ValoresUnicos: [],
+                    TipoDominioGeo: null
+                }
+                if (removedMD.CategoriaId !== null) {
+                    let headCopy = this.state.Niveis_De_Detalhe
+                    let categoryList = this.getList(removedMD.CategoriaId);
+                    let index2
+                    categoryList.forEach((column, index) => {
+                        if (column.NomeColuna === removedMD.NomeColuna) {
+                            index2 = index
+                            return
+                        }
+                    })
+                    categoryList.splice(index2, 1)
+                    headCopy = this.setCategoryColumns(headCopy, destination.droppableId, categoryList)
+                    this.setState({ Niveis_De_Detalhe: headCopy })
+                }
+                //fazer pedido para novos valores
+                destinationColumns.splice(destination.index, 0, newDimension);
+                this.setState({ Dimensoes: destinationColumns, Metricas_Colunas: sourceColumns })
+                break;
+            case 'ND':
+                const [removedND] = sourceColumns.splice(source.index, 1);
+                let newDimensionND = {
+                    IndiceColuna: removedND.IndiceColuna,
+                    NomeColuna: removedND.NomeColuna,
+                    NumValoresUnicos: 0,
+                    NumValoresNulos: 0,
+                    TodosDiferentes: false,
+                    TipoValores: [],
+                    ValoresUnicos: [],
+                    TipoDominioGeo: null
+                }
+                //fazer pedido
+                let metricasND = this.state.Metricas_Colunas
+                let index3
+                metricasND.forEach((column, index) => {
+                    if (column.NomeColuna === removedND.NomeColuna) {
+                        index3 = index
+                        return
+                    }
+                })
+                metricasND.splice(index3, 1)
+                destinationColumns.splice(destination.index, 0, newDimensionND);
+                let headCopyND = this.state.Niveis_De_Detalhe
+                headCopyND = this.setCategoryColumns(headCopyND, source.droppableId, sourceColumns)
+                this.setState({ Dimensoes: destinationColumns, Metricas_Colunas: metricasND, Niveis_De_Detalhe: headCopyND })
+                break;
+            case 'DN':
+                const [removedDN] = sourceColumns.splice(source.index, 1);
+                let newMetricDN = { IndiceColuna: removedDN.IndiceColuna, NomeColuna: removedDN.NomeColuna, CategoriaId: destination.droppableId, E_Total: false }
+                destinationColumns.splice(destination.index, 0, newMetricDN);
+                let metricas = this.state.Metricas_Colunas
+                metricas.splice(0, 0, newMetricDN)
+                let headCopyDN = this.state.Niveis_De_Detalhe
+                headCopyDN = this.setCategoryColumns(headCopyDN, destination.droppableId, destinationColumns)
+                this.setState({ Dimensoes: sourceColumns, Metricas_Colunas: metricas, Niveis_De_Detalhe: headCopyDN })
+                break;
+            default:
+                break;
+        }
+
         this.disableWarning()
     }
 
@@ -278,7 +363,14 @@ export class Analysis extends Component {
 
             //cenário de Métrica -> Dimensão ou Dimensão -> Métrica
             if (sourceList !== undefined && destinationList !== undefined) {
-                //guardar no state etc..
+                let dragResult
+                if (sourceList === 'Dimensoes') {
+                    dragResult = { source: source, destination: destination, case: 'DM' }
+                }
+                else {
+                    dragResult = { source: source, destination: destination, case: 'MD' }
+                }
+                this.setState({ dragResult: dragResult })
                 this.enableWarning()
                 return
             }
@@ -287,7 +379,8 @@ export class Analysis extends Component {
             if (sourceList === undefined && destinationList !== undefined) {
                 //cenário NíveisDD -> Dimensão
                 if (destinationList === 'Dimensoes') {
-                    //guardar no state etc..
+                    let dragResult = { source: source, destination: destination, case: 'ND'}
+                    this.setState({ dragResult: dragResult })
                     this.enableWarning()
                     return
                 }
@@ -299,6 +392,7 @@ export class Analysis extends Component {
                     metricas.forEach(item => {
                         if (item.NomeColuna === sourceColumns[source.index].NomeColuna) {
                             item.CategoriaId = null
+                            return
                         }
                     })
                     //tirar o draggable do source
@@ -315,7 +409,8 @@ export class Analysis extends Component {
             if (sourceList !== undefined && destinationList === undefined) {
                 //cenário Dimensão -> NíveisDD
                 if (sourceList === 'Dimensoes') {
-                    //guardar no state etc..
+                    let dragResult = { source: source, destination: destination, case:'DN' }
+                    this.setState({ dragResult: dragResult })
                     this.enableWarning()
                     return
                 }
@@ -328,11 +423,31 @@ export class Analysis extends Component {
                     //adicionar ao droppable o novo draggable
                     let destinationColumns = this.getList(destination.droppableId)
                     addedColumn.CategoriaId = parseInt(destination.droppableId)
-                    destinationColumns.splice(destination.index, 0, sourceColumns[source.index]);
+                    if (destinationColumns === undefined) {
+                        destinationColumns = [sourceColumns[source.index]]
+                    }
+                    else {
+                        destinationColumns.splice(destination.index, 0, sourceColumns[source.index]);
+                    }
                     let headCopy = this.state.Niveis_De_Detalhe
-                    headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
+                    headCopy = this.setCategoryColumns(headCopy, destination.droppableId, destinationColumns)
+                    this.setState({ Niveis_De_Detalhe: headCopy })
                     return 
                 }
+            }
+
+            //cenário NíveisDD -> NíveisDD
+            if (sourceList === undefined && destinationList === undefined) {
+                let sourceColumns = this.getList(source.droppableId)
+                let destinationColumns = this.getList(destination.droppableId)
+                const [removed] = sourceColumns.splice(source.index, 1);
+                removed.CategoriaId = parseInt(destination.droppableId)
+                destinationColumns.splice(destination.index, 0, removed);
+                let headCopy = this.state.Niveis_De_Detalhe
+                headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
+                headCopy = this.setCategoryColumns(headCopy, destination.droppableId, destinationColumns)
+                this.setState({ Niveis_De_Detalhe: headCopy })
+                return
             }
 
             const result = updateDroppables(
