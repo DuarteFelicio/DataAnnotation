@@ -322,7 +322,15 @@ export class Analysis extends Component {
                 //cenário Métrica -> NíveisDD
                 if (sourceList === 'Metricas_Colunas') {
                     //verificar que categoriaId === null
+                    let sourceColumns = this.getList(source.droppableId)
+                    let addedColumn = sourceColumns[source.index]
+                    if (addedColumn.CategoriaId !== null) return
                     //adicionar ao droppable o novo draggable
+                    let destinationColumns = this.getList(destination.droppableId)
+                    addedColumn.CategoriaId = 
+                    destinationColumns.splice(destination.index, 0, sourceColumns[source.index]);
+                    let headCopy = this.state.Niveis_De_Detalhe
+                    headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
                 }
             }
 
