@@ -48,7 +48,8 @@ export class Analysis extends Component {
             loadVersion: [],
             selectedVersion:'',
             requestVersion: true,
-            openSidePanel: false
+            openSidePanel: false,
+            onShowWarningModal:false
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -58,6 +59,9 @@ export class Analysis extends Component {
         this.onSaveClick = this.onSaveClick.bind(this)
         this.onDownloadClick = this.onDownloadClick.bind(this)
         this.enableSidePanel = this.enableSidePanel.bind(this)
+        this.enableWarning = this.enableWarning.bind(this)
+        this.disableWarning = this.disableWarning.bind(this)
+        this.changeClassifier = this.changeClassifier.bind(this)
     }
 
     async componentDidMount() {
@@ -122,6 +126,15 @@ export class Analysis extends Component {
             onShowLoadModal: false
         })
     }
+
+    enableWarning() {
+        this.setState({ onShowWarningModal:true })
+    }
+
+    disableWarning(){
+        this.setState({ onShowWarningModal: false })
+    }
+        
 
     handleOnChange(e) {
         this.setState({
@@ -219,6 +232,11 @@ export class Analysis extends Component {
         return category
     }
 
+    changeClassifier() {
+        //alterar as listas
+        this.disableWarning()
+    }
+
     onDragEnd = result => {
         const { source, destination } = result;
 
@@ -249,6 +267,59 @@ export class Analysis extends Component {
             }
 
         } else {
+            let sourceList = this.id2List[source.droppableId]
+            let destinationList = this.id2List[destination.droppableId]
+
+            //cenário de Métrica -> Dimensão ou Dimensão -> Métrica
+            if (sourceList !== undefined && destinationList !== undefined) {
+                //guardar no state etc..
+                this.enableWarning()
+                return
+            }
+
+            //cenário NíveisDD -> Métrica ou Dimensão
+            if (sourceList === undefined && destinationList !== undefined) {
+                //cenário NíveisDD -> Dimensão
+                if (destinationList === 'Dimensoes') {
+                    //guardar no state etc..
+                    this.enableWarning()
+                    return
+                }
+                //cenário NíveisDD -> Métrica 
+                if (destinationList === 'Metricas_Colunas') {
+                    let sourceColumns = this.getList(source.droppableId)
+                    //alterar o categoriaId da coluna para null
+                    let metricas = this.state.Metricas_Colunas
+                    metricas.forEach(item => {
+                        if (item.NomeColuna === sourceColumns[source.index].NomeColuna) {
+                            item.CategoriaId = null
+                        }
+                    })
+                    //tirar o draggable do source
+                    let headCopy = this.state.Niveis_De_Detalhe
+                    sourceColumns.splice(source.index, 1)
+                    console.log(sourceColumns)
+                    headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
+                    this.setState({ Metricas_Colunas: metricas, Niveis_De_Detalhe: headCopy })
+                    return
+                }
+            }
+
+            //cenário Dimensão ou Métrica -> NíveisDD
+            if (sourceList !== undefined && destinationList === undefined) {
+                //cenário Dimensão -> NíveisDD
+                if (sourceList === 'Dimensoes') {
+                    //guardar no state etc..
+                    this.enableWarning()
+                    return
+                }
+                //cenário Métrica -> NíveisDD
+                if (sourceList === 'Metricas_Colunas') {
+                    //verificar que categoriaId === null
+                    //adicionar ao droppable o novo draggable
+                }
+            }
+
             const result = updateDroppables(
                 this.getList(source.droppableId),
                 this.getList(destination.droppableId),
@@ -256,8 +327,6 @@ export class Analysis extends Component {
                 destination
             );
 
-            let sourceList = this.id2List[source.droppableId]
-            let destinationList = this.id2List[destination.droppableId]
             let headCopy = this.state.Niveis_De_Detalhe
             let needUpdate = false
 
@@ -451,6 +520,14 @@ export class Analysis extends Component {
                     okButtonFunc={this.onLoadVersionClick}
                     cancelButtonFunc={this.disableLoadModal}
                     visible={this.state.onShowLoadModal}
+                />   
+                <ModalComp
+                    title="Warning!"
+                    body="You are changing the main classifier of the column. Are you sure?"
+                    okButtonText="Yes"
+                    okButtonFunc={this.changeClassifier}
+                    cancelButtonFunc={this.disableWarning}
+                    visible={this.state.onShowWarningModal}
                 />   
                 <SlidingPane
                     className="some-custom-class"
