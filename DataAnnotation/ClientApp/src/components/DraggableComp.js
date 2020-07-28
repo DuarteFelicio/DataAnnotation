@@ -35,7 +35,7 @@ export default class DraggableComp extends React.Component {
                        )}
                    >
                     {coluna.NomeColuna}
-                    <button style={{ float: "right", background: "none", border: "none", margin: 0, padding: 0, cursor:"pointer" }} onClick={moreInfo}>. . .</button>
+                    <button style={{ float: "right", background: "none", border: "none", margin: 0, padding: 0, cursor:"pointer" }} onClick={() => moreInfo(coluna)}>. . .</button>
                    </div>
                    )}
                 </Draggable>

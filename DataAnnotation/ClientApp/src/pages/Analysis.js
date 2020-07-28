@@ -49,7 +49,8 @@ export class Analysis extends Component {
             selectedVersion:'',
             requestVersion: true,
             openSidePanel: false,
-            onShowWarningModal:false
+            onShowWarningModal: false,
+            panelColumn: ""
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -62,6 +63,7 @@ export class Analysis extends Component {
         this.enableWarning = this.enableWarning.bind(this)
         this.disableWarning = this.disableWarning.bind(this)
         this.changeClassifier = this.changeClassifier.bind(this)
+        this.showColumnDetails = this.showColumnDetails.bind(this)
     }
 
     async componentDidMount() {
@@ -91,8 +93,12 @@ export class Analysis extends Component {
         this.generateDetailLevels()
     }
 
-    enableSidePanel() {
-        this.setState({ openSidePanel: true })
+    enableSidePanel(elem) {
+        console.log(elem)
+        this.setState({
+            openSidePanel: true,
+            panelColumn: elem
+        })
     }
 
     async enableLoadModal() {
@@ -427,7 +433,39 @@ export class Analysis extends Component {
     }
 
     
-    /*Métodos de render*/
+/*Métodos de render*/
+
+    showColumnDetails() {
+        if (this.state.panelColumn === "") return
+        let elem = this.state.panelColumn
+        if (elem.NumValoresUnicos === undefined) {
+            return <div>
+                <p>Column Index : {elem.IndiceColuna}</p>
+                <p>Category : {elem.CategoriaId === null ? "none" : this.state.Metricas_Categorias[elem.CategoriaId-1].Nome}</p>
+                <p>Is Total : {elem.E_Total? "true" : "false"}</p>
+            </div>
+        }
+        return <div>
+            <p>Column Index : {elem.IndiceColuna}</p>
+            <p>Number of unique values : {elem.NumValoresUnicos}</p>
+            <p>Number of null values : {elem.NumValoresNulos}</p>
+            <p>All different : {elem.TodosDiferentes? "true" : "false"}</p>
+            <p>Geo Type : {elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo}</p>
+            <p>Type of Values</p>  
+            <ul>
+            {elem.TipoValores.map(e => {                
+                return <li>{e.Count} of type {e.Tipo}</li>
+            })}
+            </ul>
+            <p>Unique values</p>
+            <ul>
+            {elem.ValoresUnicos.map(e => {
+                return <li>{e}</li>
+            })}
+            </ul>
+        </div>
+    }
+
     renderDroppable(title, id, draggables) {
         return <DroppableComp
                     title={title}
@@ -468,7 +506,7 @@ export class Analysis extends Component {
         )
     }
     /**/
-
+    
     render() {
         return (
             <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px"}}>
@@ -533,17 +571,22 @@ export class Analysis extends Component {
                     className="some-custom-class"
                     overlayClassName="some-custom-overlay-class"
                     isOpen={this.state.openSidePanel}
-                    title="Hey, it is optional pane title.  I can be React component too."
-                    subtitle="Optional subtitle."
-                    width="1000px"
+                    title={this.state.panelColumn.NomeColuna}
+                    subtitle="Column details"
+                    width="500px"
                     onRequestClose={() => {
                         // triggered on "<" on left top click or on outside click
-                        this.setState({ openSidePanel: false });
+                        this.setState({
+                            openSidePanel: false,
+                            panelColumn : "" 
+                        });
                     }}
                 >
-                    <div>And I am pane content. BTW, what rocks?</div>
+                    <div>{this.showColumnDetails()}</div>
                 </SlidingPane>
             </div>
         )
     }
+
+    
 }
