@@ -239,6 +239,22 @@ export class Analysis extends Component {
         return category
     }
 
+    getDimension(IndiceColuna, NomeColuna) {
+        //fazer o pedido
+        //devolver o result
+        let newDimension = {
+            IndiceColuna: IndiceColuna,
+            NomeColuna: NomeColuna,
+            NumValoresUnicos: 0,
+            NumValoresNulos: 0,
+            TodosDiferentes: false,
+            TipoValores: [],
+            ValoresUnicos: [],
+            TipoDominioGeo: null
+        }
+        return newDimension
+    }
+
     changeClassifier() {
         let source = this.state.dragResult.source
         let destination = this.state.dragResult.destination
@@ -246,74 +262,38 @@ export class Analysis extends Component {
 
         let sourceColumns = this.getList(source.droppableId)
         let destinationColumns = this.getList(destination.droppableId)
+        const [removed] = sourceColumns.splice(source.index, 1);
+        let index
 
         switch (cases) {
-            case 'DM':
-                const [removedDM] = sourceColumns.splice(source.index, 1);
-                let newMetric = { IndiceColuna: removedDM.IndiceColuna, NomeColuna: removedDM.NomeColuna, CategoriaId: null, E_Total: false }
+            case 'DM': 
+                let newMetric = { IndiceColuna: removed.IndiceColuna, NomeColuna: removed.NomeColuna, CategoriaId: null, E_Total: false }
                 destinationColumns.splice(destination.index, 0, newMetric);
                 this.setState({ Dimensoes: sourceColumns, Metricas_Colunas: destinationColumns })
                 break;
-            case 'MD':
-                const [removedMD] = sourceColumns.splice(source.index, 1);          
-                let newDimension = {
-                    IndiceColuna: removedMD.IndiceColuna,
-                    NomeColuna: removedMD.NomeColuna,
-                    NumValoresUnicos: 0,
-                    NumValoresNulos: 0,
-                    TodosDiferentes: false,
-                    TipoValores: [],
-                    ValoresUnicos: [],
-                    TipoDominioGeo: null
-                }
-                if (removedMD.CategoriaId !== null) {
+            case 'MD':        
+                if (removed.CategoriaId !== null) {
                     let headCopy = this.state.Niveis_De_Detalhe
-                    let categoryList = this.getList(removedMD.CategoriaId);
-                    let index2
-                    categoryList.forEach((column, index) => {
-                        if (column.NomeColuna === removedMD.NomeColuna) {
-                            index2 = index
-                            return
-                        }
-                    })
-                    categoryList.splice(index2, 1)
+                    let categoryList = this.getList(removed.CategoriaId);
+                    index = categoryList.findIndex(column => (column.NomeColuna === removed.NomeColuna))
+                    categoryList.splice(index, 1)
                     headCopy = this.setCategoryColumns(headCopy, destination.droppableId, categoryList)
                     this.setState({ Niveis_De_Detalhe: headCopy })
                 }
-                //fazer pedido para novos valores
-                destinationColumns.splice(destination.index, 0, newDimension);
+                destinationColumns.splice(destination.index, 0, this.getDimension(removed.IndiceColuna, removed.NomeColuna));
                 this.setState({ Dimensoes: destinationColumns, Metricas_Colunas: sourceColumns })
                 break;
             case 'ND':
-                const [removedND] = sourceColumns.splice(source.index, 1);
-                let newDimensionND = {
-                    IndiceColuna: removedND.IndiceColuna,
-                    NomeColuna: removedND.NomeColuna,
-                    NumValoresUnicos: 0,
-                    NumValoresNulos: 0,
-                    TodosDiferentes: false,
-                    TipoValores: [],
-                    ValoresUnicos: [],
-                    TipoDominioGeo: null
-                }
-                //fazer pedido
                 let metricasND = this.state.Metricas_Colunas
-                let index3
-                metricasND.forEach((column, index) => {
-                    if (column.NomeColuna === removedND.NomeColuna) {
-                        index3 = index
-                        return
-                    }
-                })
-                metricasND.splice(index3, 1)
-                destinationColumns.splice(destination.index, 0, newDimensionND);
+                index = metricasND.findIndex(column => (column.NomeColuna === removed.NomeColuna))
+                metricasND.splice(index, 1)
+                destinationColumns.splice(destination.index, 0, this.getDimension(removed.IndiceColun, removed.NomeColuna));
                 let headCopyND = this.state.Niveis_De_Detalhe
                 headCopyND = this.setCategoryColumns(headCopyND, source.droppableId, sourceColumns)
                 this.setState({ Dimensoes: destinationColumns, Metricas_Colunas: metricasND, Niveis_De_Detalhe: headCopyND })
                 break;
             case 'DN':
-                const [removedDN] = sourceColumns.splice(source.index, 1);
-                let newMetricDN = { IndiceColuna: removedDN.IndiceColuna, NomeColuna: removedDN.NomeColuna, CategoriaId: destination.droppableId, E_Total: false }
+                let newMetricDN = { IndiceColuna: removed.IndiceColuna, NomeColuna: removed.NomeColuna, CategoriaId: destination.droppableId, E_Total: false }
                 destinationColumns.splice(destination.index, 0, newMetricDN);
                 let metricas = this.state.Metricas_Colunas
                 metricas.splice(0, 0, newMetricDN)
@@ -360,6 +340,7 @@ export class Analysis extends Component {
         } else {
             let sourceList = this.id2List[source.droppableId]
             let destinationList = this.id2List[destination.droppableId]
+            let headCopy = this.state.Niveis_De_Detalhe
 
             //cenário de Métrica -> Dimensão ou Dimensão -> Métrica
             if (sourceList !== undefined && destinationList !== undefined) {
@@ -396,7 +377,6 @@ export class Analysis extends Component {
                         }
                     })
                     //tirar o draggable do source
-                    let headCopy = this.state.Niveis_De_Detalhe
                     sourceColumns.splice(source.index, 1)
                     console.log(sourceColumns)
                     headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
@@ -419,7 +399,13 @@ export class Analysis extends Component {
                     //verificar que categoriaId === null
                     let sourceColumns = this.getList(source.droppableId)
                     let addedColumn = sourceColumns[source.index]
-                    if (addedColumn.CategoriaId !== null) return
+                    if (addedColumn.CategoriaId !== null) {
+                        //tirar o antigo
+                        let oldColumns = this.getList(addedColumn.CategoriaId)
+                        let index = oldColumns.findIndex(column => (column.NomeColuna === addedColumn.NomeColuna))
+                        oldColumns.splice(index, 1)
+                        headCopy = this.setCategoryColumns(headCopy, source.droppableId, oldColumns)
+                    }
                     //adicionar ao droppable o novo draggable
                     let destinationColumns = this.getList(destination.droppableId)
                     addedColumn.CategoriaId = parseInt(destination.droppableId)
@@ -429,7 +415,6 @@ export class Analysis extends Component {
                     else {
                         destinationColumns.splice(destination.index, 0, sourceColumns[source.index]);
                     }
-                    let headCopy = this.state.Niveis_De_Detalhe
                     headCopy = this.setCategoryColumns(headCopy, destination.droppableId, destinationColumns)
                     this.setState({ Niveis_De_Detalhe: headCopy })
                     return 
@@ -443,50 +428,10 @@ export class Analysis extends Component {
                 const [removed] = sourceColumns.splice(source.index, 1);
                 removed.CategoriaId = parseInt(destination.droppableId)
                 destinationColumns.splice(destination.index, 0, removed);
-                let headCopy = this.state.Niveis_De_Detalhe
                 headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
                 headCopy = this.setCategoryColumns(headCopy, destination.droppableId, destinationColumns)
                 this.setState({ Niveis_De_Detalhe: headCopy })
                 return
-            }
-
-            const result = updateDroppables(
-                this.getList(source.droppableId),
-                this.getList(destination.droppableId),
-                source,
-                destination
-            );
-
-            let headCopy = this.state.Niveis_De_Detalhe
-            let needUpdate = false
-
-            if (sourceList === undefined) {
-                headCopy = this.setCategoryColumns(headCopy, source.droppableId, result[source.droppableId])
-                needUpdate = true
-
-            }
-
-            if (destinationList === undefined) {
-                headCopy = this.setCategoryColumns(headCopy, destination.droppableId, result[destination.droppableId])
-                needUpdate = true
-            }
-
-            if (needUpdate) {
-                this.setState({
-                    Niveis_De_Detalhe: headCopy,
-                });
-            }
-
-            if (sourceList !== undefined) {
-                this.setState({
-                    [sourceList]: result[source.droppableId],
-                });
-            }
-
-            if (destinationList !== undefined) {
-                this.setState({
-                    [destinationList]: result[destination.droppableId]
-                });
             }
         }
     };
@@ -526,7 +471,7 @@ export class Analysis extends Component {
         let fileId = this.props.match.params.id
         const token = await authService.getAccessToken();
         //generate new metadata file
-        console.log(this.state.Niveis_De_Detalhe)
+
         let metadata = {
             Nome : this.state.Nome + '.csv',
             NumLinhas : this.state.NumLinhas,
@@ -553,7 +498,24 @@ export class Analysis extends Component {
     }
 
     async onDownloadClick() {
-
+        let metadata = {
+            Nome: this.state.Nome + '.csv',
+            NumLinhas: this.state.NumLinhas,
+            NumColunas: this.state.NumColunas,
+            DataGeracao: this.state.DataGeracao,
+            GeoDivisoes: this.state.GeoDivisoes,
+            Dimensoes: this.state.Dimensoes,
+            Metricas: {
+                Categorias: this.state.Metricas_Categorias,
+                Colunas: this.state.Metricas_Colunas
+            }
+        }
+        const blob = new Blob([JSON.stringify(metadata)], { type: 'application/json' })
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = this.state.Nome.split('.')[0] + '_analysis' + '.json';
+        a.click();
     }
 
     
