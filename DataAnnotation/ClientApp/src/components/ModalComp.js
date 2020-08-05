@@ -9,7 +9,9 @@ export default class ModalComp extends React.Component {
         let okButtonFunc = this.props.okButtonFunc
         let cancelButtonFunc = this.props.cancelButtonFunc
         let visible = this.props.visible
-
+        let removeButton = this.props.removeButton
+        let removeButtonFunc = this.props.removeButtonFunc
+ 
         return (
             <div>
                 <Modal show={visible} onHide={cancelButtonFunc}>
@@ -26,6 +28,9 @@ export default class ModalComp extends React.Component {
                         <Button variant="outline-danger" onClick={cancelButtonFunc}>
                             Close
                             </Button>
+                        {removeButton && <Button variant="outline-danger" onClick={removeButtonFunc}>
+                            Delete version
+                            </Button>}
                     </Modal.Footer>
                 </Modal>
             </div>

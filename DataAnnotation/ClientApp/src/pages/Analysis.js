@@ -65,6 +65,7 @@ export class Analysis extends Component {
         this.disableWarning = this.disableWarning.bind(this)
         this.changeClassifier = this.changeClassifier.bind(this)
         this.showColumnDetails = this.showColumnDetails.bind(this)
+        this.deleteVersion = this.deleteVersion.bind(this)
     }
 
     async componentDidMount() {
@@ -437,6 +438,25 @@ export class Analysis extends Component {
     };
     /**/
 
+
+
+    async deleteVersion() {
+        if (this.state.selectedVersion === "") {
+            this.disableLoadModal()
+        }
+        else {
+            let selected = this.state.selectedVersion;
+            let fileId = this.props.match.params.id
+            const token = await authService.getAccessToken();
+            //fazer pedido
+            this.setState({
+                selectedVersion: "",
+                onShowLoadModal: false
+            })
+        }
+    }
+
+
     /*Métodos para os três botões*/
     async onLoadVersionClick() {
         if (this.state.selectedVersion === "") {
@@ -612,7 +632,7 @@ export class Analysis extends Component {
                                         Options
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                        <button class="dropdown-item" type="button" onClick={this.enableLoadModal}>Load Version</button>
+                                        <button class="dropdown-item" type="button" onClick={this.enableLoadModal}>Manage Versions</button>
                                         <button class="dropdown-item" type="button" onClick={this.onSaveClick}>Save</button>
                                         <button class="dropdown-item" type="button" onClick={this.onDownloadClick}>Download</button>
                                     </div>
@@ -625,7 +645,7 @@ export class Analysis extends Component {
                     </div>
                 </DragDropContext>
                 <ModalComp
-                    title="Load Analysis"
+                    title="Manage versions"
                     body={
                         this.state.loadVersion.map(v => {
                             return (
@@ -635,17 +655,20 @@ export class Analysis extends Component {
                                     id={v.name}
                                     label={v.name + ' | ' + v.lastEdit.split('T')[0] + ' at ' +v.lastEdit.split('T')[1].split('.')[0]}
                                     onChange={this.handleOnToggleVersion}
-                                    name='selectedVersion'
+                                    name='selectedVersion'                                  
                                 />
                             )
                         })
                     }
+                    removeButton={true}
+                    removeButtonFunc={this.deleteVersion}
                     okButtonText="Load"
                     okButtonFunc={this.onLoadVersionClick}
                     cancelButtonFunc={this.disableLoadModal}
                     visible={this.state.onShowLoadModal}
                 />   
                 <ModalComp
+                    removeButton={false}
                     title="Warning!"
                     body="You are changing the main classifier of the column. Are you sure?"
                     okButtonText="Yes"
