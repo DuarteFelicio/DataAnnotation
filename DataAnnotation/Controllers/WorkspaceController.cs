@@ -16,6 +16,8 @@ using System.Text;
 using RabbitMQ.Client.Events;
 using System.Threading;
 using System.Collections.Generic;
+using GenericParsing;
+using System.Data.Common;
 
 namespace DataAnnotation.Controllers
 {
@@ -183,6 +185,65 @@ namespace DataAnnotation.Controllers
 			string filePath = Path.Combine(folderPath, "analysis_v" + ++nextVersion);
 			System.IO.File.WriteAllText(filePath, json);
 			return Created(nameof(WorkspaceController), null);
+		}
+
+		[HttpDelete]
+		public IActionResult DeleteAnalysisVersion(int fileId, string analysisFile)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
+
+			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage, "analysis", analysisFile));
+
+			try
+			{
+				System.IO.File.Delete(filePath);	//DANGER: se o ficheiro a ser apagado não existe não dá exceção
+			}
+			catch (Exception e)
+			{
+				return StatusCode(500, e);
+			}
+
+			return Ok();
+		}
+
+		[HttpGet]
+		public IActionResult GetFirstValues(int fileId, int colId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
+
+			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage, file.FileNameStorage));
+
+			DataTable data = new DataTable();
+			using (GenericParserAdapter parser = new GenericParserAdapter())
+			{
+				parser.SetDataSource(filePath);
+				parser.ColumnDelimiter = ';';
+				parser.FirstRowHasHeader = true;
+				data = parser.GetDataTable();
+			}
+			if(colId > data.Columns.Count - 1)
+			{
+				return StatusCode(500, "index of column out of bounds");
+			}
+			int rowcount = data.Rows.Count;
+			if (rowcount > 10)
+			{
+				rowcount = 10;
+			}
+			List<string> values = new List<string>(rowcount);
+			foreach(DataRow row in data.Rows)
+			{
+				values.Add((string)row[colId]);
+				if(--rowcount == 0)
+				{
+					break;
+				}
+			}
+			return Ok(values.ToArray());
 		}
 
 		public List<AnalysisFile> GetAnalysisFiles(int fileId)
