@@ -121,6 +121,8 @@ export class Analysis extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
             .then(metadata => {
+                console.log('yoooooo')
+                console.log(metadata)
                 this.newMetainformation(metadata)
             })
     }
@@ -228,6 +230,7 @@ export class Analysis extends Component {
                 }
             }
         })
+        if (array[0] === undefined) return
         if (array[0].CategoriaId === undefined) return
         array[0].children = this.recursiveOrganize(array[0], array, columns)
         this.setState({
