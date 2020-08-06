@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AnalyseFileWorkerService.Models;
 
 namespace DataAnnotation.Models.Analysis
 {
@@ -54,8 +53,7 @@ namespace DataAnnotation.Models.Analysis
 		/// <param name="socket"></param>
 		public void InitDivisoesCompare()
 		{
-			List<CsvColumn> domainsCol = this.Columns.FindAll(x => x.MetricOrDimension.Equals("dimension") 
-				&& x.Geographic != null && (x.Geographic.Divisoes.Count > 0 || x.Geographic.Unidades.Count > 0));
+			List<CsvColumn> domainsCol = this.Columns.FindAll(x => x.MetricOrDimension.Equals("dimension") && x.Geographic != null && (x.Geographic.Divisoes.Count > 0 || x.Geographic.Unidades.Count > 0));
 			if (domainsCol.Count == 0)
 				return;
 

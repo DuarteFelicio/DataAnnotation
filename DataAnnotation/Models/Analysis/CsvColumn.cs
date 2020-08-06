@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using AnalyseFileWorkerService.Models;
 
 namespace DataAnnotation.Models.Analysis
 {
@@ -77,6 +76,17 @@ namespace DataAnnotation.Models.Analysis
 		{
 			TypeAnalysis(rows);
 			CheckMetricOrDimension();
+			CheckDomain();
+			this.CountUniqueValues = this.UniqueValues.Count;
+			if (this.CountUniqueValues > 20)
+				this.UniqueValues = null;
+		}
+
+		//metodo que analisa mas força a ser uma dimensao
+		public void AnalyseDimension(DataRowCollection rows)
+		{
+			TypeAnalysis(rows);
+			SetAsDimension();
 			CheckDomain();
 			this.CountUniqueValues = this.UniqueValues.Count;
 			if (this.CountUniqueValues > 20)

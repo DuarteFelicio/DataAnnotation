@@ -18,6 +18,8 @@ using System.Threading;
 using System.Collections.Generic;
 using GenericParsing;
 using System.Data.Common;
+using Microsoft.VisualBasic.CompilerServices;
+using DataAnnotation.Models.Analysis;
 
 namespace DataAnnotation.Controllers
 {
@@ -181,14 +183,14 @@ namespace DataAnnotation.Controllers
 			string json = System.Text.Json.JsonSerializer.Serialize(body);
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			int nextVersion = GetAnalysisFiles(fileId).Count;
-			string filePath = Path.Combine(folderPath, "analysis_v" + ++nextVersion);
+			int version = Int32.Parse(GetAnalysisFiles(fileId).Last().Name.Split("_v")[1]);
+			string filePath = Path.Combine(folderPath, "analysis_v" + ++version);
 			System.IO.File.WriteAllText(filePath, json);
 			return Created(nameof(WorkspaceController), null);
 		}
 
 		[HttpDelete]
-		public IActionResult DeleteAnalysisVersion(int fileId, string analysisFile)
+		public IActionResult DeleteAnalysisVersion([FromQuery]int fileId, [FromQuery]string analysisFile)		//deletes a version of analysis
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -209,7 +211,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetFirstValues(int fileId, int colId)
+		public IActionResult GetFirstValues([FromQuery]int fileId, [FromQuery]int colId)		//gets first values of a specified column
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -244,6 +246,33 @@ namespace DataAnnotation.Controllers
 				}
 			}
 			return Ok(values.ToArray());
+		}
+
+		[HttpGet]
+		public IActionResult MetricToDimension([FromQuery]int fileId, [FromQuery]string colName, [FromQuery]int colId)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
+			if (file.CsvFileId == 0) return NotFound();
+
+			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage, file.FileNameStorage));
+
+			DataTable data = new DataTable();
+			using (GenericParserAdapter parser = new GenericParserAdapter())
+			{
+				parser.SetDataSource(filePath);
+				parser.ColumnDelimiter = ';';
+				parser.FirstRowHasHeader = true;
+				data = parser.GetDataTable();
+			}
+			if (colId > data.Columns.Count - 1)
+			{
+				return StatusCode(500, "index of column out of bounds");
+			}
+			CsvColumn csvColumn = new CsvColumn(file, colName, colId, _context);
+			csvColumn.AnalyseDimension(data.Rows);
+
+			return Ok(new MD_Dimensao(csvColumn));
 		}
 
 		public List<AnalysisFile> GetAnalysisFiles(int fileId)
