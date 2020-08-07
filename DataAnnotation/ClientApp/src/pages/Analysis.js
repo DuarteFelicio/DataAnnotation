@@ -120,9 +120,7 @@ export class Analysis extends Component {
             method: 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         }).then(res => res.json())
-            .then(metadata => {
-                console.log('yoooooo')
-                console.log(metadata)
+            .then(metadata => {                
                 this.newMetainformation(metadata)
             })
     }
@@ -137,12 +135,11 @@ export class Analysis extends Component {
             Dimensoes: metadata.Dimensoes,
             Metricas_Categorias: metadata.Metricas.Categorias,
             Metricas_Colunas: metadata.Metricas.Colunas
-        }, () => console.log(this.state))
-        this.generateDetailLevels()
+        }, this.generateDetailLevels)
+        console.log(this.state)
     }
 
     enableSidePanel(elem) {
-        console.log(elem)
         this.setState({
             openSidePanel: true,
             panelColumn: elem
@@ -159,8 +156,6 @@ export class Analysis extends Component {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => res.json())
                 .then(arrayRet => {
-                    console.log(arrayRet)
-
                     this.setState({
                         onShowLoadModal: true,
                         loadVersion: arrayRet,
@@ -203,9 +198,9 @@ export class Analysis extends Component {
     }
 
     /*Gerar árvore*/
-    generateDetailLevels() {
+    generateDetailLevels() {       
         let array = []
-        let columns = []       
+        let columns = []      
         this.state.Metricas_Colunas.forEach(col => {
             if (col.CategoriaId !== null) {
                 if (columns[col.CategoriaId] === undefined) {
@@ -216,7 +211,9 @@ export class Analysis extends Component {
                 }
             }            
         })
-        this.state.Metricas_Categorias.forEach(c => {
+
+        let categories_copy = JSON.parse(JSON.stringify(this.state.Metricas_Categorias))
+        categories_copy.forEach(c => {           
             c.columns = columns[c.CategoriaId]
             if (c.CategoriaPaiId === null) {
                 array[0] = c
@@ -234,7 +231,7 @@ export class Analysis extends Component {
         if (array[0].CategoriaId === undefined) return
         array[0].children = this.recursiveOrganize(array[0], array, columns)
         this.setState({
-            Niveis_De_Detalhe: array[0]          
+            Niveis_De_Detalhe: array[0]
         })
     }
 
@@ -425,8 +422,7 @@ export class Analysis extends Component {
                         }
                     })
                     //tirar o draggable do source
-                    sourceColumns.splice(source.index, 1)
-                    console.log(sourceColumns)
+                    sourceColumns.splice(source.index, 1)                  
                     headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
                     this.setState({ Metricas_Colunas: metricas, Niveis_De_Detalhe: headCopy })
                     return
