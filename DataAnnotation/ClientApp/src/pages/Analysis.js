@@ -12,6 +12,7 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import { useSpring, animated } from 'react-spring/web.cjs'; // web.cjs is required for IE 11 support
 import Collapse from '@material-ui/core/Collapse';
+import { successMessage, dangerMessage } from '../components/AlertComp'
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -95,7 +96,8 @@ export class Analysis extends Component {
             openSidePanel: false,
             onShowWarningModal: false,
             panelColumn: "",
-            dragResult: ""
+            dragResult: "",
+            alertMessage: null
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -284,23 +286,35 @@ export class Analysis extends Component {
         return category
     }
 
-    getDimension(IndiceColuna, NomeColuna) {
-        //fazer o pedido
-        //devolver o result
-        let newDimension = {
-            IndiceColuna: IndiceColuna,
-            NomeColuna: NomeColuna,
-            NumValoresUnicos: 0,
-            NumValoresNulos: 0,
-            TodosDiferentes: false,
-            TipoValores: [],
-            ValoresUnicos: [],
-            TipoDominioGeo: null
+    async getDimension(IndiceColuna, NomeColuna) {
+        let id = this.props.match.params.id
+        const token = await authService.getAccessToken();
+        let res = await (await fetch(`Workspace/MetricToDimension?fileId=${id}&colName=${NomeColuna}&colId=${IndiceColuna}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        })).json()
+        let typeValues = []
+        res.tipoValores.forEach(elem => {
+            let newElem = {
+                Tipo: elem.tipo,
+                Count: elem.count
+            }
+            typeValues.push(newElem)
+        })
+        console.log(typeValues)
+        return {
+            IndiceColuna: res.indiceColuna,
+            NomeColuna: res.nomeColuna,
+            NumValoresUnicos: res.numValoresUnicos,
+            NumValoresNulos: res.numValoresNulos,
+            TipoDominioGeo: res.tipoDominioGeo,
+            TodosDiferentes: res.todosDiferentes,
+            TipoValores: typeValues,
+            ValoresUnicos: res.valoresUnicos
         }
-        return newDimension
     }
 
-    changeClassifier() {
+    async changeClassifier() {
         let source = this.state.dragResult.source
         let destination = this.state.dragResult.destination
         let cases = this.state.dragResult.case
@@ -325,14 +339,15 @@ export class Analysis extends Component {
                     headCopy = this.setCategoryColumns(headCopy, destination.droppableId, categoryList)
                     this.setState({ Niveis_De_Detalhe: headCopy })
                 }
-                destinationColumns.splice(destination.index, 0, this.getDimension(removed.IndiceColuna, removed.NomeColuna));
+                let boob = await this.getDimension(removed.IndiceColuna, removed.NomeColuna)
+                destinationColumns.splice(destination.index, 0, boob);
                 this.setState({ Dimensoes: destinationColumns, Metricas_Colunas: sourceColumns })
                 break;
             case 'ND':
                 let metricasND = this.state.Metricas_Colunas
                 index = metricasND.findIndex(column => (column.NomeColuna === removed.NomeColuna))
                 metricasND.splice(index, 1)
-                destinationColumns.splice(destination.index, 0, this.getDimension(removed.IndiceColun, removed.NomeColuna));
+                destinationColumns.splice(destination.index, 0, await this.getDimension(removed.IndiceColun, removed.NomeColuna));
                 let headCopyND = this.state.Niveis_De_Detalhe
                 headCopyND = this.setCategoryColumns(headCopyND, source.droppableId, sourceColumns)
                 this.setState({ Dimensoes: destinationColumns, Metricas_Colunas: metricasND, Niveis_De_Detalhe: headCopyND })
@@ -471,7 +486,12 @@ export class Analysis extends Component {
                 let destinationColumns = this.getList(destination.droppableId)
                 const [removed] = sourceColumns.splice(source.index, 1);
                 removed.CategoriaId = parseInt(destination.droppableId)
-                destinationColumns.splice(destination.index, 0, removed);
+                if (destinationColumns === undefined) {
+                    destinationColumns = [removed]
+                }
+                else {
+                    destinationColumns.splice(destination.index, 0, removed);
+                }
                 headCopy = this.setCategoryColumns(headCopy, source.droppableId, sourceColumns)
                 headCopy = this.setCategoryColumns(headCopy, destination.droppableId, destinationColumns)
                 this.setState({ Niveis_De_Detalhe: headCopy })
@@ -492,9 +512,28 @@ export class Analysis extends Component {
             let fileId = this.props.match.params.id
             const token = await authService.getAccessToken();
             //fazer pedido
+
+            fetch(`Workspace/DeleteAnalysisVersion?fileId=${fileId}&analysisFile=${selected}`, {
+                method: 'DELETE',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => {
+                if (res.status !== 200) {
+                    this.setState({
+                        alertMessage: dangerMessage("Delete analysis version was unsuccessful. Please try again later.")
+                    })
+                } else {
+                    this.setState({
+                        alertMessage: successMessage("Analysis version successfully deleted!")
+                    })
+                }
+                this.setState({
+                    selectedVersion: "",
+                    onShowLoadModal: false
+                })
+            })  
+            //obrigar a fazer o pedido do load novamente
             this.setState({
-                selectedVersion: "",
-                onShowLoadModal: false
+                requestVersion: true
             })
         }
     }
@@ -662,85 +701,88 @@ export class Analysis extends Component {
     
     render() {
         return (
-            <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px"}}>
-                <DragDropContext onDragEnd={this.onDragEnd}>
-                    <div class="col-3">
-                        {this.renderDroppable("Dimensions", "dimensoes", this.state.Dimensoes)}
-                        {this.renderDroppable("Metrics", "metricas", this.state.Metricas_Colunas)}
-                    </div>
-                    <div class="col-9">
-                        <div class="row">
-                            <div class="col-10">
-                                <h3>{this.state.Nome}</h3>
-                            </div>
-                            <div class="col-2">
-                                <div class="dropdown">
-                                    <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Options
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                        <button class="dropdown-item" type="button" onClick={this.enableLoadModal}>Manage Versions</button>
-                                        <button class="dropdown-item" type="button" onClick={this.onSaveClick}>Save</button>
-                                        <button class="dropdown-item" type="button" onClick={this.onDownloadClick}>Download</button>
+            <div>
+                <div class="row justify-content-md-center">{this.state.alertMessage !== null && this.state.alertMessage}</div>
+                <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px" }}>
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+                        <div class="col-3">
+                            {this.renderDroppable("Dimensions", "dimensoes", this.state.Dimensoes)}
+                            {this.renderDroppable("Metrics", "metricas", this.state.Metricas_Colunas)}
+                        </div>
+                        <div class="col-9">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h3>{this.state.Nome}</h3>
+                                </div>
+                                <div class="col-2">
+                                    <div class="dropdown">
+                                        <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Options
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                                            <button class="dropdown-item" type="button" onClick={this.enableLoadModal}>Manage Versions</button>
+                                            <button class="dropdown-item" type="button" onClick={this.onSaveClick}>Save</button>
+                                            <button class="dropdown-item" type="button" onClick={this.onDownloadClick}>Download</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                {this.renderDetailLevels()}
+                            </div>
                         </div>
-                        <div class="row">
-                            {this.renderDetailLevels()}
-                        </div>
+                    </DragDropContext>
+                    <ModalComp
+                        title="Manage versions"
+                        body={
+                            this.state.loadVersion.map(v => {
+                                return (
+                                    <Form.Check
+                                        key={v.name}
+                                        type='radio'
+                                        id={v.name}
+                                        label={v.name + ' | ' + v.lastEdit.split('T')[0] + ' at ' +v.lastEdit.split('T')[1].split('.')[0]}
+                                        onChange={this.handleOnToggleVersion}
+                                        name='selectedVersion'                                  
+                                    />
+                                )
+                            })
+                        }
+                        removeButton={true}
+                        removeButtonFunc={this.deleteVersion}
+                        okButtonText="Load"
+                        okButtonFunc={this.onLoadVersionClick}
+                        cancelButtonFunc={this.disableLoadModal}
+                        visible={this.state.onShowLoadModal}
+                    />   
+                    <ModalComp
+                        removeButton={false}
+                        title="Warning!"
+                        body="You are changing the main classifier of the column. Are you sure?"
+                        okButtonText="Yes"
+                        okButtonFunc={async () => await this.changeClassifier()}
+                        cancelButtonFunc={this.disableWarning}
+                        visible={this.state.onShowWarningModal}
+                    />   
+                    <SlidingPane
+                        className="some-custom-class"
+                        overlayClassName="some-custom-overlay-class"
+                        isOpen={this.state.openSidePanel}
+                        title={this.state.panelColumn.NomeColuna}
+                        subtitle="Column details"
+                        width="500px"
+                        onRequestClose={() => {
+                            // triggered on "<" on left top click or on outside click
+                            this.setState({
+                                openSidePanel: false,
+                                panelColumn : "" 
+                            });
+                        }}
+                    >
+                        <div>{this.showColumnDetails()}</div>
+                    </SlidingPane>
                     </div>
-                </DragDropContext>
-                <ModalComp
-                    title="Manage versions"
-                    body={
-                        this.state.loadVersion.map(v => {
-                            return (
-                                <Form.Check
-                                    key={v.name}
-                                    type='radio'
-                                    id={v.name}
-                                    label={v.name + ' | ' + v.lastEdit.split('T')[0] + ' at ' +v.lastEdit.split('T')[1].split('.')[0]}
-                                    onChange={this.handleOnToggleVersion}
-                                    name='selectedVersion'                                  
-                                />
-                            )
-                        })
-                    }
-                    removeButton={true}
-                    removeButtonFunc={this.deleteVersion}
-                    okButtonText="Load"
-                    okButtonFunc={this.onLoadVersionClick}
-                    cancelButtonFunc={this.disableLoadModal}
-                    visible={this.state.onShowLoadModal}
-                />   
-                <ModalComp
-                    removeButton={false}
-                    title="Warning!"
-                    body="You are changing the main classifier of the column. Are you sure?"
-                    okButtonText="Yes"
-                    okButtonFunc={this.changeClassifier}
-                    cancelButtonFunc={this.disableWarning}
-                    visible={this.state.onShowWarningModal}
-                />   
-                <SlidingPane
-                    className="some-custom-class"
-                    overlayClassName="some-custom-overlay-class"
-                    isOpen={this.state.openSidePanel}
-                    title={this.state.panelColumn.NomeColuna}
-                    subtitle="Column details"
-                    width="500px"
-                    onRequestClose={() => {
-                        // triggered on "<" on left top click or on outside click
-                        this.setState({
-                            openSidePanel: false,
-                            panelColumn : "" 
-                        });
-                    }}
-                >
-                    <div>{this.showColumnDetails()}</div>
-                </SlidingPane>
-            </div>
+                </div>
         )
     }
 
