@@ -81,7 +81,14 @@ namespace DataAnnotation.Models.Analysis
             this.Dimensoes = new List<MD_Dimensao>();
             foreach (CsvColumn column in columns)
                 if (column.MetricOrDimension.Equals("dimension"))
+                {
+                    if (column.AllDifferent == false && column.CountUniqueValues == 0 && column.NullsCount == this.NumLinhas && !column.UniqueValues.Any() && !column.UniqueValues.Any())
+                    {
+                        this.NumColunas--;
+                        continue;
+                    }
                     this.Dimensoes.Add(new MD_Dimensao(column));
+                }
         }
 
         private void GenerateGeoDivisoesList(List<DivisaoTerritorial>[] rows)
