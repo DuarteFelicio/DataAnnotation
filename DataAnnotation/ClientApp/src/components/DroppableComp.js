@@ -21,7 +21,7 @@ export default class DroppableComp extends React.Component {
 
         return (
             <div>
-                <p>{title}</p>
+                <h4>{title}</h4>
                 <Droppable droppableId={"" + id} key={""+id}>
                     {(droppableProvided, droppableSnapshot) => (
                         <div ref={droppableProvided.innerRef} style={getListStyle(droppableSnapshot.isDraggingOver)}>

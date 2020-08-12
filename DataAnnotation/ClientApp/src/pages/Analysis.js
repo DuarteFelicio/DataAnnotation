@@ -13,6 +13,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import { useSpring, animated } from 'react-spring/web.cjs'; // web.cjs is required for IE 11 support
 import Collapse from '@material-ui/core/Collapse';
 import { successMessage, dangerMessage } from '../components/AlertComp'
+import TableComp from '../components/TableComp.js'
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -97,7 +98,8 @@ export class Analysis extends Component {
             onShowWarningModal: false,
             panelColumn: "",
             dragResult: "",
-            alertMessage: null
+            alertMessage: null,
+            firstRows: undefined
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -112,6 +114,7 @@ export class Analysis extends Component {
         this.changeClassifier = this.changeClassifier.bind(this)
         this.showColumnDetails = this.showColumnDetails.bind(this)
         this.deleteVersion = this.deleteVersion.bind(this)
+        this.closeAlert = this.closeAlert.bind(this)
     }
 
     async componentDidMount() {
@@ -158,6 +161,7 @@ export class Analysis extends Component {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => res.json())
                 .then(arrayRet => {
+                    console.log(arrayRet)
                     this.setState({
                         onShowLoadModal: true,
                         loadVersion: arrayRet,
@@ -500,8 +504,10 @@ export class Analysis extends Component {
         }
     };
     /**/
-
-
+    closeAlert() {
+        console.log(this.state)
+        this.setState({ alertMessage: null })
+    }
 
     async deleteVersion() {
         if (this.state.selectedVersion === "") {
@@ -509,37 +515,44 @@ export class Analysis extends Component {
         }
         else {
             let selected = this.state.selectedVersion;
-            let fileId = this.props.match.params.id
-            const token = await authService.getAccessToken();
-            //fazer pedido
-
-            fetch(`Workspace/DeleteAnalysisVersion?fileId=${fileId}&analysisFile=${selected}`, {
-                method: 'DELETE',
-                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-            }).then(res => {
-                if (res.status !== 200) {
-                    this.setState({
-                        alertMessage: dangerMessage("Delete analysis version was unsuccessful. Please try again later.")
-                    })
-                } else {
-                    this.setState({
-                        alertMessage: successMessage("Analysis version successfully deleted!")
-                    })
-                }
+            if (selected.split('_v')[1] === '1') {
                 this.setState({
-                    selectedVersion: "",
-                    onShowLoadModal: false
+                    alertMessage: dangerMessage("You can't delete the first analysis", this.closeAlert)
                 })
-            })  
-            //obrigar a fazer o pedido do load novamente
+            }
+            else {
+                let fileId = this.props.match.params.id
+                const token = await authService.getAccessToken();
+                //fazer pedido
+
+                fetch(`Workspace/DeleteAnalysisVersion?fileId=${fileId}&analysisFile=${selected}`, {
+                    method: 'DELETE',
+                    headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+                }).then(res => {
+                    if (res.status !== 200) {
+                        this.setState({
+                            alertMessage: dangerMessage("Delete analysis version was unsuccessful. Please try again later.", this.closeAlert)
+                        })
+                    } else {
+                        this.setState({
+                            alertMessage: successMessage("Analysis version successfully deleted!", this.closeAlert)
+                        })
+                    }
+                })  
+                //obrigar a fazer o pedido do load novamente
+                this.setState({
+                    requestVersion: true
+                })
+            }
             this.setState({
-                requestVersion: true
+                selectedVersion: "",
+                onShowLoadModal: false
             })
         }
     }
 
 
-    /*Métodos para os três botões*/
+    /*Métodos para os quatro botões*/
     async onLoadVersionClick() {
         if (this.state.selectedVersion === "") {
             this.disableLoadModal()
@@ -595,7 +608,16 @@ export class Analysis extends Component {
             },
             body: JSON.stringify(metadata)
         }).then(res => {
-            //fazer aparecer qquer coisa
+            if (res.status !== 201) {
+                this.setState({
+                    alertMessage: dangerMessage("There was an error saving. Please try again later.", this.closeAlert)
+                })
+            } else {
+                this.setState({
+                    alertMessage: successMessage("New version successfully saved!", this.closeAlert)
+                })
+            }
+
         })
     }
 
@@ -620,37 +642,58 @@ export class Analysis extends Component {
         a.click();
     }
 
-    
+    async getFirstRows(indiceColuna) {
+        let fileId = this.props.match.params.id
+        const token = await authService.getAccessToken();
+
+        fetch(`Workspace/GetFirstValues?fileId=${fileId}&colId=${indiceColuna}`, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        }).then(res => res.json())
+            .then(rows => {
+                let map = new Map()
+                rows.forEach((elem,index) => {
+                    map.set(index,elem)
+                })
+                this.setState({ firstRows : map })
+            })
+    }
+
 /*Métodos de render*/
 
     showColumnDetails() {
         if (this.state.panelColumn === "") return
         let elem = this.state.panelColumn
+        let map = new Map()
         if (elem.NumValoresUnicos === undefined) {
+            map.set('Column Index', elem.IndiceColuna)
+            map.set('Category', elem.CategoriaId === null ? "none" : this.state.Metricas_Categorias[elem.CategoriaId - 1].Nome)
+            map.set('Is Total', elem.E_Total ? "true" : "false")
             return <div>
-                <p>Column Index : {elem.IndiceColuna}</p>
-                <p>Category : {elem.CategoriaId === null ? "none" : this.state.Metricas_Categorias[elem.CategoriaId-1].Nome}</p>
-                <p>Is Total : {elem.E_Total? "true" : "false"}</p>
+                <TableComp keyValues={map} title='Column data' />
+                <p>{this.state.firstRows === undefined ? <button type="button" class="btn btn-outline-primary" onClick={() => this.getFirstRows(elem.IndiceColuna)}>Get First Rows</button> : <TableComp keyValues={this.state.firstRows} title='First Rows'/>}</p>
             </div>
         }
+        map.set('Column Index', elem.IndiceColuna)
+        map.set('Number of unique values' ,  elem.NumValoresUnicos )
+        map.set('Number of null values' ,  elem.NumValoresNulos )
+        map.set('All different' , elem.TodosDiferentes ? "true" : "false" )
+        map.set('Geo Type' , elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo )
         return <div>
-            <p>Column Index : {elem.IndiceColuna}</p>
-            <p>Number of unique values : {elem.NumValoresUnicos}</p>
-            <p>Number of null values : {elem.NumValoresNulos}</p>
-            <p>All different : {elem.TodosDiferentes? "true" : "false"}</p>
-            <p>Geo Type : {elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo}</p>
-            <p>Type of Values</p>  
+            <TableComp keyValues={map} title='Column data'/>
+            <p style={{ fontWeight: "bold" }}>Type of Values</p>  
             <ul>
             {elem.TipoValores.map(e => {                
                 return <li>{e.Count} of type {e.Tipo}</li>
             })}
             </ul>
-            <p>Unique values</p>
+            <p style={{ fontWeight: "bold" }}>Unique values</p>
             <ul>
             {elem.ValoresUnicos.map(e => {
                 return <li>{e}</li>
             })}
             </ul>
+            <p>{this.state.firstRows === undefined ? <button type="button" class="btn btn-outline-primary" onClick={() => this.getFirstRows(elem.IndiceColuna)}>Get First Rows</button> : <TableComp keyValues={this.state.firstRows} title='First Rows' />}</p>
         </div>
     }
 
@@ -707,12 +750,13 @@ export class Analysis extends Component {
                     <DragDropContext onDragEnd={this.onDragEnd}>
                         <div class="col-3">
                             {this.renderDroppable("Dimensions", "dimensoes", this.state.Dimensoes)}
+                            <p></p>
                             {this.renderDroppable("Metrics", "metricas", this.state.Metricas_Colunas)}
                         </div>
                         <div class="col-9">
                             <div class="row">
                                 <div class="col-10">
-                                    <h3>{this.state.Nome}</h3>
+                                    <h3>{this.state.Nome} - Number of Lines: {this.state.NumLinhas} | Number of Columns: {this.state.NumColunas}</h3>
                                 </div>
                                 <div class="col-2">
                                     <div class="dropdown">
@@ -727,6 +771,7 @@ export class Analysis extends Component {
                                     </div>
                                 </div>
                             </div>
+                            <p></p>
                             <div class="row">
                                 {this.renderDetailLevels()}
                             </div>
@@ -775,7 +820,8 @@ export class Analysis extends Component {
                             // triggered on "<" on left top click or on outside click
                             this.setState({
                                 openSidePanel: false,
-                                panelColumn : "" 
+                                panelColumn: "",
+                                firstRows: undefined
                             });
                         }}
                     >

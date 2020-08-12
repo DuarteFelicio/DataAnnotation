@@ -8,7 +8,7 @@ const extraStyle = (droppableId, categoryId) => {
         if (categoryId === null) return 'Tomato'
         return 'lightblue'
     }
-    if (droppableId === "dimensoes")return 'lightgreen'
+    if (droppableId === "dimensoes")return 'khaki'
     return 'lightgrey'
 }
 
