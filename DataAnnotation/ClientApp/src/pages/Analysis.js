@@ -3,7 +3,7 @@ import authService from './api-authorization/AuthorizeService';
 import { DragDropContext } from "react-beautiful-dnd";
 import DroppableComp from "../components/DroppableComp.js"
 import ModalComp from '../components/ModalComp.js'
-import { Form } from 'react-bootstrap'
+import { Form, Accordion } from 'react-bootstrap'
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 import { fade, makeStyles, withStyles } from '@material-ui/core/styles';
@@ -14,6 +14,7 @@ import { useSpring, animated } from 'react-spring/web.cjs'; // web.cjs is requir
 import Collapse from '@material-ui/core/Collapse';
 import { successMessage, dangerMessage } from '../components/AlertComp'
 import TableComp from '../components/TableComp.js'
+import AccordionComp from '../components/AccordionComp'
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -756,7 +757,10 @@ export class Analysis extends Component {
                         <div class="col-9">
                             <div class="row">
                                 <div class="col-10">
-                                    <h3>{this.state.Nome} - Number of Lines: {this.state.NumLinhas} | Number of Columns: {this.state.NumColunas}</h3>
+                                    <AccordionComp
+                                        title={this.state.Nome}
+                                        body={<div><p>Number of lines : {this.state.NumLinhas} </p><p>Number of Columns : {this.state.NumColunas}</p></div>}
+                                    />
                                 </div>
                                 <div class="col-2">
                                     <div class="dropdown">
