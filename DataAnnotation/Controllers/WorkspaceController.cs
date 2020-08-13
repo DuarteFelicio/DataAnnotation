@@ -23,7 +23,7 @@ using DataAnnotation.Models.Analysis;
 
 namespace DataAnnotation.Controllers
 {
-	//[Authorize]
+	[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
 	public class WorkspaceController : Controller
@@ -129,7 +129,7 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult ReturnAnalysisVersion([FromQuery]int fileId, string fileName)	//returns analysis version given by index
+		public IActionResult ReturnAnalysisVersion([FromQuery]int fileId, string fileName)	//returns analysis version given by name
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
