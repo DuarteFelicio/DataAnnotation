@@ -3,10 +3,10 @@ using System;
 
 namespace DataAnnotation.Data.Migrations
 {
-    public partial class CreateRecordTables : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+	public partial class CreateRecordTables : Migration
+	{
+		protected override void Up(MigrationBuilder migrationBuilder)
+		{
 			migrationBuilder.CreateTable(
 				name: "LoginRecord",
 				columns: table => new
@@ -33,7 +33,6 @@ namespace DataAnnotation.Data.Migrations
 				{
 					ActionRecordId = table.Column<int>(nullable: false)
 					.Annotation("SqlServer:Identity", "1, 1"),
-					UserId = table.Column<string>(maxLength: 450, nullable: false),
 					CsvFileId = table.Column<int>(nullable: false),
 					Action = table.Column<string>(maxLength: 8, nullable: false),
 					Version = table.Column<string>(maxLength: 12, nullable: false),
@@ -43,12 +42,6 @@ namespace DataAnnotation.Data.Migrations
 				{
 					table.PrimaryKey("PK_ActionRecordId", x => x.ActionRecordId);
 					table.ForeignKey(
-						name: "FK_ActionRecord_AspNetUsers_Id",
-						column: x => x.UserId,
-						principalTable: "AspNetUsers",
-						principalColumn: "Id",
-						onDelete: ReferentialAction.Cascade);
-					table.ForeignKey(
 						name: "FK_ActionRecord_CsvFile_Id",
 						column: x => x.CsvFileId,
 						principalTable: "CsvFile",
@@ -57,12 +50,12 @@ namespace DataAnnotation.Data.Migrations
 				});
 		}
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropTable(
-                name: "LoginRecord");
-            migrationBuilder.DropTable(
-                name: "ActionRecord");
-        }
-    }
+		protected override void Down(MigrationBuilder migrationBuilder)
+		{
+			migrationBuilder.DropTable(
+				name: "LoginRecord");
+			migrationBuilder.DropTable(
+				name: "ActionRecord");
+		}
+	}
 }

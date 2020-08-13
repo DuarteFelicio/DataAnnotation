@@ -5,6 +5,11 @@ namespace AnalyseFileWorkerService.Models
 {
     public partial class CsvFile
     {
+        public CsvFile()
+        {
+            ActionRecord = new HashSet<ActionRecord>();
+        }
+
         public int CsvFileId { get; set; }
         public string UserId { get; set; }
         public int? RowsCount { get; set; }
@@ -17,5 +22,7 @@ namespace AnalyseFileWorkerService.Models
         public TimeSpan? AnalysisDuration { get; set; }
         public DateTime? AnalysisCompletionTime { get; set; }
         public bool? IsAnalysing { get; set; }
+
+        public virtual ICollection<ActionRecord> ActionRecord { get; set; }
     }
 }

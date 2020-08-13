@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAnnotation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200813170812_CreateRecordTables")]
+    [Migration("20200813193816_CreateRecordTables")]
     partial class CreateRecordTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

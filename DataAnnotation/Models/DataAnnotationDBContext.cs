@@ -18,11 +18,13 @@ namespace DataAnnotation.Models
         {
         }
 
+        public virtual DbSet<ActionRecord> ActionRecord { get; set; }
         public virtual DbSet<CsvFile> CsvFile { get; set; }
         public virtual DbSet<DivisoesTerritoriais> DivisoesTerritoriais { get; set; }
         public virtual DbSet<DtNomesAlternativos> DtNomesAlternativos { get; set; }
         public virtual DbSet<HierarquiasTerritoriais> HierarquiasTerritoriais { get; set; }
         public virtual DbSet<HtNomesAlternativos> HtNomesAlternativos { get; set; }
+        public virtual DbSet<LoginRecord> LoginRecord { get; set; }
         public virtual DbSet<Nomes> Nomes { get; set; }
         public virtual DbSet<UnidadesDivisoes> UnidadesDivisoes { get; set; }
         public virtual DbSet<UnidadesDivisoesHierarquias> UnidadesDivisoesHierarquias { get; set; }
@@ -31,6 +33,22 @@ namespace DataAnnotation.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ActionRecord>(entity =>
+            {
+                entity.Property(e => e.Action)
+                    .IsRequired()
+                    .HasMaxLength(8);
+
+                entity.Property(e => e.Version)
+                    .IsRequired()
+                    .HasMaxLength(12);
+
+                entity.HasOne(d => d.CsvFile)
+                    .WithMany(p => p.ActionRecord)
+                    .HasForeignKey(d => d.CsvFileId)
+                    .HasConstraintName("FK_ActionRecord_CsvFile_Id");
+            });
+
             modelBuilder.Entity<CsvFile>(entity =>
             {
                 entity.Property(e => e.FileNameDisplay)
@@ -140,6 +158,13 @@ namespace DataAnnotation.Models
                     .HasForeignKey(d => d.NomesId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HT_NomesAlternativos_Nomes");
+            });
+
+            modelBuilder.Entity<LoginRecord>(entity =>
+            {
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(450);
             });
 
             modelBuilder.Entity<Nomes>(entity =>
@@ -266,7 +291,6 @@ namespace DataAnnotation.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
 
         public List<T> ExecSQL<T>(string query)
         {

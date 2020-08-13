@@ -8,6 +8,7 @@ import PieChartComp from '../components/PieChartComp'
 import gif1 from '../assets/cafe.gif'
 import gif2 from '../assets/tenor.gif'
 import gif3 from '../assets/yo.gif'
+import background from '../assets/background.jpeg'
 
 export class Home extends Component {
 
@@ -160,10 +161,10 @@ export class Home extends Component {
     }
 
     render() {
-    return (
-        <div>
-            {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
-        </div>
+        return (
+            <div style={{ backgroundImage: `url(${background})`, width: "100%", height:"100%" }}>
+                {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
+            </div>
     );
   }
 }
