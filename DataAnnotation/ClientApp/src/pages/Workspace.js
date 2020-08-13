@@ -2,6 +2,7 @@
 import { Container } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService'
 import 'bootstrap/dist/css/bootstrap.css'
+import { Form, Col, InputGroup, FormControl } from 'react-bootstrap'
 import 'bootstrap';
 import './Workspace.css'
 import ModalComp from '../components/ModalComp.js'
@@ -16,12 +17,20 @@ export class Workspace extends Component {
             files: new Map(),
             requestLoops: [],
             onShowDeleteModal: false,
+            searchByName: '',
             idToRemove: -1
         }
         this.enableDeleteModal = this.enableDeleteModal.bind(this)
         this.disableDeleteModal = this.disableDeleteModal.bind(this)
         this.removeFile = this.removeFile.bind(this)
         this.Remove = this.Remove.bind(this)
+        this.handleOnChange = this.handleOnChange.bind(this)
+    }
+
+    handleOnChange(e) {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
     }
 
     async componentDidMount() {
@@ -176,9 +185,25 @@ export class Workspace extends Component {
             <Container> 
                 <h1>My Workspace</h1>
                 <div class="row">
+                    <Col sm={3}>
+                        <InputGroup className="mb-2">
+                            <InputGroup.Prepend>
+                                <InputGroup.Text id="basic search">{
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
+                                        <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
+                                    </svg>
+                                }</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <FormControl placeholder="Search by name ..." name="searchByName" type="text" onChange={this.handleOnChange} />
+                        </InputGroup>
+                    </Col>
+                </div>
+                <div class="row">
                     <div class = "col-sm-8">
                         <div class="list-group" id="list-tab" role="tablist">
                             {Array.from(this.state.files).map(([key, item]) => {
+                                if (item.fileNameDisplay.split('.')[0].toLowerCase().includes(this.state.searchByName.toLowerCase()))
                                 return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab" >
                                     <div class="row">
                                         <div class="column">
