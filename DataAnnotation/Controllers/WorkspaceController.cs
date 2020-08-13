@@ -23,7 +23,7 @@ using DataAnnotation.Models.Analysis;
 
 namespace DataAnnotation.Controllers
 {
-	[Authorize]
+	//[Authorize]
 	[ApiController]
 	[Route("[controller]/[action]")]
 	public class WorkspaceController : Controller
@@ -106,7 +106,7 @@ namespace DataAnnotation.Controllers
 			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			List<AnalysisFile> analysisFiles = GetAnalysisFiles(userId, fileId);
 			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count-1].Name);	//return last analysis
 			
 			FileStream fileStream = System.IO.File.OpenRead(filePath);
@@ -121,7 +121,7 @@ namespace DataAnnotation.Controllers
 			if (file.CsvFileId == 0) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			List<AnalysisFile> analysisFiles = GetAnalysisFiles(userId, fileId);
 			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count - 1].Name);    //return last analysis
 
 			var json = System.IO.File.ReadAllText(filePath);
@@ -164,13 +164,15 @@ namespace DataAnnotation.Controllers
 		[HttpGet]
 		public IActionResult ListAnalysis([FromQuery]int fileId)	//return list of analysis versions
 		{
-			List<AnalysisFile> analysisFiles = GetAnalysisFiles(fileId);
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+
+			List <AnalysisFile> analysisFiles = GetAnalysisFiles(userId, fileId);
 			
 			if (analysisFiles.Count == 0 || analysisFiles == null)
 			{
 				return NotFound(); //é mesmo este?
 			}
-			return Ok(analysisFiles);	//é preciso ser em array?
+			return Ok(analysisFiles.OrderByDescending((a)=>a.LastEdit).ToArray());	//é preciso ser em array?
 		}
 
 		[HttpPost]
@@ -183,7 +185,7 @@ namespace DataAnnotation.Controllers
 			string json = System.Text.Json.JsonSerializer.Serialize(body);
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			int version = Int32.Parse(GetAnalysisFiles(fileId).Last().Name.Split("_v")[1]);
+			int version = Int32.Parse(GetAnalysisFiles(userId, fileId).Last().Name.Split("_v")[1]);
 			string filePath = Path.Combine(folderPath, "analysis_v" + ++version);
 			System.IO.File.WriteAllText(filePath, json);
 			return Created(nameof(WorkspaceController), null);
@@ -275,9 +277,8 @@ namespace DataAnnotation.Controllers
 			return Ok(new MD_Dimensao(csvColumn));
 		}
 
-		public List<AnalysisFile> GetAnalysisFiles(int fileId)
+		public List<AnalysisFile> GetAnalysisFiles(string userId, int fileId)
 		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file.CsvFileId == 0) return null;
 
@@ -288,7 +289,7 @@ namespace DataAnnotation.Controllers
 			{
 				analysisFiles.Add(new AnalysisFile(fi.Name, fi.LastWriteTime));
 			}
-			return analysisFiles;
+			return analysisFiles.OrderBy((a)=>a.LastEdit).ToList();
 		}
 
 		public void Sender(int fileId, string filePath)
