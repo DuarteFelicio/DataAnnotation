@@ -132,7 +132,6 @@ namespace DataAnnotation.Controllers
 								trustedFileNameForFileStorage);
 						}
 
-						//size podia vir do client?
 						using (_context)
 						{
 							var std = new CsvFile()
