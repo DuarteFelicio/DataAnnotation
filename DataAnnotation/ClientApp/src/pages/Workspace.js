@@ -157,7 +157,7 @@ export class Workspace extends Component {
         var isAnalysing = item.isAnalysing;
             return (
                 <div>
-                    {!isAnalysing && <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFileId)}>Analyze</button>}
+                    {!isAnalysing && <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFileId)}>Analyse</button>}
                     {isAnalysing && <div><p>Analysing</p><div class="spinner-border text-primary"></div></div>}
                 </div>
             )        
@@ -194,7 +194,7 @@ export class Workspace extends Component {
                 </div>
                                 
                 <div class="row">
-                    <Col sm={3}>
+                    <Col sm={6}>
                         <InputGroup className="mb-2">
                             <InputGroup.Prepend>
                                 <InputGroup.Text id="basic search">{
@@ -213,10 +213,10 @@ export class Workspace extends Component {
                         <div class="list-group" id="list-tab" role="tablist">
                             {Array.from(this.state.files).map(([key, item]) => {
                                 if (item.fileNameDisplay.split('.')[0].toLowerCase().includes(this.state.searchByName.toLowerCase()))
-                                return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab" >
-                                    <div class="row">
+                                    return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab" >
+                                    <div class="row" style={{ height:30 }}>
                                         <div class="column">
-                                            <svg class="bi bi-file-text" width="100" height="40" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fill-rule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></svg>
+                                            <svg class="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fill-rule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></svg>
                                         </div>
                                         <div class="column">
                                             {item.fileNameDisplay.split('.')[0]}
@@ -230,7 +230,7 @@ export class Workspace extends Component {
                         <div class="tab-content" id="nav-tabContent" >
                             {Array.from(this.state.files).map(([key, item]) => {
                                 return <div class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
-                                    <h4>File details</h4>
+                                    <h2>File details</h2>
                                     <table class="table table-striped">
                                         <tbody>
                                             <tr><th>Upload on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
