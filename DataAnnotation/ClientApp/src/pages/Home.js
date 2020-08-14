@@ -8,6 +8,9 @@ import PieChartComp from '../components/PieChartComp'
 import gif1 from '../assets/cafe.gif'
 import gif2 from '../assets/tenor.gif'
 import gif3 from '../assets/yo.gif'
+import image1 from '../assets/analysefile.png'
+import image2 from '../assets/uploadfile.png'
+import image3 from '../assets/workspace.png'
 import background from '../assets/background.jpeg'
 
 export class Home extends Component {
@@ -105,9 +108,9 @@ export class Home extends Component {
                             data={analysedFilesData}
                             cx={300}
                             cy={200}
-                            innerRadius={120}
+                            innerRadius={100}
                             outerRadius={140}
-                            fill="#669ade"
+                            fill='Tomato'
                             dataKey="value"
                             onMouseEnter={this.onPieEnterAnalysed}
                             />
@@ -120,9 +123,9 @@ export class Home extends Component {
                             data={uploadedURL}
                             cx={300}
                             cy={200}
-                            innerRadius={120}
+                            innerRadius={100}
                             outerRadius={140}
-                            fill="#669ade"
+                            fill='Tomato'
                             dataKey="value"
                             onMouseEnter={this.onPieEnterUploaded}
                         />
@@ -134,37 +137,70 @@ export class Home extends Component {
 
     renderNotAuth() {
         return (
-            <Carousel>
-                <Carousel.Item>
-                    <img src={gif1} width="100%" height={500}/>
-                    <Carousel.Caption>
-                        <h3>First slide label</h3>
-                        <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-                    </Carousel.Caption>
-                </Carousel.Item>
-                <Carousel.Item>
-                    <img src={gif2} width="100%" height={500}/>
-                    <Carousel.Caption>
-                        <h3>Second slide label</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    </Carousel.Caption>
-                </Carousel.Item>
-                <Carousel.Item>
-                    <img src={gif3} width="100%" height={500}/>
-                    <Carousel.Caption>
-                        <h3>Third slide label</h3>
-                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-                    </Carousel.Caption>
-                </Carousel.Item>
-            </Carousel>
+            <div>
+                <Carousel>
+                    <Carousel.Item>
+                        <img src={gif1} width="100%" height={500}/>
+                        <Carousel.Caption>
+                            <h3>First slide label</h3>
+                            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item>
+                        <img src={gif2} width="100%" height={500}/>
+                        <Carousel.Caption>
+                            <h3>Second slide label</h3>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item>
+                        <img src={gif3} width="100%" height={500}/>
+                        <Carousel.Caption>
+                            <h3>Third slide label</h3>
+                            <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                </Carousel>
+                <div class="row">
+                    <div class="col-8" style={{ padding: "100px 100px 100px 100px"}}>
+                        <img src={image2} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                    </div>
+                    <div class="col-4" style={{ padding: "100px 100px 100px 100px" }}>
+                        <h3>Upload File</h3>
+                        <p>In order for us to analyse the files, you need to first upload them, that's where this page comes in hand!</p>
+                        <p>In our Upload File you can upload files in two different ways, locally or trough an URL you can supply us.</p> 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4" style={{ padding: "100px 100px 100px 100px" }}>
+                        <h3>Workspace</h3>
+                        <p>After uploading your file you can begin the automated analysis!</p>
+                    </div>
+                    <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
+                        <img src={image3} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
+                        <img src={image1} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                    </div>
+                    <div class="col-4" style={{ padding: "100px 100px 100px 100px" }}>
+                        <h3>Analyse File</h3>
+                        <p>Our analysis can have some unwanted errors :(, that's where you come in!</p>
+                        <p>With our simple and interactive drag & drop tecnology you can customize our analysis in any way you want!</p>
+                    </div>
+                </div>
+            </div>
         );
     }
 
     render() {
         return (
-            <div style={{ backgroundImage: `url(${background})`, width: "100%", height:"100%" }}>
+            <div style={{width: "100%", height:"100%" }}>
                 {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
             </div>
     );
   }
 }
+
+//<div style={{ backgroundImage: `url(${background})`, width: "100%", height:"100%" }}>

@@ -22,7 +22,7 @@ export default class AccordionComp extends Component {
 
         return (
             <g>
-                <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>{payload.name}</text>
+                <text x={cx} y={cy} dy={8} textAnchor="middle" fill="#45A8DD" style={{ fontWeight:'bold' }}>{payload.name}</text>
                 <Sector
                     cx={cx}
                     cy={cy}
@@ -30,7 +30,7 @@ export default class AccordionComp extends Component {
                     outerRadius={outerRadius}
                     startAngle={startAngle}
                     endAngle={endAngle}
-                    fill={fill}
+                    fill="#45A8DD"
                 />
                 <Sector
                     cx={cx}
@@ -39,10 +39,10 @@ export default class AccordionComp extends Component {
                     endAngle={endAngle}
                     innerRadius={outerRadius + 6}
                     outerRadius={outerRadius + 10}
-                    fill={fill}
+                    fill="#45A8DD"
                 />
-                <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-                <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+                <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke="#45A8DD" fill="none" />
+                <circle cx={ex} cy={ey} r={2} fill="#45A8DD" stroke="none" />
                 <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`${value} Files`}</text>
                 <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
                     {`(Rate ${(percent * 100).toFixed(2)}%)`}
