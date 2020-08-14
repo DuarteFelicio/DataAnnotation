@@ -153,24 +153,30 @@ export class Workspace extends Component {
         return str
     }
 
-    renderFileInfo(item) {
+    renderAnalysis(item) {
         var isAnalysing = item.isAnalysing;
-        if (item.analysisDuration === null) { // ainda não analizou
             return (
                 <div>
                     {!isAnalysing && <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFileId)}>Analyze</button>}
                     {isAnalysing && <div><p>Analysing</p><div class="spinner-border text-primary"></div></div>}
                 </div>
-            )
-        }
-        return (    //já analizou
+            )        
+    }
+
+    renderAnalysisInfo(item) {
+        let array = []
+        array.push(<tr><th>Analysis Duration</th><td>{this.showTime(item.analysisDuration.value)}</td></tr>)    
+        array.push(<tr><th>Analysis Completed on</th><td>{item.analysisCompletionTime.split("T")[0]}</td></tr> )
+        return array                                    
+    }
+
+    renderAnalysisButton(item) {
+        return (
             <div>
-                <p> Analysis Duration: {this.showTime(item.analysisDuration.value)}</p>
-                <p> Analysis Completed on: {item.analysisCompletionTime.split("T")[0]}</p>
-                <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyzis(item.csvFileId)}>Go to Analysis</button>
-                <button type="button" class="btn btn-outline-primary" onClick={() => this.DownloadAnalyzis(item.csvFileId, item.fileNameDisplay)}>Download Analysis</button>
-            </div>
-            )
+                <button type="button" class="btn btn-outline-primary" style={{ marginRight: "8px"}} onClick={() => this.Analyzis(item.csvFileId)}>Go to Analysis</button>
+                <button type="button" class="btn btn-outline-primary" onClick={() => this.DownloadAnalyzis(item.csvFileId, item.fileNameDisplay)}>Download Analysis</button> 
+            </div>                 
+        )
     }
 
     render() {
@@ -182,8 +188,11 @@ export class Workspace extends Component {
 
 
         return (
-            <Container> 
-                <h1>My Workspace</h1>
+            <Container>
+                <div style={{ marginBottom: "50px" }}>
+                    <h1>My Workspace</h1>    
+                </div>
+                                
                 <div class="row">
                     <Col sm={3}>
                         <InputGroup className="mb-2">
@@ -200,7 +209,7 @@ export class Workspace extends Component {
                     </Col>
                 </div>
                 <div class="row">
-                    <div class = "col-sm-8">
+                    <div class = "col-sm-6">
                         <div class="list-group" id="list-tab" role="tablist">
                             {Array.from(this.state.files).map(([key, item]) => {
                                 if (item.fileNameDisplay.split('.')[0].toLowerCase().includes(this.state.searchByName.toLowerCase()))
@@ -217,16 +226,22 @@ export class Workspace extends Component {
                             })}
                         </div>
                     </div>
-                    <div class="col-4" >
+                    <div class="col-6" >
                         <div class="tab-content" id="nav-tabContent" >
                             {Array.from(this.state.files).map(([key, item]) => {
                                 return <div class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
-                                    <h5>File details</h5>
-                                    <p> Uploaded on: {item.uploadTime.split("T")[0]}</p>
-                                    <p> Uploaded from: {item.origin}</p>
-                                    <p> size: {formatSize(item.size)}</p>
-                                    {this.renderFileInfo(item)}
-                                    <button type="button" class="btn btn-outline-danger" onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
+                                    <h4>File details</h4>
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr><th>Upload on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
+                                            <tr><th>Uploaded from</th><td>{item.origin}</td></tr>
+                                            <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
+                                            {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
+                                        </tbody>
+                                    </table>    
+                                    {item.analysisDuration !== null && this.renderAnalysisButton(item)}
+                                    {item.analysisDuration === null && this.renderAnalysis(item)}
+                                    <button type="button" class="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
                                 </div>
                             })}
                         </div>
