@@ -23,6 +23,7 @@ namespace AnalyseFileWorkerService.Models
         public DateTime? AnalysisCompletionTime { get; set; }
         public bool? IsAnalysing { get; set; }
 
+        public virtual AspNetUsers User { get; set; }
         public virtual ICollection<ActionRecord> ActionRecord { get; set; }
     }
 }
