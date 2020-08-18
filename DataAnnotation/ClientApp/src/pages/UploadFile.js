@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import './UploadFile.css';
 import axios from 'axios';
 import 'bootstrap';
+import titleBackground from '../assets/titleBackgroundUpload.jpg'
 
 const acceptedSymbol = <svg class="bi bi-file-earmark-arrow-down" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z" />
@@ -207,32 +208,38 @@ export class UploadFile extends Component {
 
     render() {        
         return (
-            <section className = "container">
-                <div className="root-dropzone">
-                    <Dropzone                
-                        accept=".csv"
-                        onDrop={this.onDrop}
-                        history={this.props.history}
-                        text={
-                            <div align="center">
-                                <p>Try dropping some files here, or click to select files to upload.</p>
-                                <p>Only csv files will be accepted</p>
-                            </div>}
-                    />
+            <div>
+                <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
+                    <h1 class="row justify-content-md-center" style={{ width: "100%" }}>Upload File</h1>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Upload your files here</h4>
                 </div>
-                <aside>
-                    <div className="url-container">
-                        <input type="text" name="url" size="75" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
-                        <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
+                <section className="container" style={{marginTop: "20px"}}>
+                    <div className="root-dropzone">
+                        <Dropzone                
+                            accept=".csv"
+                            onDrop={this.onDrop}
+                            history={this.props.history}
+                            text={
+                                <div align="center">
+                                    <p>Try dropping some files here, or click to select files to upload.</p>
+                                    <p>Only csv files will be accepted</p>
+                                </div>}
+                        />
                     </div>
-                    {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "")}
-                    <div class="row">
-                        {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6")}
-                        {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6")}
-                    </div>
+                    <aside>
+                        <div className="url-container">
+                            <input type="text" name="url" size="75" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
+                            <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
+                        </div>
+                        {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "")}
+                        <div class="row">
+                            {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6")}
+                            {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6")}
+                        </div>
                     
-                </aside>
-            </section>
+                    </aside>
+                </section>
+            </div>
         );
     }
 }

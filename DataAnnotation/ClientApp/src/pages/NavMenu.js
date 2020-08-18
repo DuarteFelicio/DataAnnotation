@@ -25,7 +25,7 @@ export class NavMenu extends Component {
     render() {
         return (
             <header>
-                <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
+                <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white" light style={{ backgroundColor:"#F0F0F0" }}>
                     <Container>
                         <NavbarBrand tag={Link} to="/">DataAnnotation</NavbarBrand>
                         <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />

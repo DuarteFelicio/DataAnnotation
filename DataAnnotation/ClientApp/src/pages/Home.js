@@ -8,10 +8,10 @@ import PieChartComp from '../components/PieChartComp'
 import gif1 from '../assets/cafe.gif'
 import gif2 from '../assets/tenor.gif'
 import gif3 from '../assets/yo.gif'
-import image1 from '../assets/analysefile.png'
-import image2 from '../assets/uploadfile.png'
-import image3 from '../assets/workspace.png'
-import background from '../assets/background.jpeg'
+import analyseFileImage from '../assets/analysefile.png'
+import uploadFileImage from '../assets/uploadfile.png'
+import workspaceImage from '../assets/workspace.png'
+import titleBackground from '../assets/titleBackground.jpg'
 
 export class Home extends Component {
 
@@ -76,62 +76,66 @@ export class Home extends Component {
         ];
 
         return (
-            <Container>
-                <h1 class="row justify-content-md-center">Welcome back {this.state.userName}!</h1>
-                <h4 style={{ marginTop:50 }}>Here is some general data about you:</h4>
-                <div class="row" style={{ marginTop:50 }}>
-                    <div class="col-4"> 
-                        <CardComp 
-                            title='Current Uploaded Files'
-                            body={this.state.currentUploadedFiles}
-                            />
-                    </div>
-                    <div class="col-4"> 
-                        <CardComp
-                            title='Previous Actions'
-                            body={this.state.lastActions}
-                            />
-                    </div>
+            <div>
+                <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
+                    <h1 class="row justify-content-md-center" style={{width:"100%"}}>Welcome back {this.state.userName}!</h1>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Here is some general data about you:</h4>
+                </div>
+                <Container>
+                    <div class="row" style={{ marginTop:50 }}>
+                        <div class="col-4"> 
+                            <CardComp 
+                                title='Current Uploaded Files'
+                                body={this.state.currentUploadedFiles}
+                                />
+                        </div>
                         <div class="col-4"> 
                             <CardComp
-                                title='Last Login'
-                                body={this.state.lastLogin}
+                                title='Previous Actions'
+                                body={this.state.lastActions}
+                                />
+                        </div>
+                            <div class="col-4"> 
+                                <CardComp
+                                    title='Last Login'
+                                    body={this.state.lastLogin}
+                                />
+                        </div>
+                    </div>
+                    <div class="row" style={{ marginTop: 50 }}>
+                        <div class="col-6">
+                            <PieChartComp
+                                width={600}
+                                height={400}
+                                activeIndex={this.state.activeIndexAnalysed}
+                                data={analysedFilesData}
+                                cx={300}
+                                cy={200}
+                                innerRadius={100}
+                                outerRadius={140}
+                                fill='Tomato'
+                                dataKey="value"
+                                onMouseEnter={this.onPieEnterAnalysed}
+                                />
+                        </div>
+                        <div class="col-6">
+                            <PieChartComp
+                                width={600}
+                                height={400}
+                                activeIndex={this.state.activeIndexUploaded}
+                                data={uploadedURL}
+                                cx={300}
+                                cy={200}
+                                innerRadius={100}
+                                outerRadius={140}
+                                fill='Tomato'
+                                dataKey="value"
+                                onMouseEnter={this.onPieEnterUploaded}
                             />
+                        </div>
                     </div>
-                </div>
-                <div class="row" style={{ marginTop: 50 }}>
-                    <div class="col-6">
-                        <PieChartComp
-                            width={600}
-                            height={400}
-                            activeIndex={this.state.activeIndexAnalysed}
-                            data={analysedFilesData}
-                            cx={300}
-                            cy={200}
-                            innerRadius={100}
-                            outerRadius={140}
-                            fill='Tomato'
-                            dataKey="value"
-                            onMouseEnter={this.onPieEnterAnalysed}
-                            />
-                    </div>
-                    <div class="col-6">
-                        <PieChartComp
-                            width={600}
-                            height={400}
-                            activeIndex={this.state.activeIndexUploaded}
-                            data={uploadedURL}
-                            cx={300}
-                            cy={200}
-                            innerRadius={100}
-                            outerRadius={140}
-                            fill='Tomato'
-                            dataKey="value"
-                            onMouseEnter={this.onPieEnterUploaded}
-                        />
-                    </div>
-                </div>
-            </Container>
+                </Container>
+            </div>
         )
     }
 
@@ -163,7 +167,7 @@ export class Home extends Component {
                 </Carousel>
                 <div class="row">
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px"}}>
-                        <img src={image2} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                        <img src={uploadFileImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                     </div>
                     <div class="col-4" style={{ padding: "150px 150px 100px 75px" }}>
                         <Jumbotron>
@@ -187,12 +191,12 @@ export class Home extends Component {
                         </Jumbotron>
                     </div>
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
-                        <img src={image3} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                        <img src={workspaceImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
-                        <img src={image1} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                        <img src={analyseFileImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                     </div>
                     <div class="col-4" style={{ padding: "150px 150px 100px 75px" }}>
                         <Jumbotron>
@@ -211,7 +215,7 @@ export class Home extends Component {
 
     render() {
         return (
-            <div style={{width: "100%", height:"100%" }}>
+            <div style={{ width: "100%", height: "100%", backgroundColor: "lightgrey"}}>
                 {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
             </div>
     );

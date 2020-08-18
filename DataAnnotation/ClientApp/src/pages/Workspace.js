@@ -6,6 +6,7 @@ import { Form, Col, InputGroup, FormControl } from 'react-bootstrap'
 import 'bootstrap';
 import './Workspace.css'
 import ModalComp from '../components/ModalComp.js'
+import titleBackground from '../assets/titleBackgroundWorkspace.jpg'
 
 export class Workspace extends Component {
 
@@ -188,74 +189,76 @@ export class Workspace extends Component {
 
 
         return (
-            <Container>
-                <div style={{ marginBottom: "50px" }}>
-                    <h1>My Workspace</h1>    
+            <div>
+                <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
+                    <h1 class="row justify-content-md-center" style={{ width: "100%" }}>My Workspace</h1>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Search, Analyse and visualize.</h4>
                 </div>
-                                
-                <div class="row">
-                    <Col sm={6}>
-                        <InputGroup className="mb-2">
-                            <InputGroup.Prepend>
-                                <InputGroup.Text id="basic search">{
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
-                                        <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
-                                    </svg>
-                                }</InputGroup.Text>
-                            </InputGroup.Prepend>
-                            <FormControl placeholder="Search by name ..." name="searchByName" type="text" onChange={this.handleOnChange} />
-                        </InputGroup>
-                    </Col>
-                </div>
-                <div class="row">
-                    <div class = "col-sm-6">
-                        <div class="list-group" id="list-tab" role="tablist">
-                            {Array.from(this.state.files).map(([key, item]) => {
-                                if (item.fileNameDisplay.split('.')[0].toLowerCase().includes(this.state.searchByName.toLowerCase()))
-                                    return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab" >
-                                    <div class="row" style={{ height:30 }}>
-                                        <div class="column">
-                                            <svg class="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fill-rule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></svg>
+                <Container style={{ marginTop: "20px" }}>      
+                    <div class="row">
+                        <Col sm={6}>
+                            <InputGroup className="mb-2">
+                                <InputGroup.Prepend>
+                                    <InputGroup.Text id="basic search">{
+                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z" />
+                                            <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
+                                        </svg>
+                                    }</InputGroup.Text>
+                                </InputGroup.Prepend>
+                                <FormControl placeholder="Search by name ..." name="searchByName" type="text" onChange={this.handleOnChange} />
+                            </InputGroup>
+                        </Col>
+                    </div>
+                    <div class="row">
+                        <div class = "col-sm-6">
+                            <div class="list-group" id="list-tab" role="tablist">
+                                {Array.from(this.state.files).map(([key, item]) => {
+                                    if (item.fileNameDisplay.split('.')[0].toLowerCase().includes(this.state.searchByName.toLowerCase()))
+                                        return <a class="list-group-item list-group-item-action" id={'list-' + item.csvFileId} data-toggle="list" href={'#details-' + item.csvFileId} role="tab" >
+                                        <div class="row" style={{ height:30 }}>
+                                            <div class="column">
+                                                <svg class="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fill-rule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></svg>
+                                            </div>
+                                            <div class="column">
+                                                {item.fileNameDisplay.split('.')[0]}
+                                            </div>
                                         </div>
-                                        <div class="column">
-                                            {item.fileNameDisplay.split('.')[0]}
-                                        </div>
+                                    </a>
+                                })}
+                            </div>
+                        </div>
+                        <div class="col-6" >
+                            <div class="tab-content" id="nav-tabContent" >
+                                {Array.from(this.state.files).map(([key, item]) => {
+                                    return <div class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
+                                        <h2>File details</h2>
+                                        <table class="table table-striped">
+                                            <tbody>
+                                                <tr><th>Upload on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
+                                                <tr><th>Uploaded from</th><td>{item.origin}</td></tr>
+                                                <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
+                                                {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
+                                            </tbody>
+                                        </table>    
+                                        {item.analysisDuration !== null && this.renderAnalysisButton(item)}
+                                        {item.analysisDuration === null && this.renderAnalysis(item)}
+                                        <button type="button" class="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
                                     </div>
-                                </a>
-                            })}
+                                })}
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6" >
-                        <div class="tab-content" id="nav-tabContent" >
-                            {Array.from(this.state.files).map(([key, item]) => {
-                                return <div class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
-                                    <h2>File details</h2>
-                                    <table class="table table-striped">
-                                        <tbody>
-                                            <tr><th>Upload on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
-                                            <tr><th>Uploaded from</th><td>{item.origin}</td></tr>
-                                            <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
-                                            {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
-                                        </tbody>
-                                    </table>    
-                                    {item.analysisDuration !== null && this.renderAnalysisButton(item)}
-                                    {item.analysisDuration === null && this.renderAnalysis(item)}
-                                    <button type="button" class="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
-                                </div>
-                            })}
-                        </div>
-                    </div>
-                </div>
-                <ModalComp
-                    title="Delete File"
-                    body="Are you sure you want to delete this file. This will delete every analysis (if any) as well as the file itself."
-                    okButtonText="Delete"
-                    okButtonFunc={this.Remove}
-                    cancelButtonFunc={this.disableDeleteModal}
-                    visible={this.state.onShowDeleteModal}
-                />
-            </Container>
+                    <ModalComp
+                        title="Delete File"
+                        body="Are you sure you want to delete this file. This will delete every analysis (if any) as well as the file itself."
+                        okButtonText="Delete"
+                        okButtonFunc={this.Remove}
+                        cancelButtonFunc={this.disableDeleteModal}
+                        visible={this.state.onShowDeleteModal}
+                    />
+                </Container>
+            </div>
         )
     }
 }
