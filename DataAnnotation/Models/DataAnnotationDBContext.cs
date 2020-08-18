@@ -19,6 +19,7 @@ namespace DataAnnotation.Models
         }
 
         public virtual DbSet<ActionRecord> ActionRecord { get; set; }
+        public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<CsvFile> CsvFile { get; set; }
         public virtual DbSet<DivisoesTerritoriais> DivisoesTerritoriais { get; set; }
         public virtual DbSet<DtNomesAlternativos> DtNomesAlternativos { get; set; }
@@ -30,6 +31,15 @@ namespace DataAnnotation.Models
         public virtual DbSet<UnidadesDivisoesHierarquias> UnidadesDivisoesHierarquias { get; set; }
         public virtual DbSet<UnidadesTerritoriais> UnidadesTerritoriais { get; set; }
         public virtual DbSet<UtNomesAlternativos> UtNomesAlternativos { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=DESKTOP-G5A26LF;Initial Catalog=DataAnnotationDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +59,25 @@ namespace DataAnnotation.Models
                     .HasConstraintName("FK_ActionRecord_CsvFile_Id");
             });
 
+            modelBuilder.Entity<AspNetUsers>(entity =>
+            {
+                entity.HasIndex(e => e.NormalizedEmail)
+                    .HasName("EmailIndex");
+
+                entity.HasIndex(e => e.NormalizedUserName)
+                    .HasName("UserNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedUserName] IS NOT NULL)");
+
+                entity.Property(e => e.Email).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+
+                entity.Property(e => e.UserName).HasMaxLength(256);
+            });
+
             modelBuilder.Entity<CsvFile>(entity =>
             {
                 entity.Property(e => e.FileNameDisplay)
@@ -66,6 +95,11 @@ namespace DataAnnotation.Models
                 entity.Property(e => e.UserId)
                     .IsRequired()
                     .HasMaxLength(450);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.CsvFile)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_CsvFile_AspNetUsers_Id");
             });
 
             modelBuilder.Entity<DivisoesTerritoriais>(entity =>
@@ -165,6 +199,11 @@ namespace DataAnnotation.Models
                 entity.Property(e => e.UserId)
                     .IsRequired()
                     .HasMaxLength(450);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.LoginRecord)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_LoginRecord_AspNetUsers_Id");
             });
 
             modelBuilder.Entity<Nomes>(entity =>
@@ -290,8 +329,6 @@ namespace DataAnnotation.Models
             OnModelCreatingPartial(modelBuilder);
         }
 
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
         public List<T> ExecSQL<T>(string query)
         {
             using (var command = Database.GetDbConnection().CreateCommand())
@@ -328,5 +365,7 @@ namespace DataAnnotation.Models
                 return list;
             }
         }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

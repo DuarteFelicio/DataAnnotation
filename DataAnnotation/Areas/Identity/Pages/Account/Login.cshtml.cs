@@ -89,19 +89,19 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User logged in.");
 
-                    //TO DO: login record
-                    /*
+                    //login record
                     using (_context)
                     {
+                        var userId = _context.ExecSQL<AspNetUsers>("SELECT Id FROM AspNetUsers WHERE Email = '" + Input.Email + "'").First();
                         var record = new LoginRecord()
                         {
-                            UserId = userId,
+                            UserId = userId.Id,
                             LoginTime = DateTime.Now
                         };
                         _context.LoginRecord.Add(record);
                         _context.SaveChanges();
                     }
-                    */
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
