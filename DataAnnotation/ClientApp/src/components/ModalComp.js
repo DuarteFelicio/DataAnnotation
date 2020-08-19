@@ -14,7 +14,7 @@ export default class ModalComp extends React.Component {
  
         return (
             <div>
-                <Modal show={visible} onHide={cancelButtonFunc}>
+                <Modal show={visible} onHide={cancelButtonFunc} style={{ fontFamily: 'Open Sans' }}>
                     <Modal.Header closeButton>
                         <Modal.Title>{title}</Modal.Title>
                     </Modal.Header>

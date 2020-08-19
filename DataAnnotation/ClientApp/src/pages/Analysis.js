@@ -671,7 +671,7 @@ export class Analysis extends Component {
             map.set('Category', elem.CategoriaId === null ? "none" : this.state.Metricas_Categorias[elem.CategoriaId - 1].Nome)
             map.set('Is Total', elem.E_Total ? "true" : "false")
             return <div>
-                <TableComp keyValues={map} title='Column data' />
+                <TableComp keyValues={map} title='Data' />
                 <p>{this.state.firstRows === undefined ? <button type="button" class="btn btn-outline-primary" onClick={() => this.getFirstRows(elem.IndiceColuna)}>Get First Rows</button> : <TableComp keyValues={this.state.firstRows} title='First Rows'/>}</p>
             </div>
         }
@@ -681,7 +681,7 @@ export class Analysis extends Component {
         map.set('All different' , elem.TodosDiferentes ? "true" : "false" )
         map.set('Geo Type' , elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo )
         return <div>
-            <TableComp keyValues={map} title='Column data'/>
+            <TableComp keyValues={map} title='Data'/>
             <p style={{ fontWeight: "bold" }}>Type of Values</p>  
             <ul>
             {elem.TipoValores.map(e => {                
@@ -745,7 +745,7 @@ export class Analysis extends Component {
     
     render() {
         return (
-            <div>
+            <div style={{marginTop:"15px"}}>
                 <div class="row justify-content-md-center">{this.state.alertMessage !== null && this.state.alertMessage}</div>
                 <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px" }}>
                     <DragDropContext onDragEnd={this.onDragEnd}>
@@ -829,7 +829,7 @@ export class Analysis extends Component {
                             });
                         }}
                     >
-                        <div>{this.showColumnDetails()}</div>
+                        <div style={{ fontFamily: 'Open Sans' }}>{this.showColumnDetails()}</div>
                     </SlidingPane>
                     </div>
                 </div>
