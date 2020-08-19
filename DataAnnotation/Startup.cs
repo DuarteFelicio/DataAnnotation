@@ -60,7 +60,10 @@ namespace DataAnnotation
 			services.AddAuthentication()
 				.AddIdentityServerJwt();
 
-			services.AddControllersWithViews();
+			services.AddControllersWithViews()
+				.AddNewtonsoftJson(options =>
+				options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore		//para o action record no isAnalyzed
+			);
 
 			services.AddRazorPages();
 

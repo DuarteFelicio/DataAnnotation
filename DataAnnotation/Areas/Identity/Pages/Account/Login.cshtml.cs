@@ -92,10 +92,10 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
                     //login record
                     using (_context)
                     {
-                        var userId = _context.ExecSQL<AspNetUsers>("SELECT Id FROM AspNetUsers WHERE Email = '" + Input.Email + "'").First();
+                        var user = _context.ExecSQL<AspNetUsers>("SELECT Id FROM AspNetUsers WHERE Email = '" + Input.Email + "'").First();
                         var record = new LoginRecord()
                         {
-                            UserId = userId.Id,
+                            UserId = user.Id,
                             LoginTime = DateTime.Now
                         };
                         _context.LoginRecord.Add(record);

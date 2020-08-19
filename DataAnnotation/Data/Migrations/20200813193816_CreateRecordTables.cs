@@ -36,7 +36,7 @@ namespace DataAnnotation.Data.Migrations
 					CsvFileId = table.Column<int>(nullable: false),
 					Action = table.Column<string>(maxLength: 8, nullable: false),
 					Version = table.Column<string>(maxLength: 12, nullable: false),
-					LoginTime = table.Column<DateTime>(nullable: false)
+					ActionTime = table.Column<DateTime>(nullable: false)
 				},
 				constraints: table =>
 				{

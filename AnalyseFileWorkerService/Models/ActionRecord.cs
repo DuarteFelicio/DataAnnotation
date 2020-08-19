@@ -9,7 +9,7 @@ namespace AnalyseFileWorkerService.Models
         public int CsvFileId { get; set; }
         public string Action { get; set; }
         public string Version { get; set; }
-        public DateTime LoginTime { get; set; }
+        public DateTime ActionTime { get; set; }
 
         public virtual CsvFile CsvFile { get; set; }
     }

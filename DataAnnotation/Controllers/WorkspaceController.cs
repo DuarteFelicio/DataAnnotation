@@ -20,6 +20,7 @@ using GenericParsing;
 using System.Data.Common;
 using Microsoft.VisualBasic.CompilerServices;
 using DataAnnotation.Models.Analysis;
+using IdentityModel.Client;
 
 namespace DataAnnotation.Controllers
 {
@@ -51,7 +52,7 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string fileFolderPath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage));
 
@@ -83,7 +84,7 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId);
 			string fileFolderPath = Path.Combine(folderPath, file.FileNameStorage);
@@ -103,7 +104,7 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(userId, fileId);
@@ -118,13 +119,24 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			List<AnalysisFile> analysisFiles = GetAnalysisFiles(userId, fileId);
-			string filePath = Path.Combine(folderPath, analysisFiles[analysisFiles.Count - 1].Name);    //return last analysis
+			string version = analysisFiles[analysisFiles.Count - 1].Name;
+			string filePath = Path.Combine(folderPath, version);    //return last analysis
 
 			var json = System.IO.File.ReadAllText(filePath);
+			//action record
+			var record = new ActionRecord()
+			{
+				CsvFileId = file.CsvFileId,
+				Action = "Load",
+				Version = version,
+				ActionTime = DateTime.Now
+			};
+			_context.ActionRecord.Add(record);
+			_context.SaveChanges();
 			return Ok(json);
 		}
 
@@ -133,12 +145,22 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			string filePath = Path.Combine(folderPath, fileName);    //return analysis given by index
 
 			var json = System.IO.File.ReadAllText(filePath);
+			//action record
+			var record = new ActionRecord()
+			{
+				CsvFileId = file.CsvFileId,
+				Action = "Load",
+				Version = fileName,
+				ActionTime = DateTime.Now
+			};
+			_context.ActionRecord.Add(record);
+			_context.SaveChanges();
 			return Ok(json);
 		}
 
@@ -146,8 +168,9 @@ namespace DataAnnotation.Controllers
 		public IActionResult IsAnalysisComplete([FromQuery]int fileId)	//checks analysis completion
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			//var userId = "8772e754-e126-4772-9475-35ebf00f81bd";
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			string filePath = Path.Combine(folderPath, "analysis_v1");
@@ -155,7 +178,18 @@ namespace DataAnnotation.Controllers
 			{
 				file.IsAnalysing = false;
 				_context.CsvFile.Update(file);
+				
+				//action record
+				var record = new ActionRecord()
+				{
+					CsvFileId = file.CsvFileId,
+					Action = "Analyze",
+					Version = "analysis_v1",
+					ActionTime = DateTime.Now
+				};
+				_context.ActionRecord.Add(record);
 				_context.SaveChanges();
+				
 				return Ok(file);
 			}
 			return NoContent();
@@ -168,9 +202,9 @@ namespace DataAnnotation.Controllers
 
 			List <AnalysisFile> analysisFiles = GetAnalysisFiles(userId, fileId);
 			
-			if (analysisFiles.Count == 0 || analysisFiles == null)
+			if (analysisFiles == null || analysisFiles.Count == 0)
 			{
-				return NotFound(); //é mesmo este?
+				return NotFound();
 			}
 			return Ok(analysisFiles.OrderByDescending((a)=>a.LastEdit).ToArray());	//é preciso ser em array?
 		}
@@ -180,14 +214,25 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string json = System.Text.Json.JsonSerializer.Serialize(body);
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
-			int version = Int32.Parse(GetAnalysisFiles(userId, fileId).Last().Name.Split("_v")[1]);
-			string filePath = Path.Combine(folderPath, "analysis_v" + ++version);
+			int lastVersion = Int32.Parse(GetAnalysisFiles(userId, fileId).Last().Name.Split("_v")[1]);
+			string version = "analysis_v" + (lastVersion+1);
+			string filePath = Path.Combine(folderPath, version);
 			System.IO.File.WriteAllText(filePath, json);
+			//action record
+			var record = new ActionRecord()
+			{
+				CsvFileId = file.CsvFileId,
+				Action = "Save",
+				Version = version,
+				ActionTime = DateTime.Now
+			};
+			_context.ActionRecord.Add(record);
+			_context.SaveChanges();
 			return Created(nameof(WorkspaceController), null);
 		}
 
@@ -196,7 +241,7 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage, "analysis", analysisFile));
 
@@ -217,7 +262,7 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage, file.FileNameStorage));
 
@@ -255,7 +300,7 @@ namespace DataAnnotation.Controllers
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return NotFound();
+			if (file == null) return NotFound();
 
 			string filePath = Path.Combine(_targetFilePath, Path.Combine(userId, file.FileNameStorage, file.FileNameStorage));
 
@@ -280,7 +325,7 @@ namespace DataAnnotation.Controllers
 		public List<AnalysisFile> GetAnalysisFiles(string userId, int fileId)
 		{
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
-			if (file.CsvFileId == 0) return null;
+			if (file == null) return null;
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			var dirInfo = new DirectoryInfo(folderPath);

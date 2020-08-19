@@ -166,7 +166,7 @@ export class Workspace extends Component {
 
     renderAnalysisInfo(item) {
         let array = []
-        array.push(<tr><th>Analysis Duration</th><td>{this.showTime(item.analysisDuration.value)}</td></tr>)    
+        array.push(<tr><th>Analysis Duration</th><td>{this.showTime(item.analysisDuration)}</td></tr>)    
         array.push(<tr><th>Analysis Completed on</th><td>{item.analysisCompletionTime.split("T")[0]}</td></tr> )
         return array                                    
     }
