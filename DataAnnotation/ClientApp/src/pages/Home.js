@@ -81,7 +81,7 @@ export class Home extends Component {
                     <h1 class="row justify-content-md-center" style={{width:"100%"}}>Welcome back {this.state.userName}!</h1>
                     <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Here is some general data about you:</h4>
                 </div>
-                <Container>
+                <Container style={{ fontFamily: 'Open Sans' }}>
                     <div class="row" style={{ marginTop:50 }}>
                         <div class="col-4"> 
                             <CardComp 
@@ -215,7 +215,7 @@ export class Home extends Component {
 
     render() {
         return (
-            <div style={{ width: "100%", height: "100%", backgroundColor: "lightgrey"}}>
+            <div style={{ width: "100%", backgroundColor: "#F0F0F0", minHeight: "863px" }}>
                 {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
             </div>
     );

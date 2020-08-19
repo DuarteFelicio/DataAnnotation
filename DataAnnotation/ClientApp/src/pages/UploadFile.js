@@ -7,6 +7,7 @@ import './UploadFile.css';
 import axios from 'axios';
 import 'bootstrap';
 import titleBackground from '../assets/titleBackgroundUpload.jpg'
+import { Accordion, Card, Button, Carousel, Jumbotron } from 'react-bootstrap'
 
 const acceptedSymbol = <svg class="bi bi-file-earmark-arrow-down" width="50" height="30" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z" />
@@ -189,31 +190,33 @@ export class UploadFile extends Component {
         )
     }
 
-    renderFiles(fileList, title, symbol, toShow, classDiv) {
+    renderFiles(fileList, title, symbol, toShow, classDiv, backgroundColor) {
         if (!fileList.length) {
             return
         }
         return (
-            <div class={classDiv}>
-                <ListGroup
-                    title={title}
-                    files={fileList}
-                    symbol={symbol}
-                    toShow={toShow}
-                    history={this.props.history}
-                />
+            <div class={classDiv} style={{ backgroundColor: backgroundColor, borderRadius: "20px"}}>
+                <div style={{ padding:"10px 10px 10px 10px" }}>
+                    <ListGroup
+                        title={title}
+                        files={fileList}
+                        symbol={symbol}
+                        toShow={toShow}
+                        history={this.props.history}
+                    />
+                </div>
             </div>
         )
     }
 
     render() {        
         return (
-            <div>
+            <div style={{ minHeight: "863px", backgroundColor:"#F0F0F0" }}>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>Upload File</h1>
                     <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Upload your files here</h4>
                 </div>
-                <section className="container" style={{marginTop: "20px"}}>
+                <section className="container" style={{ marginTop: "20px", fontFamily:'Open Sans'}}>
                     <div className="root-dropzone">
                         <Dropzone                
                             accept=".csv"
@@ -231,10 +234,10 @@ export class UploadFile extends Component {
                             <input type="text" name="url" size="75" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
                             <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
                         </div>
-                        {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "")}
-                        <div class="row">
-                            {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6")}
-                            {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6")}
+                        {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "", "#60AAEB")}
+                        <div class="row" style={{ marginTop: "15px" }}>
+                            {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6", "#B6EF8E")}
+                            {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6", "#EB5C5C")}
                         </div>
                     
                     </aside>

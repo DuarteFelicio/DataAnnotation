@@ -189,12 +189,12 @@ export class Workspace extends Component {
 
 
         return (
-            <div>
+            <div style={{ backgroundColor: "#F0F0F0", minHeight:"863px" }}>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>My Workspace</h1>
-                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Search, Analyse and visualize.</h4>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Search, Analyse and Visualize.</h4>
                 </div>
-                <Container style={{ marginTop: "20px" }}>      
+                <Container style={{ marginTop: "20px", fontFamily:'Open Sans'}}>      
                     <div class="row">
                         <Col sm={6}>
                             <InputGroup className="mb-2">
@@ -228,14 +228,14 @@ export class Workspace extends Component {
                                 })}
                             </div>
                         </div>
-                        <div class="col-6" >
+                        <div class="col-6">
                             <div class="tab-content" id="nav-tabContent" >
                                 {Array.from(this.state.files).map(([key, item]) => {
-                                    return <div class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
-                                        <h2>File details</h2>
+                                    return <div style={{ borderColor: "#45ABD1", borderStyle:"solid", borderRadius: "20px", padding:7 }} class="tab-pane fade" id={'details-' + item.csvFileId} role="tabpanel" aria-labelledby={'list-' + item.csvFileId}>
+    
                                         <table class="table table-striped">
                                             <tbody>
-                                                <tr><th>Upload on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
+                                                <tr><th>Uploaded on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
                                                 <tr><th>Uploaded from</th><td>{item.origin}</td></tr>
                                                 <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
                                                 {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
