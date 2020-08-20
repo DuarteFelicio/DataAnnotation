@@ -143,14 +143,21 @@ export class Workspace extends Component {
     }
 
     showTime(value) {
-        var str = ""
-        if (value.hours !== 0)
-            str += value.hours + "h "
-        if (value.minutes !== 0)
-            str += value.minutes + "m "
-        if (value.seconds !== 0)
-            str += value.seconds +  "s "
-        str += value.milliseconds + "ms "
+        let str = ""
+        let time = value.split(':')
+        let milliseconds = time[2].split('.')[1]
+        let newValue = new Object()
+        newValue.hours = time[0]
+        newValue.minutes = time[1]
+        newValue.seconds = time[2].split('.')[0]
+        newValue.milliseconds = milliseconds
+        if (newValue.hours !== '00')
+            str += newValue.hours + "h "
+        if (newValue.minutes !== '00')
+            str += newValue.minutes + "m "
+        if (newValue.seconds !== '00')
+            str += newValue.seconds +  "s "
+        str += newValue.milliseconds + "ms "
         return str
     }
 

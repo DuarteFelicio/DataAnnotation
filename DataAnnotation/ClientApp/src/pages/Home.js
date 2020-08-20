@@ -33,23 +33,31 @@ export class Home extends Component {
     }
 
     async componentDidMount() {
-        let auth = await authService.getAccessToken()        
-        if (auth !== null) {
+        let token = await authService.getAccessToken()        
+        if (token !== null) {
             //fetch para saber os dados do user
-            this.setState({
-                Auth: true,
-                userName: "ivo está a dar yeet de novo",
-                currentUploadedFiles: 15,
-                lastActions: [],
-                currentAnalysedFiles: 6,
-                localUploaded: 12,
-                urlUploaded: 3,
-                lastLogin: "10/7/2020",
-                activeIndexAnalysed: 0,
-                activeIndexUploaded: 0
-            })
+            fetch(`Workspace/GetUserDetails`, {
+                method: 'GET',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json())
+                .then(details => {
+                    let lastLoginString = details.lastLogin.split('T')
+                    let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
+                    this.setState({
+                        Auth: true,
+                        userName: details.userName,
+                        currentUploadedFiles: details.currentUploadedFiles,
+                        lastActions: details.lastActions,
+                        currentAnalysedFiles: details.currentAnalysedFiles,
+                        localUploaded: details.localUploaded,
+                        urlUploaded: details.urlUploaded,
+                        lastLogin: finalString,
+                        activeIndexAnalysed: 0,
+                        activeIndexUploaded: 0
+                    })
+                    
+                })
         }
-            
     }
 
     onPieEnterUploaded = (data, index) => {
@@ -63,6 +71,15 @@ export class Home extends Component {
             activeIndexAnalysed: index,
         });
     };
+
+    renderLastActions(lastActions) {
+        return lastActions.map(action => {
+            if (action.Action === 'Analyze') {
+                return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/'+action.CsvFileId}>The analysis for the file {action.CsvFileId} already completed</a></div>
+            }
+            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/'+action.CsvFileId}>You were working on {action.CsvFileId}</a></div>
+        })
+    }
 
     renderAuth() {
         const analysedFilesData = [
@@ -82,7 +99,7 @@ export class Home extends Component {
                     <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Here is some general data about you:</h4>
                 </div>
                 <Container style={{ fontFamily: 'Open Sans' }}>
-                    <div class="row" style={{ marginTop:50 }}>
+                    <div class="row" style={{ marginTop:30 }}>
                         <div class="col-4"> 
                             <CardComp 
                                 title='Current Uploaded Files'
@@ -92,7 +109,7 @@ export class Home extends Component {
                         <div class="col-4"> 
                             <CardComp
                                 title='Previous Actions'
-                                body={this.state.lastActions}
+                                body={this.renderLastActions(this.state.lastActions)}
                                 />
                         </div>
                             <div class="col-4"> 
@@ -102,7 +119,7 @@ export class Home extends Component {
                                 />
                         </div>
                     </div>
-                    <div class="row" style={{ marginTop: 50 }}>
+                    <div class="row" style={{ marginTop: 30 }}>
                         <div class="col-6">
                             <PieChartComp
                                 width={600}
@@ -165,8 +182,8 @@ export class Home extends Component {
                         </Carousel.Caption>
                     </Carousel.Item>
                 </Carousel>
-                <div class="row">
-                    <div class="col-8" style={{ padding: "100px 100px 100px 100px"}}>
+                <div class="row" style={{maxWidth:"1919px"}}>
+                    <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
                         <img src={uploadFileImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                     </div>
                     <div class="col-4" style={{ padding: "150px 150px 100px 75px" }}>
@@ -179,7 +196,7 @@ export class Home extends Component {
                         </Jumbotron>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" style={{ backgroundColor: "#F5F5F5", maxWidth: "1919px" }}>
                     <div class="col-4" style={{ padding: "150px 75px 100px 150px" }}>
                         <Jumbotron>
                             <h3>Workspace</h3>
@@ -194,7 +211,7 @@ export class Home extends Component {
                         <img src={workspaceImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" style={{ maxWidth: "1919px" }}>
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
                         <img src={analyseFileImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                     </div>
