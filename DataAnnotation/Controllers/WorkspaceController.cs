@@ -21,6 +21,8 @@ using System.Data.Common;
 using Microsoft.VisualBasic.CompilerServices;
 using DataAnnotation.Models.Analysis;
 using IdentityModel.Client;
+using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace DataAnnotation.Controllers
 {
@@ -168,7 +170,6 @@ namespace DataAnnotation.Controllers
 		public IActionResult IsAnalysisComplete([FromQuery]int fileId)	//checks analysis completion
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
-			//var userId = "8772e754-e126-4772-9475-35ebf00f81bd";
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file == null) return NotFound();
 
@@ -210,13 +211,13 @@ namespace DataAnnotation.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult SaveAnalysis([FromQuery]int fileId, [FromBody] JsonElement body)	//saves a edited file
+		public IActionResult SaveAnalysis([FromQuery]int fileId, [FromBody] JObject body)	//saves a edited file
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
 			if (file == null) return NotFound();
 
-			string json = System.Text.Json.JsonSerializer.Serialize(body);
+			string json = body.ToString();
 
 			string folderPath = Path.Combine(_targetFilePath, userId, file.FileNameStorage, "analysis");
 			int lastVersion = Int32.Parse(GetAnalysisFiles(userId, fileId).Last().Name.Split("_v")[1]);
@@ -322,6 +323,37 @@ namespace DataAnnotation.Controllers
 			return Ok(new MD_Dimensao(csvColumn));
 		}
 
+		[HttpGet]
+		public IActionResult GetUserDetails()	//returns some statistics about the user
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
+			JObject ret = new JObject();
+
+			ret.Add("userName", _context.AspNetUsers.Find(userId).UserName);
+			List<CsvFile> userFiles = _context.CsvFile.Where(f => f.UserId == userId).ToList();
+			ret.Add("currentUploadedFiles", userFiles.Count());
+			ret.Add("currentAnalysedFiles", userFiles.FindAll(f=> f.AnalysisCompletionTime != null).Count);
+			ret.Add("localUploaded", userFiles.FindAll(f => f.Origin == "local").Count);
+			ret.Add("urlUploaded", userFiles.FindAll(f => f.Origin != "local").Count);
+			List<LoginRecord> loginRecords = _context.LoginRecord.Where(l => l.UserId == userId).ToList();
+			ret.Add("lastLogin", loginRecords.Count == 1 ? loginRecords.First().LoginTime : loginRecords[loginRecords.Count - 2].LoginTime);
+
+			UserActionRecord[] actionsArray = _context.ActionRecord.Join(_context.CsvFile,
+				a => a.CsvFileId,
+				c => c.CsvFileId,
+				(a, c) => new UserActionRecord(a.Action, a.CsvFileId, a.Version, a.ActionTime, c.UserId))
+				.AsEnumerable()
+				.Where(u=>u.UserId == userId).Reverse().Take(5)
+				.ToArray();
+			JArray jArray = new JArray();
+			for (int i = 0; i<actionsArray.Length; ++i)
+			{
+				jArray.Add(JToken.FromObject(actionsArray[i]));
+			}
+			ret.Add("lastActions", jArray);
+			return Ok(ret);
+		}
+
 		public List<AnalysisFile> GetAnalysisFiles(string userId, int fileId)
 		{
 			CsvFile file = _context.CsvFile.Where(f => f.UserId == userId && f.CsvFileId == fileId).FirstOrDefault();
@@ -371,6 +403,24 @@ namespace DataAnnotation.Controllers
 
 			public string Name { get; set; }
 			public DateTime LastEdit { get; set; }
+		}
+
+		public class UserActionRecord
+		{
+			public UserActionRecord(string action, int csvFileId, string version, DateTime actionTime, string userId )
+			{
+				Action = action;
+				CsvFileId = csvFileId;
+				Version = version;
+				ActionTime = actionTime;
+				UserId = userId;
+			}
+
+			public string Action { get; set; }
+			public int CsvFileId { get; set; }
+			public string Version { get; set; }
+			public DateTime ActionTime { get; set; }
+			public string UserId { get; set; }
 		}
 	}
 }
