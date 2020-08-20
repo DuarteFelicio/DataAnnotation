@@ -341,7 +341,7 @@ namespace DataAnnotation.Controllers
 			UserActionRecord[] actionsArray = _context.ActionRecord.Join(_context.CsvFile,
 				a => a.CsvFileId,
 				c => c.CsvFileId,
-				(a, c) => new UserActionRecord(a.Action, a.CsvFileId, a.Version, a.ActionTime, c.UserId))
+				(a, c) => new UserActionRecord(a.Action, a.CsvFileId, a.Version, a.ActionTime, c.UserId, c.FileNameDisplay))
 				.AsEnumerable()
 				.Where(u=>u.UserId == userId).Reverse().Take(5)
 				.ToArray();
@@ -407,13 +407,14 @@ namespace DataAnnotation.Controllers
 
 		public class UserActionRecord
 		{
-			public UserActionRecord(string action, int csvFileId, string version, DateTime actionTime, string userId )
+			public UserActionRecord(string action, int csvFileId, string version, DateTime actionTime, string userId, string fileName )
 			{
 				Action = action;
 				CsvFileId = csvFileId;
 				Version = version;
 				ActionTime = actionTime;
 				UserId = userId;
+				FileName = fileName;
 			}
 
 			public string Action { get; set; }
@@ -421,6 +422,7 @@ namespace DataAnnotation.Controllers
 			public string Version { get; set; }
 			public DateTime ActionTime { get; set; }
 			public string UserId { get; set; }
+			public string FileName { get; set; }
 		}
 	}
 }
