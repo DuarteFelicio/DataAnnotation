@@ -60,6 +60,22 @@ namespace DataAnnotation
 			services.AddAuthentication()
 				.AddIdentityServerJwt();
 
+			services.AddAuthentication()
+				.AddGoogle(options =>
+				{
+					IConfigurationSection googleAuthNSection =
+						Configuration.GetSection("Authentication:Google");
+
+					options.ClientId = googleAuthNSection["ClientId"];
+					options.ClientSecret = googleAuthNSection["ClientSecret"];
+				})
+				.AddFacebook(options =>
+				{
+					options.AppId = Configuration["Authentication:Facebook:AppId"];
+					options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+					options.AccessDeniedPath = "/AccessDeniedPathInfo";
+				}); 
+
 			services.AddControllersWithViews()
 				.AddNewtonsoftJson(options =>
 				options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore		//para o action record no isAnalyzed
