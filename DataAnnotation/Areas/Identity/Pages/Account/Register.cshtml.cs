@@ -24,17 +24,20 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly DataAnnotationDBContext _context;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            DataAnnotationDBContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         [BindProperty]
@@ -80,6 +83,19 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    //login record
+                    using (_context)
+                    {
+                        var u = _context.ExecSQL<AspNetUsers>("SELECT Id FROM AspNetUsers WHERE Email = '" + Input.Email + "'").First();
+                        var record = new LoginRecord()
+                        {
+                            UserId = u.Id,
+                            LoginTime = DateTime.Now
+                        };
+                        _context.LoginRecord.Add(record);
+                        _context.SaveChanges();
+                    }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

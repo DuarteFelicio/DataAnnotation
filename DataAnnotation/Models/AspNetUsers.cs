@@ -7,6 +7,7 @@ namespace DataAnnotation.Models
     {
         public AspNetUsers()
         {
+            AspNetUserLogins = new HashSet<AspNetUserLogins>();
             CsvFile = new HashSet<CsvFile>();
             LoginRecord = new HashSet<LoginRecord>();
         }
@@ -27,6 +28,7 @@ namespace DataAnnotation.Models
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
 
+        public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }
         public virtual ICollection<CsvFile> CsvFile { get; set; }
         public virtual ICollection<LoginRecord> LoginRecord { get; set; }
     }

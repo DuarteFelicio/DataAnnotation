@@ -24,17 +24,20 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly DataAnnotationDBContext _context;
 
         public ExternalLoginModel(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            DataAnnotationDBContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         [BindProperty]
@@ -87,6 +90,18 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                //login record
+                using (_context)
+                {
+                    var ul = _context.ExecSQL<AspNetUserLogins>("SELECT * FROM AspNetUserLogins WHERE ProviderKey = " + info.ProviderKey).First();
+                    var record = new LoginRecord()
+                    {
+                        UserId = ul.UserId,
+                        LoginTime = DateTime.Now
+                    };
+                    _context.LoginRecord.Add(record);
+                    _context.SaveChanges();
+                }
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
@@ -131,6 +146,19 @@ namespace DataAnnotation.Areas.Identity.Pages.Account
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+
+                        //login record
+                        using (_context)
+                        {
+                            var u = _context.ExecSQL<AspNetUsers>("SELECT Id FROM AspNetUsers WHERE Email = '" + Input.Email + "'").First();
+                            var record = new LoginRecord()
+                            {
+                                UserId = u.Id,
+                                LoginTime = DateTime.Now
+                            };
+                            _context.LoginRecord.Add(record);
+                            _context.SaveChanges();
+                        }
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

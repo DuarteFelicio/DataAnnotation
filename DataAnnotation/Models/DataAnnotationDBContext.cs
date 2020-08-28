@@ -19,6 +19,7 @@ namespace DataAnnotation.Models
         }
 
         public virtual DbSet<ActionRecord> ActionRecord { get; set; }
+        public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<CsvFile> CsvFile { get; set; }
         public virtual DbSet<DivisoesTerritoriais> DivisoesTerritoriais { get; set; }
@@ -31,6 +32,15 @@ namespace DataAnnotation.Models
         public virtual DbSet<UnidadesDivisoesHierarquias> UnidadesDivisoesHierarquias { get; set; }
         public virtual DbSet<UnidadesTerritoriais> UnidadesTerritoriais { get; set; }
         public virtual DbSet<UtNomesAlternativos> UtNomesAlternativos { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=DESKTOP-G5A26LF;Initial Catalog=DataAnnotationDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +58,23 @@ namespace DataAnnotation.Models
                     .WithMany(p => p.ActionRecord)
                     .HasForeignKey(d => d.CsvFileId)
                     .HasConstraintName("FK_ActionRecord_CsvFile_Id");
+            });
+
+            modelBuilder.Entity<AspNetUserLogins>(entity =>
+            {
+                entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+
+                entity.HasIndex(e => e.UserId);
+
+                entity.Property(e => e.LoginProvider).HasMaxLength(128);
+
+                entity.Property(e => e.ProviderKey).HasMaxLength(128);
+
+                entity.Property(e => e.UserId).IsRequired();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.AspNetUserLogins)
+                    .HasForeignKey(d => d.UserId);
             });
 
             modelBuilder.Entity<AspNetUsers>(entity =>

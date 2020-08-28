@@ -37,7 +37,7 @@ export class Home extends Component {
         let token = await authService.getAccessToken()        
         if (token !== null) {
             //fetch para saber os dados do user
-            fetch(`Workspace/GetUserDetails`, {
+            fetch(`Home/GetUserDetails`, {
                 method: 'GET',
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => res.json())
