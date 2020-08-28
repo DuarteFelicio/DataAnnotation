@@ -5,13 +5,14 @@ import { Accordion, Card, Button, Carousel, Jumbotron } from 'react-bootstrap'
 import CardComp from '../components/CardComp'
 import { PieChart, Pie, Sector } from 'recharts';
 import PieChartComp from '../components/PieChartComp'
-import gif1 from '../assets/cafe.gif'
-import gif2 from '../assets/tenor.gif'
-import gif3 from '../assets/yo.gif'
+import gif1 from '../assets/uploadFile.gif'
+import gif2 from '../assets/workspace.gif'
+import gif3 from '../assets/analysis.gif'
 import analyseFileImage from '../assets/analysefile.png'
 import uploadFileImage from '../assets/uploadfile.png'
 import workspaceImage from '../assets/workspace.png'
 import titleBackground from '../assets/titleBackground.jpg'
+import './Home.css';
 
 export class Home extends Component {
 
@@ -75,9 +76,9 @@ export class Home extends Component {
     renderLastActions(lastActions) {
         return lastActions.map(action => {
             if (action.Action === 'Analyze') {
-                return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/'+action.CsvFileId}>The analysis for the file {action.CsvFileId} already completed</a></div>
+                return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/' + action.CsvFileId}>The analysis for the file {action.FileName} is finished!</a></div>
             }
-            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/'+action.CsvFileId}>You were working on {action.CsvFileId}</a></div>
+            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/'+action.CsvFileId}>You were working on {action.FileName}</a></div>
         })
     }
 
@@ -100,19 +101,19 @@ export class Home extends Component {
                 </div>
                 <Container style={{ fontFamily: 'Open Sans' }}>
                     <div class="row" style={{ marginTop:30 }}>
-                        <div class="col-4"> 
+                        <div class="col-3"> 
                             <CardComp 
-                                title='Current Uploaded Files'
+                                title='Uploaded Files'
                                 body={this.state.currentUploadedFiles}
                                 />
                         </div>
-                        <div class="col-4"> 
+                        <div class="col-6"> 
                             <CardComp
                                 title='Previous Actions'
                                 body={this.renderLastActions(this.state.lastActions)}
                                 />
                         </div>
-                            <div class="col-4"> 
+                            <div class="col-3"> 
                                 <CardComp
                                     title='Last Login'
                                     body={this.state.lastLogin}
@@ -159,26 +160,26 @@ export class Home extends Component {
     renderNotAuth() {
         return (
             <div>
-                <Carousel>
+                <Carousel interval="11000">
                     <Carousel.Item>
                         <img src={gif1} width="100%" height={500}/>
-                        <Carousel.Caption>
-                            <h3>First slide label</h3>
-                            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                        <Carousel.Caption style={{color:"black"}}>
+                            <h3>Upload files</h3>
+                            <p>Upload CSV files in order to analyse them</p>
                         </Carousel.Caption>
                     </Carousel.Item>
                     <Carousel.Item>
                         <img src={gif2} width="100%" height={500}/>
-                        <Carousel.Caption>
-                            <h3>Second slide label</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        <Carousel.Caption style={{ color: "black" }}>
+                            <h3>Workspace</h3>
+                            <p>Choose one of your files and begin the analysis</p>
                         </Carousel.Caption>
                     </Carousel.Item>
                     <Carousel.Item>
                         <img src={gif3} width="100%" height={500}/>
-                        <Carousel.Caption>
-                            <h3>Third slide label</h3>
-                            <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                        <Carousel.Caption style={{ color: "black" }}>
+                            <h3>Customize Analysis</h3>
+                            <p>Analyse, modify, save and download our analysis</p>
                         </Carousel.Caption>
                     </Carousel.Item>
                 </Carousel>
@@ -232,7 +233,7 @@ export class Home extends Component {
 
     render() {
         return (
-            <div style={{ width: "100%", backgroundColor: "#F0F0F0", minHeight: "863px" }}>
+            <div style={{ width: "100%", backgroundColor: "#F0F0F0", minHeight: "1080px" }}>
                 {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
             </div>
     );
