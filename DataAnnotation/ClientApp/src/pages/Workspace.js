@@ -105,7 +105,7 @@ export class Workspace extends Component {
     }
 
     async Analyzis(id) {
-        this.props.history.push(`/workspace/analysis/${id}`)
+        this.props.history.push(`/workspace/analysis/${id}`)        
     }
 
     async DownloadAnalyzis(id,fileName) {
@@ -143,6 +143,7 @@ export class Workspace extends Component {
     }
 
     showTime(value) {
+        
         let str = ""
         let time = value.split(':')
         let milliseconds = time[2].split('.')[1]

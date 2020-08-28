@@ -183,9 +183,9 @@ export class Home extends Component {
                         </Carousel.Caption>
                     </Carousel.Item>
                 </Carousel>
-                <div class="row" style={{maxWidth:"1919px"}}>
-                    <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
-                        <img src={uploadFileImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                <div class="row" style={{ backgroundColor: "#F5F5F5", maxWidth:"1919px"}}>
+                    <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>                                     
+                        <img src={uploadFileImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />                       
                     </div>
                     <div class="col-4" style={{ padding: "150px 150px 100px 75px" }}>
                         <Jumbotron>
@@ -197,7 +197,7 @@ export class Home extends Component {
                         </Jumbotron>
                     </div>
                 </div>
-                <div class="row" style={{ backgroundColor: "#F5F5F5", maxWidth: "1919px" }}>
+                <div class="row" style={{ maxWidth: "1919px" }}>
                     <div class="col-4" style={{ padding: "150px 75px 100px 150px" }}>
                         <Jumbotron>
                             <h3>Workspace</h3>
@@ -209,12 +209,12 @@ export class Home extends Component {
                         </Jumbotron>
                     </div>
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
-                        <img src={workspaceImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                        <img src={workspaceImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
                     </div>
                 </div>
-                <div class="row" style={{ maxWidth: "1919px" }}>
+                <div class="row" style={{ backgroundColor: "#F5F5F5", maxWidth: "1919px" }}>
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>
-                        <img src={analyseFileImage} style={{ height: "100%", width: "100%", objectFit: "contain" }} />
+                        <img src={analyseFileImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
                     </div>
                     <div class="col-4" style={{ padding: "150px 150px 100px 75px" }}>
                         <Jumbotron>

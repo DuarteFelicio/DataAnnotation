@@ -121,6 +121,7 @@ export class Analysis extends Component {
     async componentDidMount() {
         const token = await authService.getAccessToken();
         let id = this.props.match.params.id
+        //let version = this.props
 
         fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
             method: 'GET',
