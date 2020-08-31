@@ -160,29 +160,31 @@ export class Home extends Component {
     renderNotAuth() {
         return (
             <div>
-                <Carousel interval="11000">
-                    <Carousel.Item>
-                        <img src={gif1} width="100%" height={500}/>
-                        <Carousel.Caption style={{color:"black"}}>
-                            <h3>Upload files</h3>
-                            <p>Upload CSV files in order to analyse them</p>
-                        </Carousel.Caption>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                        <img src={gif2} width="100%" height={500}/>
-                        <Carousel.Caption style={{ color: "black" }}>
-                            <h3>Workspace</h3>
-                            <p>Choose one of your files and begin the analysis</p>
-                        </Carousel.Caption>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                        <img src={gif3} width="100%" height={500}/>
-                        <Carousel.Caption style={{ color: "black" }}>
-                            <h3>Customize Analysis</h3>
-                            <p>Analyse, modify, save and download our analysis</p>
-                        </Carousel.Caption>
-                    </Carousel.Item>
-                </Carousel>
+                <div style={{ borderBottom: 2, borderTop: 2, borderLeft: 0, borderRight:0, borderStyle: 'solid' }}>
+                    <Carousel interval="11000">
+                        <Carousel.Item>
+                            <img src={gif1} width="100%" height={500}/>
+                            <Carousel.Caption style={{color:"black"}}>
+                                <h3>Upload files</h3>
+                                <p>Upload CSV files in order to analyse them</p>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img src={gif2} width="100%" height={500}/>
+                            <Carousel.Caption style={{ color: "black" }}>
+                                <h3>Workspace</h3>
+                                <p>Choose one of your files and begin the analysis</p>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img src={gif3} width="100%" height={500}/>
+                            <Carousel.Caption style={{ color: "black" }}>
+                                <h3>Customize Analysis</h3>
+                                <p>Analyse, modify, save and download our analysis</p>
+                            </Carousel.Caption>
+                        </Carousel.Item>
+                    </Carousel>
+                </div>
                 <div class="row" style={{ backgroundColor: "#F5F5F5", maxWidth:"1919px"}}>
                     <div class="col-8" style={{ padding: "100px 100px 100px 100px" }}>                                     
                         <img src={uploadFileImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />                       

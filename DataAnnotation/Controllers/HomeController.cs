@@ -12,11 +12,11 @@ using Newtonsoft.Json.Linq;
 
 namespace DataAnnotation.Controllers
 {
-    [Authorize]
-    [ApiController]
-    [Route("[controller]/[action]")]
-    public class HomeController : Controller
-    {
+	[Authorize]
+	[ApiController]
+	[Route("[controller]/[action]")]
+	public class HomeController : Controller
+	{
 		private readonly DataAnnotationDBContext _context;
 		private readonly ILogger<HomeController> _logger;
 
