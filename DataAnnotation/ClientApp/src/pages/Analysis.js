@@ -100,7 +100,8 @@ export class Analysis extends Component {
             panelColumn: "",
             dragResult: "",
             alertMessage: null,
-            firstRows: undefined
+            firstRows: undefined,
+            currentVersion: ""
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleOnToggleVersion = this.handleOnToggleVersion.bind(this)
@@ -121,18 +122,30 @@ export class Analysis extends Component {
     async componentDidMount() {
         const token = await authService.getAccessToken();
         let id = this.props.match.params.id
-        //let version = this.props
-
-        fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
-            method: 'GET',
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        }).then(res => res.json())
-            .then(metadata => {                
-                this.newMetainformation(metadata)
-            })
+        let paramsString = this.props.location.search
+        const params = new URLSearchParams(paramsString);
+        const version = params.get('Version');
+        if (version === null) {
+            fetch(`Workspace/ReturnAnalysis?fileId=${id}`, {
+                method: 'GET',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json())
+                .then(metadata => {
+                    this.newMetainformation(metadata, "most recent")
+                })
+        }
+        else {
+            fetch(`Workspace/ReturnAnalysisVersion?fileId=${id}&fileName=${version}`, {
+                method: 'GET',
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json())
+                .then(metadata => {
+                    this.newMetainformation(metadata, version)
+                })
+        }
     }
 
-    newMetainformation(metadata) {
+    newMetainformation(metadata, version) {
         this.setState({
             Nome: metadata.Nome.split('.')[0],
             NumLinhas: metadata.NumLinhas,
@@ -141,9 +154,9 @@ export class Analysis extends Component {
             GeoDivisoes: metadata.GeoDivisoes,
             Dimensoes: metadata.Dimensoes,
             Metricas_Categorias: metadata.Metricas.Categorias,
-            Metricas_Colunas: metadata.Metricas.Colunas
+            Metricas_Colunas: metadata.Metricas.Colunas,
+            currentVersion: version
         }, this.generateDetailLevels)
-        console.log(this.state)
     }
 
     enableSidePanel(elem) {
@@ -569,7 +582,7 @@ export class Analysis extends Component {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => res.json())
                 .then(metadata => {
-                    this.newMetainformation(metadata)
+                    this.newMetainformation(metadata,selected)
                     this.setState({
                         selectedVersion: "",
                         onShowLoadModal: false
@@ -616,7 +629,8 @@ export class Analysis extends Component {
                 })
             } else {
                 this.setState({
-                    alertMessage: successMessage("New version successfully saved!", this.closeAlert)
+                    alertMessage: successMessage("New version successfully saved!", this.closeAlert),
+                    currentVersion: "most recent"
                 })
             }
 
@@ -759,7 +773,7 @@ export class Analysis extends Component {
                             <div class="row">
                                 <div class="col-10">
                                     <AccordionComp
-                                        title={this.state.Nome}
+                                        title={this.state.Nome + ' - Version: ' + this.state.currentVersion}
                                         body={<div><p>Number of lines : {this.state.NumLinhas} </p><p>Number of Columns : {this.state.NumColunas}</p></div>}
                                     />
                                 </div>

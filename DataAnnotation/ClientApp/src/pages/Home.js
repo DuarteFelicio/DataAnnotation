@@ -40,24 +40,28 @@ export class Home extends Component {
             fetch(`Home/GetUserDetails`, {
                 method: 'GET',
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-            }).then(res => res.json())
-                .then(details => {
-                    let lastLoginString = details.lastLogin.split('T')
-                    let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
-                    this.setState({
-                        Auth: true,
-                        userName: details.userName,
-                        currentUploadedFiles: details.currentUploadedFiles,
-                        lastActions: details.lastActions,
-                        currentAnalysedFiles: details.currentAnalysedFiles,
-                        localUploaded: details.localUploaded,
-                        urlUploaded: details.urlUploaded,
-                        lastLogin: finalString,
-                        activeIndexAnalysed: 0,
-                        activeIndexUploaded: 0
+            }).then(res => {
+                if (res.status !== 404) {
+                    res.json().then(details => {
+                        let lastLoginString = details.lastLogin.split('T')
+                        let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
+                        this.setState({
+                            Auth: true,
+                            userName: details.userName,
+                            currentUploadedFiles: details.currentUploadedFiles,
+                            lastActions: details.lastActions,
+                            currentAnalysedFiles: details.currentAnalysedFiles,
+                            localUploaded: details.localUploaded,
+                            urlUploaded: details.urlUploaded,
+                            lastLogin: finalString,
+                            activeIndexAnalysed: 0,
+                            activeIndexUploaded: 0
+                        })
+
                     })
-                    
-                })
+                }
+            })
+                
         }
     }
 
@@ -78,7 +82,7 @@ export class Home extends Component {
             if (action.Action === 'Analyze') {
                 return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/' + action.CsvFileId}>The analysis for the file {action.FileName} is finished!</a></div>
             }
-            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/'+action.CsvFileId}>You were working on {action.FileName}</a></div>
+            return <div class="row" style={{ paddingLeft: 10 }}><a href={'/workspace/analysis/' + action.CsvFileId + '?Version=' + action.Version}>You were working on {action.FileName} (version {action.Version})</a></div>
         })
     }
 
