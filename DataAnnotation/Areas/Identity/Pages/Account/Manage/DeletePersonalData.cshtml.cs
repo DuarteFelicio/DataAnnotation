@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Threading.Tasks;
 using DataAnnotation.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace DataAnnotation.Areas.Identity.Pages.Account.Manage
@@ -14,15 +16,18 @@ namespace DataAnnotation.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly string _targetFilePath;
 
         public DeletePersonalDataModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            IConfiguration config,
             ILogger<DeletePersonalDataModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _targetFilePath = config.GetValue<string>("TargetFilePath");
         }
 
         [BindProperty]
@@ -75,6 +80,9 @@ namespace DataAnnotation.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.SignOutAsync();
+
+            string UserFolderPath = Path.Combine(_targetFilePath, userId);
+            System.IO.Directory.Delete(UserFolderPath, true);	//deletes sub folders and files within
 
             _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
 
