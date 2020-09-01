@@ -92,7 +92,6 @@ export class UploadFile extends Component {
             onUploadProgress: (progressEvent) => {
                 const { loaded, total } = progressEvent;
                 let percent = Math.floor((loaded * 100) / total)
-                console.log(`${loaded}kb of ${total}kb | ${percent}%`);
                 var array = this.state.uploading
                 var names = array.map(o => o.name)
                 var index = names.indexOf(file.name)
