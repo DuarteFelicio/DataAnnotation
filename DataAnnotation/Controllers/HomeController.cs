@@ -32,7 +32,7 @@ namespace DataAnnotation.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // will give the user's userId
 			JObject ret = new JObject();
 			AspNetUsers currentUser = _context.AspNetUsers.Find(userId);
-			if(currentUser == null) return NotFound();
+			if(currentUser == null) return NoContent();
 
 			ret.Add("userName", currentUser.UserName);
 			List<CsvFile> userFiles = _context.CsvFile.Where(f => f.UserId == userId).ToList();

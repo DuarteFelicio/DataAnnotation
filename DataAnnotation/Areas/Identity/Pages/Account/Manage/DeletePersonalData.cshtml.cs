@@ -82,7 +82,9 @@ namespace DataAnnotation.Areas.Identity.Pages.Account.Manage
             await _signInManager.SignOutAsync();
 
             string UserFolderPath = Path.Combine(_targetFilePath, userId);
-            System.IO.Directory.Delete(UserFolderPath, true);	//deletes sub folders and files within
+            try{ System.IO.Directory.Delete(UserFolderPath, true); } //deletes sub folders and files within
+            catch (DirectoryNotFoundException){}
+            
 
             _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
 

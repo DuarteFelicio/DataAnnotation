@@ -41,7 +41,7 @@ export class Home extends Component {
                 method: 'GET',
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }).then(res => {
-                if (res.status !== 404) {
+                if (res.status !== 204) {
                     res.json().then(details => {
                         let lastLoginString = details.lastLogin.split('T')
                         let finalString = lastLoginString[0] + ' ' + lastLoginString[1].split('.')[0]
