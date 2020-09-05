@@ -760,7 +760,7 @@ export class Analysis extends Component {
     
     render() {
         return (
-            <div style={{marginTop:"15px"}}>
+            <div style={{marginTop:"130px"}}>
                 <div class="row justify-content-md-center">{this.state.alertMessage !== null && this.state.alertMessage}</div>
                 <div class="row" style={{ maxHeight: '100%', maxWidth: '100%', paddingLeft: "25px" }}>
                     <DragDropContext onDragEnd={this.onDragEnd}>
@@ -773,8 +773,8 @@ export class Analysis extends Component {
                             <div class="row">
                                 <div class="col-10">
                                     <AccordionComp
-                                        title={this.state.Nome + ' - Version: ' + this.state.currentVersion}
-                                        body={<div><p>Number of lines : {this.state.NumLinhas} </p><p>Number of Columns : {this.state.NumColunas}</p></div>}
+                                        title={this.state.Nome}
+                                        body={<div><p>Number of Lines : {this.state.NumLinhas} | Number of Columns : {this.state.NumColunas}</p><p>Current Version: {this.state.currentVersion}</p></div>}
                                     />
                                 </div>
                                 <div class="col-2">
@@ -791,7 +791,7 @@ export class Analysis extends Component {
                                 </div>
                             </div>
                             <p></p>
-                            <div class="row">
+                            <div class="row" style={{ marginLeft: "1px" }}>
                                 {this.renderDetailLevels()}
                             </div>
                         </div>

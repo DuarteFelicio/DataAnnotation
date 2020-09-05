@@ -12,7 +12,7 @@ export class Layout extends Component {
             <NavMenu />
             <div className="childrenDiv" style={{ marginTop: 100 }}> {this.props.children} </div>
             <footer class="footer border-top text-muted" style={{ overflow: "hidden" }}>
-                <div class="container">
+                <div class="container" style={{ marginTop: "18px", marginBottom:"18px" }}>
                     &copy; 2020 - DataAnnotation - Developed by: Duarte Felicio, Ruben Cafe and Ivo Pereira 
                 </div>
             </footer>

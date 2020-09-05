@@ -210,7 +210,7 @@ export class UploadFile extends Component {
 
     render() {        
         return (
-            <div style={{ minHeight: "1080px", backgroundColor:"#F0F0F0" }}>
+            <div style={{ minHeight: "808px", backgroundColor:"#F0F0F0" }}>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>Upload File</h1>
                     <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Upload your files here</h4>

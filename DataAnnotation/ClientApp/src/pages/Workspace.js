@@ -197,7 +197,7 @@ export class Workspace extends Component {
 
 
         return (
-            <div style={{ backgroundColor: "#F0F0F0", minHeight:"1080px" }}>
+            <div style={{ backgroundColor: "#F0F0F0", minHeight:"808px" }}>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>My Workspace</h1>
                     <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Search, Analyse and Visualize.</h4>
@@ -229,7 +229,7 @@ export class Workspace extends Component {
                                                 <svg class="bi bi-file-text" width="100" height="35" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" ><path fill-rule="evenodd" d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1H4z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.5 10.5A.5.5 0 015 10h3a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 8h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0-2A.5.5 0 015 4h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></svg>
                                             </div>
                                             <div class="column">
-                                                {item.fileNameDisplay.split('.')[0]}
+                                                    {item.fileNameDisplay.split('.')[0].length > 55 ? item.fileNameDisplay.split('.')[0].substring(0, 52)+'...' : item.fileNameDisplay.split('.')[0]}
                                             </div>
                                         </div>
                                     </a>
@@ -244,14 +244,16 @@ export class Workspace extends Component {
                                         <table class="table table-striped">
                                             <tbody>
                                                 <tr><th>Uploaded on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
-                                                <tr><th>Uploaded from</th><td>{item.origin}</td></tr>
+                                                <tr><th>Uploaded from</th><td>{item.origin === 'local' ? 'local' : 'URL'}</td></tr>
                                                 <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
                                                 {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
                                             </tbody>
-                                        </table>    
-                                        {item.analysisDuration !== null && this.renderAnalysisButton(item)}
-                                        {item.analysisDuration === null && this.renderAnalysis(item)}
-                                        <button type="button" class="btn btn-outline-danger" style={{ marginTop: "8px" }} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
+                                        </table>
+                                        <div class="row" style={{ paddingLeft:"24px" }}>
+                                            {item.analysisDuration !== null && this.renderAnalysisButton(item)}
+                                            {item.analysisDuration === null && this.renderAnalysis(item)}
+                                            <button type="button" class="btn btn-outline-danger" style={{marginLeft:"8px"}} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
+                                        </div>
                                     </div>
                                 })}
                             </div>

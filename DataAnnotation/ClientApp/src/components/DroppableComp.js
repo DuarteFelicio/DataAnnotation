@@ -18,6 +18,15 @@ export default class DroppableComp extends React.Component {
         let id = this.props.id
         let draggables = this.props.draggables
         let moreInfo = this.props.moreInfo
+        if (draggables !== undefined && draggables.length > 0 && draggables[0].CategoriaId !== undefined) {
+            //reordenar
+            draggables.forEach((item, i) => {
+            if (item.CategoriaId === null) {
+                    draggables.splice(i, 1)
+                    draggables.unshift(item)
+                }
+            })
+        }
 
         return (
             <div>

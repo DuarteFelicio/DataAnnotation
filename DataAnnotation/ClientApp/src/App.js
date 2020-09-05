@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { UploadFile } from './pages/UploadFile';
 import { Workspace } from './pages/Workspace';
 import { Analysis } from './pages/Analysis';
+import About from './pages/About';
 import AuthorizeRoute from './pages/api-authorization/AuthorizeRoute';
 import ApiAuthorizationRoutes from './pages/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './pages/api-authorization/ApiAuthorizationConstants';
@@ -22,6 +23,7 @@ export default class App extends Component {
         <AuthorizeRoute exact path='/workspace' component={Workspace} />
         <AuthorizeRoute exact path='/workspace/analysis/:id' component={Analysis}/>
         <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
+        <Route exact path='/about' component={About} />
       </Layout>
     );
   }

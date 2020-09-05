@@ -6,8 +6,9 @@ export default class AccordionComp extends Component {
         let title = this.props.title
         let body = this.props.body
 
-        return (
-                <Card border="info">
+        if (title === 'Previous Actions') {
+            return (
+                <Card border="info" style={{minHeight:"280px"}}>
                     <Card.Header>
                         <h3>{title}</h3>
                     </Card.Header>
@@ -15,6 +16,17 @@ export default class AccordionComp extends Component {
                         <Card.Text>{body}</Card.Text>
                     </Card.Body>
                 </Card>
+            )
+        }
+        return (
+            <Card border="info">
+                <Card.Header>
+                    <h3>{title}</h3>
+                </Card.Header>
+                <Card.Body>
+                    <Card.Text>{body}</Card.Text>
+                </Card.Body>
+            </Card>
         )
     }
 }
