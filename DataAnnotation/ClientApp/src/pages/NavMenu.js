@@ -27,7 +27,7 @@ export class NavMenu extends Component {
     render() {
         return (
             <header>
-                <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white" light style={{ backgroundColor: "#F0F0F0" }}>
+                <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white" light style={{ backgroundColor: "#F0F0F0"}} fixed="top">
                     <Container style={{fontFamily:'Open Sans'}}>
                         <NavbarBrand tag={Link} to="/"><img src={dataAnnotationLogo} width="80px" height="80px" style={{ marginRight:"30px" }} />DataAnnotation</NavbarBrand>
                         <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
@@ -56,7 +56,7 @@ export class NavMenu extends Component {
                             </ul>
                         </Collapse>
                     </Container>
-                </Navbar>
+                    </Navbar>
             </header>
         );
     }

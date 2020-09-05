@@ -169,22 +169,19 @@ export class Home extends Component {
                         <Carousel.Item>
                             <img src={gif1} width="100%" height={500}/>
                             <Carousel.Caption style={{color:"black"}}>
-                                <h3>Upload files</h3>
-                                <p>Upload CSV files in order to analyse them</p>
+
                             </Carousel.Caption>
                         </Carousel.Item>
                         <Carousel.Item>
                             <img src={gif2} width="100%" height={500}/>
                             <Carousel.Caption style={{ color: "black" }}>
-                                <h3>Workspace</h3>
-                                <p>Choose one of your files and begin the analysis</p>
+
                             </Carousel.Caption>
                         </Carousel.Item>
                         <Carousel.Item>
                             <img src={gif3} width="100%" height={500}/>
                             <Carousel.Caption style={{ color: "black" }}>
-                                <h3>Customize Analysis</h3>
-                                <p>Analyse, modify, save and download our analysis</p>
+
                             </Carousel.Caption>
                         </Carousel.Item>
                     </Carousel>
