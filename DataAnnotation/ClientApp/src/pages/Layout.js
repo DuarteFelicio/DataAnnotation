@@ -13,7 +13,7 @@ export class Layout extends Component {
             <div className="childrenDiv" style={{ marginTop: 100 }}> {this.props.children} </div>
             <footer class="footer border-top text-muted" style={{ overflow: "hidden" }}>
                 <div class="container">
-                    &copy; 2020 - DataAnnotation - Developed by: Duarte Felício, Ruben Café and Ivo Pereira - <a asp-area="" asp-page="Privacy"> Privacy</a>
+                    &copy; 2020 - DataAnnotation - Developed by: Duarte Felicio, Ruben Cafe and Ivo Pereira 
                 </div>
             </footer>
       </div>
@@ -21,8 +21,3 @@ export class Layout extends Component {
   }
 }
 
-
-/*
-<Container className="childrenContainer">
-    {this.props.children}
-</Container>*/

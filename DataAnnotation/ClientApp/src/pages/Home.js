@@ -29,7 +29,8 @@ export class Home extends Component {
             localUploaded: 0,
             urlUploaded: 0,
             lastLogin: "",
-            activeIndex: 0
+            activeIndex: 0,
+            render: false
         }
     }
 
@@ -55,14 +56,19 @@ export class Home extends Component {
                             urlUploaded: details.urlUploaded,
                             lastLogin: finalString,
                             activeIndexAnalysed: 0,
-                            activeIndexUploaded: 0
+                            activeIndexUploaded: 0,
+                            render : true
                         })
-
                     })
                 }
-            })
-                
+            })            
         }
+        else {
+             this.setState({
+                render : true
+             })
+        }
+       
     }
 
     onPieEnterUploaded = (data, index) => {
@@ -235,12 +241,16 @@ export class Home extends Component {
     }
 
     render() {
-        return (
-            <div style={{ width: "100%", backgroundColor: "#F0F0F0", minHeight: "1080px" }}>
-                {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
-            </div>
-    );
-  }
-}
+        if (this.state.render) {
+            return (
+                <div style={{ width: "100%", backgroundColor: "#F0F0F0", minHeight: "1080px" }}>
+                    {this.state.Auth ? this.renderAuth() : this.renderNotAuth()}
+                </div>
+            )
+        }
+        return <div></div>
+    }
+ }
+
 
 //<div style={{ backgroundImage: `url(${background})`, width: "100%", height:"100%" }}>
