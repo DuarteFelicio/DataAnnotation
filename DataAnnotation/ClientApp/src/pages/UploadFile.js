@@ -213,7 +213,7 @@ export class UploadFile extends Component {
             <div style={{ minHeight: "808px", backgroundColor:"#F0F0F0" }}>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>Upload File</h1>
-                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Upload your files here</h4>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Upload your files here</h4>
                 </div>
                 <section className="container" style={{ marginTop: "20px", fontFamily:'Open Sans'}}>
                     <div className="root-dropzone">
@@ -233,7 +233,7 @@ export class UploadFile extends Component {
                             <input type="text" name="url" size="75" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
                             <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
                         </div>
-                        {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "", "#60AAEB")}
+                        {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "col-12", "#60AAEB")}
                         <div class="row" style={{ marginTop: "15px" }}>
                             {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6", "#B6EF8E")}
                             {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6", "#EB5C5C")}

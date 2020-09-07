@@ -200,7 +200,7 @@ export class Workspace extends Component {
             <div style={{ backgroundColor: "#F0F0F0", minHeight:"808px" }}>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{ width: "100%" }}>My Workspace</h1>
-                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Search, Analyse and Visualize.</h4>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Search, Analyse and Visualize.</h4>
                 </div>
                 <Container style={{ marginTop: "20px", fontFamily:'Open Sans'}}>      
                     <div class="row">

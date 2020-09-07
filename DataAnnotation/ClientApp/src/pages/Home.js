@@ -107,11 +107,11 @@ export class Home extends Component {
             <div>
                 <div style={{ backgroundImage: "url(" + titleBackground + ")", padding: "10px 0px 10px 0px" }}>
                     <h1 class="row justify-content-md-center" style={{width:"100%"}}>Welcome back {this.state.userName}!</h1>
-                    <h4 class="row justify-content-md-center" style={{ marginTop: 50, width: "100%" }}>Here is some general data about you:</h4>
+                    <h4 class="row justify-content-md-center" style={{ marginTop: 25, width: "100%" }}>Here is some general data about you:</h4>
                 </div>
                 <Container style={{ fontFamily: 'Open Sans' }}>
-                    <div class="row" style={{ marginTop: 30}}>
-                        <div class="col-6"> 
+                    <div class="row" style={{ marginTop: 30 }}>
+                        <div class="col-6" style={{ marginLeft: 161 }}> 
                             <CardComp
                                 title='Previous Actions'
                                 body={this.renderLastActions(this.state.lastActions)}
@@ -135,29 +135,29 @@ export class Home extends Component {
                     <div class="row" >
                         <div class="col-6">
                             <PieChartComp
-                                width={600}
-                                height={400}
+                                width={700}
+                                height={369}
                                 activeIndex={this.state.activeIndexAnalysed}
                                 data={analysedFilesData}
                                 cx={300}
                                 cy={200}
                                 innerRadius={90}
-                                outerRadius={130}
+                                outerRadius={120}
                                 fill='Tomato'
                                 dataKey="value"
                                 onMouseEnter={this.onPieEnterAnalysed}
-                                />
+                            />
                         </div>
                         <div class="col-6">
                             <PieChartComp
-                                width={600}
-                                height={400}
+                                width={700}
+                                height={369}
                                 activeIndex={this.state.activeIndexUploaded}
                                 data={uploadedURL}
                                 cx={300}
                                 cy={200}
                                 innerRadius={90}
-                                outerRadius={130}
+                                outerRadius={120}
                                 fill='Tomato'
                                 dataKey="value"
                                 onMouseEnter={this.onPieEnterUploaded}

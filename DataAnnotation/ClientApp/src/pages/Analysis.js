@@ -15,6 +15,7 @@ import Collapse from '@material-ui/core/Collapse';
 import { successMessage, dangerMessage } from '../components/AlertComp'
 import TableComp from '../components/TableComp.js'
 import AccordionComp from '../components/AccordionComp'
+import zIndex from '@material-ui/core/styles/zIndex';
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -829,8 +830,6 @@ export class Analysis extends Component {
                         visible={this.state.onShowWarningModal}
                     />   
                     <SlidingPane
-                        className="some-custom-class"
-                        overlayClassName="some-custom-overlay-class"
                         isOpen={this.state.openSidePanel}
                         title={this.state.panelColumn.NomeColuna}
                         subtitle="Column details"
@@ -844,7 +843,7 @@ export class Analysis extends Component {
                             });
                         }}
                     >
-                        <div style={{ fontFamily: 'Open Sans' }}>{this.showColumnDetails()}</div>
+                        <div style={{ fontFamily: 'Open Sans'}}>{this.showColumnDetails()}</div>
                     </SlidingPane>
                     </div>
                 </div>
