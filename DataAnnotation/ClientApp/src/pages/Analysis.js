@@ -120,6 +120,7 @@ export class Analysis extends Component {
         this.closeAlert = this.closeAlert.bind(this)
     }
 
+    //get latest version or a specific one if query is supplied
     async componentDidMount() {
         const token = await authService.getAccessToken();
         let id = this.props.match.params.id

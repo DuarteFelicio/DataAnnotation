@@ -34,6 +34,7 @@ export class Workspace extends Component {
         })
     }
 
+    //get user files
     async componentDidMount() {
         const token = await authService.getAccessToken();
         const response = await fetch('Workspace/GetUserFiles', {
@@ -66,6 +67,7 @@ export class Workspace extends Component {
         })
     }
 
+    //callback for Analyse button
     async Analyze(id) {
         const token = await authService.getAccessToken();
         var map = this.state.files
@@ -80,6 +82,7 @@ export class Workspace extends Component {
         this.checkAnalysisStatus(id,token) 
     }
 
+    //Interval to check with backend if the analysis is completed
     async checkAnalysisStatus(id, token) {
         var map = this.state.files
         var requestLoop = setInterval(function () {
@@ -109,6 +112,7 @@ export class Workspace extends Component {
         this.props.history.push(`/workspace/analysis/${id}`)        
     }
 
+    //callback for download analysis button
     async DownloadAnalyzis(id,fileName) {
         const token = await authService.getAccessToken();
 

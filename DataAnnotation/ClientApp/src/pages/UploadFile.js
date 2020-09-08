@@ -49,7 +49,7 @@ export class UploadFile extends Component {
         this.remoteOrLocal = this.remoteOrLocal.bind(this)
     }
 
-    
+    //remove file from uploading area when the upload completes
     removeFileUploading(name) {
         var array = this.state.uploading
         var names = array.map(o => o.name)
@@ -62,6 +62,7 @@ export class UploadFile extends Component {
         }
     }
 
+    //callback for dropzone
     onDrop(accept, reject) {
         this.setState({ rejected: this.state.rejected.concat(reject) })
         accept.forEach(file => this.upload(file))
@@ -73,6 +74,7 @@ export class UploadFile extends Component {
         })
     }
 
+    //callback for upload URL button
     handleUploadFromUrlClick(e) {
         e.preventDefault()
         this.uploadFromUrl(this.state.url)
@@ -84,6 +86,7 @@ export class UploadFile extends Component {
         return parseFloat((size / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
     }
 
+    //upload local file
     async upload(file) {
         let data = new FormData();
         const token = await authService.getAccessToken()
@@ -123,6 +126,7 @@ export class UploadFile extends Component {
             })
     }
 
+    //upload file from URL
     async uploadFromUrl(url) {
         const token = await authService.getAccessToken()
         var urlArray = url.split('/')
