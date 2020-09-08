@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DataAnnotation.Controllers
 {
@@ -43,16 +44,26 @@ namespace DataAnnotation.Controllers
 			List<LoginRecord> loginRecords = _context.LoginRecord.Where(l => l.UserId == userId).ToList();
 			ret.Add("lastLogin", loginRecords.Count == 1 ? loginRecords.First().LoginTime : loginRecords[loginRecords.Count - 2].LoginTime);
 
-			UserActionRecord[] actionsArray = _context.ActionRecord.Join(_context.CsvFile,
+			IEnumerator<UserActionRecord> list = _context.ActionRecord.Join(_context.CsvFile,
 				a => a.CsvFileId,
 				c => c.CsvFileId,
 				(a, c) => new UserActionRecord(a.Action, a.CsvFileId, a.Version, a.ActionTime, c.UserId, c.FileNameDisplay))
 				.AsEnumerable()
-				.Where(u => u.UserId == userId).Reverse().Take(5)
-				.ToArray();
+				.Where(u => u.UserId == userId).Reverse().Distinct(new FileVersionComparer())
+				.Take(7).GetEnumerator();       //needed
+			list.MoveNext();
+			UserActionRecord[] actionsArray = new UserActionRecord[7];
+			for(int i = 0; i<actionsArray.Length; ++i, list.MoveNext())
+			{
+				actionsArray[i] = list.Current;
+			}
 			JArray jArray = new JArray();
 			for (int i = 0; i < actionsArray.Length; ++i)
 			{
+				if(actionsArray[i] == null)
+				{
+					break;
+				}
 				jArray.Add(JToken.FromObject(actionsArray[i]));
 			}
 			ret.Add("lastActions", jArray);
@@ -77,6 +88,19 @@ namespace DataAnnotation.Controllers
 			public DateTime ActionTime { get; set; }
 			public string UserId { get; set; }
 			public string FileName { get; set; }
+		}
+
+		public class FileVersionComparer : IEqualityComparer<UserActionRecord>
+		{
+			public bool Equals([AllowNull] UserActionRecord x, [AllowNull] UserActionRecord y)
+			{
+				return (x.CsvFileId == y.CsvFileId && x.Version == y.Version);
+			}
+
+			public int GetHashCode([DisallowNull] UserActionRecord obj)
+			{
+				return (obj.CsvFileId + Int32.Parse(obj.Version.Split("_v")[1])).GetHashCode();
+			}
 		}
 	}
 }
