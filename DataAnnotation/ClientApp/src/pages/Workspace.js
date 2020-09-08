@@ -180,7 +180,7 @@ export class Workspace extends Component {
     renderAnalysisInfo(item) {
         let array = []
         array.push(<tr><th>Analysis Duration</th><td>{this.showTime(item.analysisDuration)}</td></tr>)    
-        array.push(<tr><th>Analysis Completed on</th><td>{item.analysisCompletionTime.split("T")[0]}</td></tr> )
+        array.push(<tr><th>Analysis Completed On</th><td>{item.analysisCompletionTime.split("T")[0]}</td></tr> )
         return array                                    
     }
 
@@ -248,8 +248,8 @@ export class Workspace extends Component {
     
                                         <table class="table table-striped">
                                             <tbody>
-                                                <tr><th>Uploaded on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
-                                                <tr><th>Uploaded from</th><td>{item.origin === 'local' ? 'local' : 'URL'}</td></tr>
+                                                <tr><th>Uploaded On</th><td>{item.uploadTime.split("T")[0]}</td></tr>
+                                                <tr><th>Uploaded From</th><td>{item.origin === 'local' ? 'local' : 'URL'}</td></tr>
                                                 <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
                                                 {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
                                             </tbody>

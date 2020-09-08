@@ -694,9 +694,9 @@ export class Analysis extends Component {
             </div>
         }
         map.set('Column Index', elem.IndiceColuna)
-        map.set('Number of unique values' ,  elem.NumValoresUnicos )
-        map.set('Number of null values' ,  elem.NumValoresNulos )
-        map.set('All different' , elem.TodosDiferentes ? "true" : "false" )
+        map.set('Number of Unique Values' ,  elem.NumValoresUnicos )
+        map.set('Number of Null Values' ,  elem.NumValoresNulos )
+        map.set('All Different' , elem.TodosDiferentes ? "true" : "false" )
         map.set('Geo Type' , elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo )
         return <div style={{ marginTop: 40 }}> 
             <p><h2>{columnName}</h2></p>
@@ -707,7 +707,7 @@ export class Analysis extends Component {
                 return <li>{e.Count} of type {e.Tipo}</li>
             })}
             </ul>
-            <p style={{ fontWeight: "bold" }}>Unique values</p>
+            <p style={{ fontWeight: "bold" }}>Unique Values</p>
             <ul>
             {elem.ValoresUnicos.map(e => {
                 return <li>{e}</li>
@@ -801,7 +801,7 @@ export class Analysis extends Component {
                         </div>
                     </DragDropContext>
                     <ModalComp
-                        title="Manage versions"
+                        title="Manage Versions"
                         body={
                             this.state.loadVersion.map(v => {
                                 return (
