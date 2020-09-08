@@ -120,6 +120,7 @@ export class Analysis extends Component {
         this.closeAlert = this.closeAlert.bind(this)
     }
 
+    //get latest version or a specific one if query is supplied
     async componentDidMount() {
         const token = await authService.getAccessToken();
         let id = this.props.match.params.id
@@ -265,7 +266,7 @@ export class Analysis extends Component {
         })
         return children
     }
-    /**/
+    
 
     /* Métodos auxiliares para onDragEnd*/
     id2List = {
@@ -539,7 +540,7 @@ export class Analysis extends Component {
             else {
                 let fileId = this.props.match.params.id
                 const token = await authService.getAccessToken();
-                //fazer pedido
+                
 
                 fetch(`Workspace/DeleteAnalysisVersion?fileId=${fileId}&analysisFile=${selected}`, {
                     method: 'DELETE',
@@ -678,7 +679,7 @@ export class Analysis extends Component {
 
 /*Métodos de render*/
 
-    showColumnDetails() {
+    showColumnDetails(columnName) {
         if (this.state.panelColumn === "") return
         let elem = this.state.panelColumn
         let map = new Map()
@@ -686,25 +687,27 @@ export class Analysis extends Component {
             map.set('Column Index', elem.IndiceColuna)
             map.set('Category', elem.CategoriaId === null ? "none" : this.state.Metricas_Categorias[elem.CategoriaId - 1].Nome)
             map.set('Is Total', elem.E_Total ? "true" : "false")
-            return <div>
-                <TableComp keyValues={map} title='Data' />
+            return <div style={{ marginTop: 40 }}>
+                <p><h2>{columnName}</h2></p>
+                <TableComp keyValues={map} title='' />
                 <p>{this.state.firstRows === undefined ? <button type="button" class="btn btn-outline-primary" onClick={() => this.getFirstRows(elem.IndiceColuna)}>Get First Rows</button> : <TableComp keyValues={this.state.firstRows} title='First Rows'/>}</p>
             </div>
         }
         map.set('Column Index', elem.IndiceColuna)
-        map.set('Number of unique values' ,  elem.NumValoresUnicos )
-        map.set('Number of null values' ,  elem.NumValoresNulos )
-        map.set('All different' , elem.TodosDiferentes ? "true" : "false" )
+        map.set('Number of Unique Values' ,  elem.NumValoresUnicos )
+        map.set('Number of Null Values' ,  elem.NumValoresNulos )
+        map.set('All Different' , elem.TodosDiferentes ? "true" : "false" )
         map.set('Geo Type' , elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo )
-        return <div>
-            <TableComp keyValues={map} title='Data'/>
+        return <div style={{ marginTop: 40 }}> 
+            <p><h2>{columnName}</h2></p>
+            <TableComp keyValues={map} title=''/>
             <p style={{ fontWeight: "bold" }}>Type of Values</p>  
             <ul>
             {elem.TipoValores.map(e => {                
                 return <li>{e.Count} of type {e.Tipo}</li>
             })}
             </ul>
-            <p style={{ fontWeight: "bold" }}>Unique values</p>
+            <p style={{ fontWeight: "bold" }}>Unique Values</p>
             <ul>
             {elem.ValoresUnicos.map(e => {
                 return <li>{e}</li>
@@ -757,7 +760,7 @@ export class Analysis extends Component {
             </TreeView>
         )
     }
-    /**/
+ 
     
     render() {
         return (
@@ -798,7 +801,7 @@ export class Analysis extends Component {
                         </div>
                     </DragDropContext>
                     <ModalComp
-                        title="Manage versions"
+                        title="Manage Versions"
                         body={
                             this.state.loadVersion.map(v => {
                                 return (
@@ -843,7 +846,7 @@ export class Analysis extends Component {
                             });
                         }}
                     >
-                        <div style={{ fontFamily: 'Open Sans'}}>{this.showColumnDetails()}</div>
+                        <div style={{ fontFamily: 'Open Sans' }}>{this.showColumnDetails(this.state.panelColumn.NomeColuna)}</div>
                     </SlidingPane>
                     </div>
                 </div>

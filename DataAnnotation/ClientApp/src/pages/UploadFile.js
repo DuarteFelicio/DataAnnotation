@@ -48,7 +48,8 @@ export class UploadFile extends Component {
         this.toShow = this.toShow.bind(this)
         this.remoteOrLocal = this.remoteOrLocal.bind(this)
     }
- 
+
+    //remove file from uploading area when the upload completes
     removeFileUploading(name) {
         var array = this.state.uploading
         var names = array.map(o => o.name)
@@ -61,6 +62,7 @@ export class UploadFile extends Component {
         }
     }
 
+    //callback for dropzone
     onDrop(accept, reject) {
         this.setState({ rejected: this.state.rejected.concat(reject) })
         accept.forEach(file => this.upload(file))
@@ -72,6 +74,7 @@ export class UploadFile extends Component {
         })
     }
 
+    //callback for upload URL button
     handleUploadFromUrlClick(e) {
         e.preventDefault()
         this.uploadFromUrl(this.state.url)
@@ -83,6 +86,7 @@ export class UploadFile extends Component {
         return parseFloat((size / Math.pow(1024, d)).toFixed(c)) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
     }
 
+    //upload local file
     async upload(file) {
         let data = new FormData();
         const token = await authService.getAccessToken()
@@ -122,6 +126,7 @@ export class UploadFile extends Component {
             })
     }
 
+    //upload file from URL
     async uploadFromUrl(url) {
         const token = await authService.getAccessToken()
         var urlArray = url.split('/')
@@ -237,8 +242,7 @@ export class UploadFile extends Component {
                         <div class="row" style={{ marginTop: "15px" }}>
                             {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6", "#B6EF8E")}
                             {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6", "#EB5C5C")}
-                        </div>
-                    
+                        </div>                    
                     </aside>
                 </section>
             </div>

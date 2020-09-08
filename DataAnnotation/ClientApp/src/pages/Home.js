@@ -31,6 +31,7 @@ export class Home extends Component {
         }
     }
 
+    //check if user is autenticated, if not render notAuth vs render Auth
     async componentDidMount() {
         let token = await authService.getAccessToken()        
         if (token !== null) {
@@ -92,6 +93,7 @@ export class Home extends Component {
         })
     }
 
+    //render page for a logged in user
     renderAuth() {
         const analysedFilesData = [
             { name: 'Not Analysed', value: this.state.currentUploadedFiles - this.state.currentAnalysedFiles },
@@ -169,6 +171,7 @@ export class Home extends Component {
         )
     }
 
+    //render page for a not logged in user
     renderNotAuth() {
         return (
             <div>
@@ -209,7 +212,3 @@ export class Home extends Component {
         return <div></div>
     }
  }
-
-
-/*
-*/

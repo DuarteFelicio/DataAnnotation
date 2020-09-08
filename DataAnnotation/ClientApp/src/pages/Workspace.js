@@ -34,6 +34,7 @@ export class Workspace extends Component {
         })
     }
 
+    //get user files
     async componentDidMount() {
         const token = await authService.getAccessToken();
         const response = await fetch('Workspace/GetUserFiles', {
@@ -66,6 +67,7 @@ export class Workspace extends Component {
         })
     }
 
+    //callback for Analyse button
     async Analyze(id) {
         const token = await authService.getAccessToken();
         var map = this.state.files
@@ -80,6 +82,7 @@ export class Workspace extends Component {
         this.checkAnalysisStatus(id,token) 
     }
 
+    //Interval to check with backend if the analysis is completed
     async checkAnalysisStatus(id, token) {
         var map = this.state.files
         var requestLoop = setInterval(function () {
@@ -104,10 +107,12 @@ export class Workspace extends Component {
         }
     }
 
+    //redirect to Analysis
     async Analyzis(id) {
         this.props.history.push(`/workspace/analysis/${id}`)        
     }
 
+    //callback for download analysis button
     async DownloadAnalyzis(id,fileName) {
         const token = await authService.getAccessToken();
 
@@ -130,6 +135,7 @@ export class Workspace extends Component {
     
     disableDeleteModal() { this.setState({ onShowDeleteModal: false }) }
 
+    //delete a file from workspacce
     async Remove() {
         const token = await authService.getAccessToken();
         let id = this.state.idToRemove
@@ -142,8 +148,7 @@ export class Workspace extends Component {
         })                   
     }
 
-    showTime(value) {
-        
+    showTime(value) {        
         let str = ""
         let time = value.split(':')
         let milliseconds = time[2].split('.')[1]
@@ -175,7 +180,7 @@ export class Workspace extends Component {
     renderAnalysisInfo(item) {
         let array = []
         array.push(<tr><th>Analysis Duration</th><td>{this.showTime(item.analysisDuration)}</td></tr>)    
-        array.push(<tr><th>Analysis Completed on</th><td>{item.analysisCompletionTime.split("T")[0]}</td></tr> )
+        array.push(<tr><th>Analysis Completed On</th><td>{item.analysisCompletionTime.split("T")[0]}</td></tr> )
         return array                                    
     }
 
@@ -243,8 +248,8 @@ export class Workspace extends Component {
     
                                         <table class="table table-striped">
                                             <tbody>
-                                                <tr><th>Uploaded on</th><td>{item.uploadTime.split("T")[0]}</td></tr>
-                                                <tr><th>Uploaded from</th><td>{item.origin === 'local' ? 'local' : 'URL'}</td></tr>
+                                                <tr><th>Uploaded On</th><td>{item.uploadTime.split("T")[0]}</td></tr>
+                                                <tr><th>Uploaded From</th><td>{item.origin === 'local' ? 'local' : 'URL'}</td></tr>
                                                 <tr><th>Size</th><td>{formatSize(item.size)}</td></tr>
                                                 {item.analysisDuration !== null && this.renderAnalysisInfo(item)}
                                             </tbody>
