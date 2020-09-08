@@ -678,7 +678,7 @@ export class Analysis extends Component {
 
 /*Métodos de render*/
 
-    showColumnDetails() {
+    showColumnDetails(columnName) {
         if (this.state.panelColumn === "") return
         let elem = this.state.panelColumn
         let map = new Map()
@@ -686,8 +686,9 @@ export class Analysis extends Component {
             map.set('Column Index', elem.IndiceColuna)
             map.set('Category', elem.CategoriaId === null ? "none" : this.state.Metricas_Categorias[elem.CategoriaId - 1].Nome)
             map.set('Is Total', elem.E_Total ? "true" : "false")
-            return <div>
-                <TableComp keyValues={map} title='Data' />
+            return <div style={{ marginTop: 40 }}>
+                <p><h2>{columnName}</h2></p>
+                <TableComp keyValues={map} title='' />
                 <p>{this.state.firstRows === undefined ? <button type="button" class="btn btn-outline-primary" onClick={() => this.getFirstRows(elem.IndiceColuna)}>Get First Rows</button> : <TableComp keyValues={this.state.firstRows} title='First Rows'/>}</p>
             </div>
         }
@@ -696,8 +697,9 @@ export class Analysis extends Component {
         map.set('Number of null values' ,  elem.NumValoresNulos )
         map.set('All different' , elem.TodosDiferentes ? "true" : "false" )
         map.set('Geo Type' , elem.TipoDominioGeo === null ? "null" : elem.TipoDominioGeo )
-        return <div>
-            <TableComp keyValues={map} title='Data'/>
+        return <div style={{ marginTop: 40 }}> 
+            <p><h2>{columnName}</h2></p>
+            <TableComp keyValues={map} title=''/>
             <p style={{ fontWeight: "bold" }}>Type of Values</p>  
             <ul>
             {elem.TipoValores.map(e => {                
@@ -843,7 +845,7 @@ export class Analysis extends Component {
                             });
                         }}
                     >
-                        <div style={{ fontFamily: 'Open Sans'}}>{this.showColumnDetails()}</div>
+                        <div style={{ fontFamily: 'Open Sans' }}>{this.showColumnDetails(this.state.panelColumn.NomeColuna)}</div>
                     </SlidingPane>
                     </div>
                 </div>
