@@ -172,22 +172,22 @@ export class Home extends Component {
     renderNotAuth() {
         return (
             <div>
-                <div style={{ borderBottom: 2, borderTop: 2, borderLeft: 0, borderRight:0, borderStyle: 'solid' }}>
-                    <Carousel interval="11000">
+                <div>
+                    <Carousel interval="10000">
                         <Carousel.Item>
-                            <img src={gif1} width="100%" height={500}/>
+                            <img src={gif1} width="100%"/>
                             <Carousel.Caption style={{color:"black"}}>
 
                             </Carousel.Caption>
                         </Carousel.Item>
                         <Carousel.Item>
-                            <img src={gif2} width="100%" height={500}/>
+                            <img src={gif2} width="100%" />
                             <Carousel.Caption style={{ color: "black" }}>
 
                             </Carousel.Caption>
                         </Carousel.Item>
                         <Carousel.Item>
-                            <img src={gif3} width="100%" height={500}/>
+                            <img src={gif3} width="100%" />
                             <Carousel.Caption style={{ color: "black" }}>
 
                             </Carousel.Caption>
