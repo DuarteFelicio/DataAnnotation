@@ -48,7 +48,8 @@ export class UploadFile extends Component {
         this.toShow = this.toShow.bind(this)
         this.remoteOrLocal = this.remoteOrLocal.bind(this)
     }
- 
+
+    
     removeFileUploading(name) {
         var array = this.state.uploading
         var names = array.map(o => o.name)
@@ -237,8 +238,7 @@ export class UploadFile extends Component {
                         <div class="row" style={{ marginTop: "15px" }}>
                             {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6", "#B6EF8E")}
                             {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6", "#EB5C5C")}
-                        </div>
-                    
+                        </div>                    
                     </aside>
                 </section>
             </div>

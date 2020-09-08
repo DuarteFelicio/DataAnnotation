@@ -265,7 +265,7 @@ export class Analysis extends Component {
         })
         return children
     }
-    /**/
+    
 
     /* Métodos auxiliares para onDragEnd*/
     id2List = {
@@ -539,7 +539,7 @@ export class Analysis extends Component {
             else {
                 let fileId = this.props.match.params.id
                 const token = await authService.getAccessToken();
-                //fazer pedido
+                
 
                 fetch(`Workspace/DeleteAnalysisVersion?fileId=${fileId}&analysisFile=${selected}`, {
                     method: 'DELETE',
@@ -757,7 +757,7 @@ export class Analysis extends Component {
             </TreeView>
         )
     }
-    /**/
+ 
     
     render() {
         return (

@@ -104,6 +104,7 @@ export class Workspace extends Component {
         }
     }
 
+    //redirect to Analysis
     async Analyzis(id) {
         this.props.history.push(`/workspace/analysis/${id}`)        
     }
@@ -130,6 +131,7 @@ export class Workspace extends Component {
     
     disableDeleteModal() { this.setState({ onShowDeleteModal: false }) }
 
+    //delete a file from workspacce
     async Remove() {
         const token = await authService.getAccessToken();
         let id = this.state.idToRemove
@@ -142,8 +144,7 @@ export class Workspace extends Component {
         })                   
     }
 
-    showTime(value) {
-        
+    showTime(value) {        
         let str = ""
         let time = value.split(':')
         let milliseconds = time[2].split('.')[1]
