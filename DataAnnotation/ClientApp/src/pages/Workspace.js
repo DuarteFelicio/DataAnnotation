@@ -7,6 +7,7 @@ import 'bootstrap';
 import './Workspace.css'
 import ModalComp from '../components/ModalComp.js'
 import titleBackground from '../assets/titleBackgroundWorkspace.jpg'
+import Loader from 'react-loader-spinner'
 
 export class Workspace extends Component {
 
@@ -172,7 +173,7 @@ export class Workspace extends Component {
             return (
                 <div>
                     {!isAnalysing && <button type="button" class="btn btn-outline-primary" onClick={() => this.Analyze(item.csvFileId)}>Analyse</button>}
-                    {isAnalysing && <div><p>Analysing</p><div class="spinner-border text-primary"></div></div>}
+                    {isAnalysing && <div class="row" style={{ marginLeft: 10, marginRight: 10 }}><div style={{marginRight:10}}>Analysing..</div><Loader type="Grid" color="#00BFFF" height={35} width={35} /></div>}
                 </div>
             )        
     }

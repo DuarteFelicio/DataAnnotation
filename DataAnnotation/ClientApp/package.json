@@ -25,7 +25,8 @@
     "@material-ui/lab": "5.0.0-alpha.5",
     "@material-ui/core": "5.0.0-alpha.5",
     "react-spring": "9.0.0-rc.3",
-    "recharts": "2.0.0-beta.6"
+    "recharts": "2.0.0-beta.6",
+    "react-loader-spinner": "4.0.0-rc-1"
   },
   "devDependencies": {
     "ajv": "^6.9.1",
