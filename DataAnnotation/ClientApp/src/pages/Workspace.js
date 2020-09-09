@@ -258,7 +258,7 @@ export class Workspace extends Component {
                                         <div class="row" style={{ paddingLeft:"24px" }}>
                                             {item.analysisDuration !== null && this.renderAnalysisButton(item)}
                                             {item.analysisDuration === null && this.renderAnalysis(item)}
-                                            <button type="button" class="btn btn-outline-danger" style={{marginLeft:"8px"}} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>
+                                            {!item.isAnalysing && < button type="button" class="btn btn-outline-danger" style={{ marginLeft: "8px" }} onClick={() => this.enableDeleteModal(item.csvFileId)}>Remove</button>}
                                         </div>
                                     </div>
                                 })}
