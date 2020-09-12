@@ -134,39 +134,40 @@ export class Home extends Component {
                             </div>
                         </div>
                     </div>
-                    <div class="row" >
-                        <div class="col-6">
-                            <PieChartComp
-                                width={700}
-                                height={369}
-                                activeIndex={this.state.activeIndexAnalysed}
-                                data={analysedFilesData}
-                                cx={300}
-                                cy={200}
-                                innerRadius={90}
-                                outerRadius={120}
-                                fill='Tomato'
-                                dataKey="value"
-                                onMouseEnter={this.onPieEnterAnalysed}
-                            />
-                        </div>
-                        <div class="col-6">
-                            <PieChartComp
-                                width={700}
-                                height={369}
-                                activeIndex={this.state.activeIndexUploaded}
-                                data={uploadedURL}
-                                cx={300}
-                                cy={200}
-                                innerRadius={90}
-                                outerRadius={120}
-                                fill='Tomato'
-                                dataKey="value"
-                                onMouseEnter={this.onPieEnterUploaded}
-                            />
-                        </div>
-                    </div>
+                    
                 </Container>
+                <div class="row" style={{ maxWidth:1919 }}>
+                    <div class="col-6">
+                        <PieChartComp
+                            width={959}
+                            height={369}
+                            activeIndex={this.state.activeIndexAnalysed}
+                            data={analysedFilesData}
+                            cx={681}
+                            cy={200}
+                            innerRadius={90}
+                            outerRadius={120}
+                            fill='Tomato'
+                            dataKey="value"
+                            onMouseEnter={this.onPieEnterAnalysed}
+                        />
+                    </div>
+                    <div>
+                        <PieChartComp
+                            width={959}
+                            height={369}
+                            activeIndex={this.state.activeIndexUploaded}
+                            data={uploadedURL}
+                            cx={284}
+                            cy={200}
+                            innerRadius={90}
+                            outerRadius={120}
+                            fill='Tomato'
+                            dataKey="value"
+                            onMouseEnter={this.onPieEnterUploaded}
+                        />
+                    </div>
+                </div>
             </div>
         )
     }

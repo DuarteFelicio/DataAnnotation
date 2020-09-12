@@ -4,7 +4,7 @@ import uploadFileImage from '../assets/uploadfile.png'
 import workspaceImage from '../assets/workspace.png'
 import duarteImage from '../assets/Duarte.jpg'
 import cafeImage from '../assets/cafe.jpg'
-import ivoImage from '../assets/ivo.jpg'
+import ivoImage from '../assets/ivo.png'
 import { Accordion, Card, Button, Carousel, Jumbotron } from 'react-bootstrap'
 import CardComp from '../components/CardComp'
 
@@ -83,19 +83,19 @@ export default class About extends Component {
                     <div class="col-3" style={{ padding: "100px 100px 100px 100px" }}>
                         <figure>
                             <img src={duarteImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                            <figcaption>Duarte Felicio - Team Leader</figcaption>
+                            <figcaption style={{ textAlign: 'center' }}>Duarte Felicio</figcaption>
                         </figure>
                     </div>
                     <div class="col-3" style={{ padding: "100px 100px 100px 100px" }}>
                         <figure>
                             <img src={cafeImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                            <figcaption>Ruben Café - Lead frontend developer</figcaption>
+                            <figcaption style={{ textAlign:'center' }}>Ruben Café</figcaption>
                         </figure>
                     </div>
                     <div class="col-2" style={{ padding: "100px 100px 100px 100px" }}>
                         <figure>
                             <img src={ivoImage} style={{ height: "100%", width: "100%", objectFit: "contain", border: '5px solid #333333' }} />
-                            <figcaption>Ivo Pereira - Lead backend developer</figcaption>
+                            <figcaption style={{ textAlign: 'center' }}>Ivo Pereira</figcaption>
                         </figure>
                     </div>
                 </div>

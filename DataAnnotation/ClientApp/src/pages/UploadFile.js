@@ -238,7 +238,9 @@ export class UploadFile extends Component {
                             <input type="text" name="url" size="75" className="login-input" placeholder="URL to upload file" onChange={this.onChange.bind(this)} />
                             <button type="button" class="btn btn-outline-primary" onClick={this.handleUploadFromUrlClick}>Upload</button>
                         </div>
-                        {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "col-12", "#60AAEB")}
+                        <div class="row">
+                            {this.renderFiles(this.state.uploading, "Uploading files:", uploadingSymbol, this.remoteOrLocal, "col-12", "#60AAEB")}
+                        </div>
                         <div class="row" style={{ marginTop: "15px" }}>
                             {this.renderFiles(this.state.accepted, "Accepted Files:", acceptedSymbol, this.toShow, "col-6", "#B6EF8E")}
                             {this.renderFiles(this.state.rejected, "Rejected Files:", rejectedSymbol, this.toShow, "col-6", "#EB5C5C")}
